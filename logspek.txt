@@ -1,0 +1,317 @@
+Siap, Sulthan!
+Berikut adalah **paket lengkap** untuk project **Sistem Peta Zona Risiko Berbasis Grid (Versi 2)** yang akan dijadikan **dashboard web** dan memiliki **role Admin (SHE)** serta **role Karyawan**.
+
+Semua sudah rapi & siap dipakai ke **Gemini CLI** atau dijadikan dokumen requirement project 🧩🔥
+
+---
+
+# 🚀 **1. FLOW SISTEM (FLOWCHART LOGIC)**
+
+### **A. High-Level Flow (User + Admin)**
+
+```
+User Buka Dashboard
+        ↓
+Login → Cek Role
+        ↓
+ ┌──────────────────────────────┐
+ │          ROLE ADMIN          │
+ └──────────────────────────────┘
+        ↓
+ Dashboard Admin (SHE)
+        ↓
+┌───────────────┬───────────────────────┬───────────────────────┐
+│ Upload Denah   │ Manage Grid Denah     │ Kelola Penilaian Zona │
+│ (opsional)     │ (rows/cols + edit)    │ Form + Warna Otomatis │
+└───────────────┴───────────────────────┴───────────────────────┘
+        ↓
+Simpan ke Database
+        ↓
+Publish Denah Risiko
+        ↓
+Karyawan Melihat Denah
+
+ ┌──────────────────────────────┐
+ │        ROLE KARYAWAN         │
+ └──────────────────────────────┘
+        ↓
+ Dashboard Karyawan
+        ↓
+Pilih Denah → Lihat Zona Risiko → Klik Sel → Detail Area
+```
+
+---
+
+# 🚧 **B. Flowchart Teknis Grid Editor (Admin)**
+
+```
+Admin pilih menu "Kelola Denah"
+        ↓
+Apakah Upload Background Denah? → (opsional)
+        ↓
+Admin tentukan jumlah Baris & Kolom
+        ↓
+Sistem generate grid di canvas
+        ↓
+Admin klik sel grid
+        ↓
+Popup Form:
+- ID Area
+- Nama Area
+- Tipe Area (Gedung/Line/Ruang/Zona)
+- Nilai Risiko
+- Parameter Penilaian
+        ↓
+Submit
+        ↓
+Sistem simpan ke DB + Update warna zona
+        ↓
+Admin Publish Denah
+```
+
+---
+
+# 🧠 **C. Flow Penilaian Zona (Risk Scoring)**
+
+```
+Admin input nilai parameter
+         ↓
+Sistem hitung skor (formula)
+         ↓
+Skor dibandingkan threshold
+         ↓
+Warna otomatis:
+ 0–3   = Hijau
+ 4–7   = Kuning
+ 8–10 = Merah
+         ↓
+Grid sel update warna realtime
+```
+
+---
+
+---
+
+# 🧬 **2. ERD (Entity Relationship Diagram)**
+
+Berikut skema ERD versi tulisan (bisa digambar ke draw.io atau mermaid):
+
+```
+TABLE users
+------------
+id (PK)
+name
+email
+password
+role (admin/karyawan)
+created_at
+updated_at
+
+
+TABLE maps (denah pabrik / area / line)
+------------
+id (PK)
+name
+type (pabrik/area/line)
+parent_id (FK to maps.id)
+background_image (nullable)
+rows
+cols
+created_by (FK to users.id)
+created_at
+updated_at
+
+
+TABLE cells (setiap grid)
+------------
+id (PK)
+map_id (FK to maps.id)
+row_index
+col_index
+area_id
+area_name
+area_type
+risk_score
+zone_color
+metadata (json)
+created_at
+updated_at
+
+
+TABLE risk_parameters
+---------------------
+id (PK)
+cell_id (FK to cells.id)
+parameter_name
+value
+created_at
+updated_at
+```
+
+### **Relasi**
+
+* **1 maps → banyak cells**
+* **1 cell → banyak parameter risiko**
+* **1 maps → banyak maps (jika pabrik → area → line)** lewat parent_id
+* **1 user (admin) → banyak maps dibuat**
+
+---
+
+---
+
+# 🎯 **3. FITUR MVP LENGKAP (Dashboard Web)**
+
+## 🔐  A. Autentikasi & Role
+
+### **Admin (SHE)**
+
+* CRUD denah pabrik/area/line
+* Upload background
+* Generate grid
+* Edit sel grid
+* Set nilai risiko
+* Publish versi denah
+* Export/Import layout
+* Manage karyawan
+
+### **Karyawan**
+
+* Lihat denah zona berwarna
+* Klik area → lihat detail risiko
+* Cari area berdasarkan nama/ID
+* Lihat histori jika tersedia
+
+---
+
+## 🧩 B. Fitur Denah (Core Feature)
+
+### **1. Upload Background (opsional)**
+
+* JPG/PNG/SVG
+* Menjadi base layer
+
+### **2. Generate Grid**
+
+Admin menentukan:
+
+* Jumlah baris
+* Jumlah kolom
+* Ukuran sel otomatis
+
+### **3. Editor Grid**
+
+Klik sel:
+
+* Isi nama area
+* Isi ID
+* Isi tipe area
+* Lengkapi parameter risiko
+* Edit & delete
+
+### **4. Warna Zona (otomatis berdasarkan nilai)**
+
+* Hijau / Kuning / Merah
+* Realtime update
+
+### **5. Navigasi Hierarki Peta**
+
+```
+Pabrik → Area → Line
+```
+
+Clickable dengan breadcrumb.
+
+---
+
+## 📊 C. Fitur Penilaian Risiko
+
+* Form input parameter risiko
+* Auto kalkulasi skor
+* Auto warna zona
+* History nilai (opsional)
+
+---
+
+## 📈 D. Dashboard Visualisasi
+
+Untuk karyawan:
+
+* Denah interaktif
+* Legend zona warna
+* Klik untuk detail
+* Mini-map
+* Zoom & pan
+
+Untuk admin:
+
+* Total area
+* Breakdown by zone color
+* Grafik risiko per kategori
+
+---
+
+## 📦 E. Fitur Tambahan (Opsional)
+
+* Export PDF denah
+* Export Excel data risiko
+* Versi denah per semester
+* Duplicate layout
+* Multi-level access (Supervisor/Manager)
+
+---
+
+# 🎨 **4. Struktur Dashboard (Menu Navigasi)**
+
+## **Admin**
+
+* Dashboard
+* Kelola Denah
+
+  * Pabrik
+  * Area
+  * Line
+* Editor Denah (grid)
+* Parameter Risiko
+* Kelola User
+* Laporan & Export
+
+## **Karyawan**
+
+* Dashboard
+* Denah Risiko
+
+  * Pabrik
+  * Area
+  * Line
+* Detail Zona
+
+---
+
+# 🔥 **5. Rekomendasi Teknologi**
+
+### Frontend
+
+* **React.js + Konva.js**
+* Tailwind CSS
+* Zustand / Redux
+
+### Backend
+
+* **Laravel 11**
+* MySQL
+
+### Interaksi Grid
+
+* Konva.js (terbaik)
+* Panzoom.js (zoom/pan)
+
+### AI Development
+
+* Gemini CLI
+* ChatGPT (refactor + generate logic risiko)
+
+---
+
+# 🎁 Mau Saya Buatkan *Flowchart gambar* + *ERD gambar (diagram lengkap)* + *MVP PDF* juga?
+
+Tinggal bilang, nanti aku buatkan versi visual + versi PDF siap untuk dipakai presentasi ke perusahaan atau sebagai dokumentasi developer.

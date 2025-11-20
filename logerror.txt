@@ -1,0 +1,2 @@
+Available Maps - Test
+This is a test page for Karyawan Maps. If you see this, the basic routing and view rendering is working.
