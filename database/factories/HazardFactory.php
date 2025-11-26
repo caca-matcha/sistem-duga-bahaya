@@ -39,12 +39,38 @@ class HazardFactory extends Factory
             'NPK' => $this->faker->unique()->randomNumber(5),
             'dept' => $this->faker->randomElement(['Produksi', 'Gudang', 'SHE', 'HRD', 'Maintenance']),
             'tgl_observasi' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'area_gedung' => $this->faker->randomElement(['Gedung A', 'Gedung B', 'Gedung C']),
-            'line' => $this->faker->randomElement(['Line 1', 'Line 2', 'Line 3', 'Packing']),
+            'area_gedung' => $this->faker->randomElement(['Gedung A', 'Gedung B', 'Gedung C', 'Gedung D', 'Gedung E', 'Gedung F', 'Gedung G', 'Gedung I']),
+            'aktivitas_kerja' => $this->faker->randomElement([// Gedung A
+            'Packing', 
+            'Produksi', 
+            'Sorting',
+            // Gedung B
+            'Maintenance Mesin', 
+            'Inspeksi Kualitas',
+            // Gedung C
+            'Administrasi', 
+            'Meeting', 
+            'Training',
+            // Gedung D
+            'Warehouse', 
+            'Forklift', 
+            'Loading / Unloading',
+            // Gedung E
+            'Laboratorium', 
+            'Pengujian Sampel',
+            // Gedung F
+            'Welding', 
+            'Assembly', 
+            'Finishing',
+            // Gedung G
+            'Area Umum', 
+            'Kantin', 
+            'Mushola'
+        ]),
             'deskripsi_bahaya' => $this->faker->sentence(),
-            'foto_temuan' => null, // Placeholder for actual photo
-            'jenis_bahaya' => $this->faker->randomElement(['Fisik', 'Kimia', 'Biologi', 'Ergonomi', 'Psikologi']),
-            'faktor_penyebab' => $this->faker->sentence(),
+            'foto_bukti' => null, // Placeholder for actual photo
+            'jenis_bahaya' => $this->faker->randomElement(['Unsafe Action', 'Unsafe Condition']),
+            'faktor_penyebab' => $this->faker->sentence()(['A-Aparatus', 'B-Big Heavy', 'C-Car', 'D-Drop', 'E-Electrical', 'F-Fire', 'O-Others']),
             'tingkat_keparahan' => $tingkatKeparahan,
             'kemungkinan_terjadi' => $kemungkinanTerjadi,
             'skor_resiko' => $skorResiko,

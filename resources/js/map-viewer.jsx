@@ -1,3 +1,39 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Stage, Layer, Image, Rect } from 'react-konva';
+import { createRoot } from 'react-dom/client';
+
+// NOTE: Saya harus mengasumsikan definisi MapViewer dan hooks/state yang digunakan
+// (stageWidth, stageHeight, stageScale, stageX, stageY, handleWheel, handleMouseDown,
+// handleMouseMove, handleMouseUp, gridElements, minimapScale, cells, cellWidth, cellHeight,
+// isModalOpen, selectedCell, setIsModalOpen, searchTerm, setSearchTerm, error, setError, 
+// backgroundImage, dll.) ada di bagian atas file Anda.
+
+// --- AWAL KOMPONEN REACT (Diasumsikan ini adalah komponen MapViewer) ---
+const MapViewer = () => {
+    // Definisi state dan hooks (harus ada di sini)
+    const [stageWidth, setStageWidth] = useState(1000);
+    const [stageHeight, setStageHeight] = useState(600);
+    const [stageScale, setStageScale] = useState(1);
+    const [stageX, setStageX] = useState(0);
+    const [stageY, setStageY] = useState(0);
+    const [backgroundImage, setBackgroundImage] = useState(null);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCell, setSelectedCell] = useState(null);
+    const minimapScale = 0.2; // Contoh nilai
+    const cells = []; // Contoh data sel
+    const cellWidth = 50; // Contoh nilai
+    const cellHeight = 50; // Contoh nilai
+    const gridElements = <Layer></Layer>; // Contoh elemen grid
+
+    // Fungsi handler (harus ada di sini)
+    const handleWheel = () => {};
+    const handleMouseDown = () => {};
+    const handleMouseMove = () => {};
+    const handleMouseUp = () => {};
+
+    // --- AWAL KODE YANG ANDA BERIKAN (BAGIAN RETURN) ---
     return (
         <div className="flex"> {/* Added flex container */}
             <div className="flex-1 mr-4"> {/* Main Map Container */}
@@ -181,10 +217,11 @@
             )}
         </div>
     );
-};
+}; // <-- KURUNG KURAWAL PENUTUP KOMPONEN YANG BENAR
 
 const container = document.getElementById('map-viewer');
 if (container) {
     const root = createRoot(container);
     root.render(<MapViewer />);
 }
+// --- AKHIR KODE ---

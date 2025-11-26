@@ -1,4 +1,4 @@
-Siap, Sulthan!
+Siap!
 Berikut adalah **paket lengkap** untuk project **Sistem Peta Zona Risiko Berbasis Grid (Versi 2)** yang akan dijadikan **dashboard web** dan memiliki **role Admin (SHE)** serta **role Karyawan**.
 
 Semua sudah rapi & siap dipakai ke **Gemini CLI** atau dijadikan dokumen requirement project 🧩🔥

@@ -29,14 +29,15 @@ class DashboardController extends Controller
                                 ->get();
 
         // Logic for "Grafik tingkat risiko (high, medium, low)"
+        // MASIH BELOM DI COCOKKAN DENGAN KARYAWAN
         $riskCounts = [
-            'low' => Hazard::where('skor_resiko', '<', 4)->count(),
-            'medium' => Hazard::whereBetween('skor_resiko', [4, 7])->count(),
-            'high' => Hazard::where('skor_resiko', '>=', 8)->count(),
+            'low' => Hazard::where('risk_score', '<', 4)->count(),
+            'medium' => Hazard::whereBetween('risk_score', [4, 7])->count(),
+            'high' => Hazard::where('risk_score', '>=', 8)->count(),
         ];
 
         // Logic for "Top lokasi dengan risiko tertinggi"
-        $topRiskLocations = Hazard::select('area_gedung', DB::raw('SUM(skor_resiko) as total_risk_score'))
+        $topRiskLocations = Hazard::select('area_gedung', DB::raw('SUM(risk_score) as total_risk_score'))
                                   ->groupBy('area_gedung')
                                   ->orderByDesc('total_risk_score')
                                   ->take(5) // Get the top 5 locations

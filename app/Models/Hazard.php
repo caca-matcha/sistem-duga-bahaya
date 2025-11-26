@@ -9,52 +9,50 @@ class Hazard extends Model
 {
     use HasFactory;
 
+    /**
+     * Field yang diizinkan untuk Mass Assignment.
+     * Sudah termasuk field dari Karyawan dan SHE.
+     */
     protected $fillable = [
+        // Fields dari Karyawan
         'user_id',
         'nama',
         'NPK',
         'dept',
         'tgl_observasi',
         'area_gedung',
-        'line',
+        'aktivitas_kerja',
         'deskripsi_bahaya',
-        'foto_temuan',
-        'jenis_bahaya',
-        'faktor_penyebab',
+        'foto_bukti',
         'tingkat_keparahan',
         'kemungkinan_terjadi',
         'skor_resiko',
+        'kategori_resiko',
         'ide_penanggulangan',
-        'status',
-        'alasan_penolakan',
-        'report_selesai',
+        'status', // Status awal
+        'status', 
+        'alasan_penolakan', // Untuk penolakan
         'ditangani_oleh',
         'ditangani_pada',
-        'map_id', // Added for map linkage
-        'cell_id', // Added for cell linkage
+        'report_selesai',
+        // --- FIELDS BARU SHE ---
+        'jenis_bahaya',
+        'faktor_penyebab',
+        'upaya_penanggulangan',
+        'catatan_penanggulangan',
+        'resiko_residual',
+        'pic_penanggung_jawab',
+        'target_penyelesaian',
+        'foto_bukti_penyelesaian',
+        ];
+
+    /**
+     * Casts untuk field yang bertipe array/JSON.
+     */
+    protected $casts = [
+        'upaya_penanggulangan' => 'json',
+        'catatan_penanggulangan' => 'json',
+        'tgl_observasi' => 'date',
+        'target_penyelesaian' => 'date',
     ];
-
-    // Relationship to Map
-    public function map()
-    {
-        return $this->belongsTo(Map::class);
-    }
-
-    // Relationship to Cell
-    public function cell()
-    {
-        return $this->belongsTo(Cell::class);
-    }
-
-    //pelapor (karyawan)
-    public function pelapor()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    //SHE yang menangani
-    public function penanganan()
-    {
-        return $this->belongsTo(User::class, 'ditangani_oleh');
-    }
 }

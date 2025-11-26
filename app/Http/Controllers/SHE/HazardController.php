@@ -4,7 +4,10 @@ namespace App\Http\Controllers\SHE;
 
 use App\Http\Controllers\Controller;
 use App\Models\Hazard;
+use App\Http\Requests\SheUpdateHazardRequest; // Import Form Request SHE
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class HazardController extends Controller
 {
@@ -13,33 +16,8 @@ class HazardController extends Controller
     {
         $query = Hazard::query();
 
-        // Filtering by status
-        if ($request->has('status') && $request->status !== 'semua') {
-            if ($request->status === 'menunggu') {
-                $query->whereNotIn('status', ['disetujui', 'ditolak', 'selesai']);
-            } elseif ($request->status === 'divalidasi') {
-                $query->whereIn('status', ['disetujui', 'diproses']);
-            } else {
-                $query->where('status', $request->status);
-            }
-        }
-
-        // Filtering by area
-        if ($request->has('area') && !empty($request->area)) {
-            $query->where('area_gedung', 'like', '%' . $request->area . '%');
-        }
-
-        // Searching
-        if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = $request->search;
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('id', $searchTerm)
-                  ->orWhere('nama', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('area_gedung', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        $hazards = $query->latest()->with('pelapor')->paginate(10); // Paginate results
+        // Asumsi: Anda juga perlu menampilkan informasi penanggung jawab/pelapor
+        $hazards = $query->latest()->with('pelapor', 'ditanganiOleh')->paginate(10); 
 
         return view('she.hazards.index', compact('hazards'));
     }
@@ -50,61 +28,96 @@ class HazardController extends Controller
         return view('she.hazards.show', compact('hazard'));
     }
 
-    // UPDATE STATUS UMUM (diproses / disetujui / ditolak / selesai)
-    public function updateStatus(Request $request, Hazard $hazard)
+    /**
+     * Memproses pembaruan (review, tindak lanjut, penolakan, atau penyelesaian)
+     * laporan bahaya oleh SHE.
+     */
+    public function update(SheUpdateHazardRequest $request, Hazard $hazard)
     {
-        $request->validate([
-            'status' => 'required|in:diproses,disetujui,ditolak,selesai',
-        ]);
+        // Data sudah divalidasi, termasuk array upaya penanggulangan dan catatan
+        $validatedData = $request->validated();
 
-        $hazard->status = $request->status;
-        $hazard->ditangani_oleh = auth()->id();
-        $hazard->ditangani_pada = now();
-        $hazard->save();
+        $nilai = $request->tingkat_keparahan * $request->kemungkinan_terjadi;
 
-        return redirect()->route('she.dashboard')
-            ->with('success', 'Status berhasil diperbarui');
+        // Data Sistem
+        $validatedData['ditangani_oleh'] = Auth::id();
+        $validatedData['ditangani_pada'] = now();
+        
+        // Jika status = 'selesai', catat waktu penyelesaian
+        if ($validatedData['status'] === 'selesai') {
+             $validatedData['report_selesai'] = now();
+        }
+
+        // 1. --- HANDLE FILE UPLOAD (FOTO BUKTI PENYELESAIAN) ---
+        if ($request->hasFile('foto_bukti_penyelesaian')) {
+            
+            // Hapus foto lama jika ada
+            if ($hazard->foto_bukti_penyelesaian) {
+                Storage::disk('public')->delete($hazard->foto_bukti_penyelesaian);
+            }
+
+            // Simpan file baru ke storage
+            $path = $request->file('foto_bukti_penyelesaian')
+                            ->store('completion_photos', 'public');
+            
+            $validatedData['foto_bukti_penyelesaian'] = $path;
+        }
+
+        // Jika status ditolak, kita hanya perlu menyimpan status dan alasan penolakan
+        if ($validatedData['status'] === 'ditolak') {
+            // Kita hanya perlu mengambil alasan_penolakan dan status saja
+            $dataToUpdate = [
+                'status' => 'ditolak',
+                'alasan_penolakan' => $validatedData['alasan_penolakan'] ?? null,
+                'ditangani_oleh' => Auth::id(),
+                'ditangani_pada' => now(),
+            ];
+            // Semua field lain akan diabaikan
+            $hazard->update($dataToUpdate);
+            
+            return redirect()->route('she.dashboard')
+                ->with('success', 'Laporan berhasil ditolak.');
+        } 
+        
+        // 2. --- UPDATE RECORD DI DATABASE UNTUK STATUS LAIN (diproses, disetujui, selesai) ---
+        // Karena data array (upaya_penanggulangan, catatan_penanggulangan) 
+        // sudah ada di $validatedData, Hazard Model dengan JSON casts akan menanganinya.
+        
+        $hazard->update($validatedData);
+
+        // 3. --- REDIRECT ATAU RESPON ---
+        return redirect()->route('she.hazards.show', $hazard)
+            ->with('success', 'Laporan Duga Bahaya berhasil ditinjau dan diperbarui.');
     }
 
-    // FORM TOLAK
+
+    // --- METHODS YANG SEKARANG REDUNDAN, BISA DIHAPUS DARI ROUTE ---
+    
+    // FORM TOLAK (Tetap dipertahankan karena ini adalah view)
     public function tolakForm(Hazard $hazard)
     {
         return view('she.hazards.tolak', compact('hazard'));
     }
 
-    // PROSES TOLAK
+    // PROSES TOLAK (Telah digabung ke method update)
+    /*
     public function tolak(Request $request, Hazard $hazard)
     {
-        $request->validate([
-            'alasan_penolakan' => 'required|string',
-        ]);
-
-        $hazard->status = 'ditolak';
-        $hazard->alasan_penolakan = $request->alasan_penolakan;
-        $hazard->ditangani_oleh = auth()->id();
-        $hazard->ditangani_pada = now();
-        $hazard->save();
-
-        return redirect()->route('she.dashboard')
-            ->with('success', 'Laporan berhasil ditolak.');
+        // LOGIC PINDAH KE METHOD UPDATE
     }
-
-    // FORM SELESAI
+    */
+    
+    // FORM SELESAI (Tetap dipertahankan karena ini adalah view)
     public function selesaiForm(Hazard $hazard)
     {
         return view('she.hazards.selesai', compact('hazard'));
     }
 
-    // PROSES SELESAI
+    // PROSES SELESAI (Telah digabung ke method update)
+    /*
     public function selesai(Request $request, Hazard $hazard)
     {
-        $hazard->status = 'selesai';
-        $hazard->report_selesai = now();
-        $hazard->ditangani_oleh = auth()->id();
-        $hazard->ditangani_pada = now();
-        $hazard->save();
-
-        return redirect()->route('she.dashboard')
-            ->with('success', 'Laporan selesai ditindaklanjuti.');
+        // LOGIC PINDAH KE METHOD UPDATE
     }
+    */
 }

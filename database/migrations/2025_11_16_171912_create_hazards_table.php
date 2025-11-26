@@ -25,11 +25,11 @@ return new class extends Migration
             //detail observasi
             $table->date('tgl_observasi');
             $table->string('area_gedung');
-            $table->string('line');
+            $table->string('aktivitas_kerja');
 
             //detail bahaya
             $table->text('deskripsi_bahaya');
-            $table->string('foto_temuan')->nullable();
+            $table->string('foto_bukti')->nullable();
 
             $table->string('jenis_bahaya');
             $table->string('faktor_penyebab');
