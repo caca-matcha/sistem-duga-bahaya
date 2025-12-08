@@ -41,7 +41,6 @@ class Hazard extends Model
         'faktor_penyebab',
         'upaya_penanggulangan',
         //'catatan_penanggulangan',
-        'resiko_residual',
         //'pic_penanggung_jawab', (disamakan dengan ditangani_oleh)
         'final_tingkat_keparahan',
         'final_kemungkinan_terjadi',

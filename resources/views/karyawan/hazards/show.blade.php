@@ -6,6 +6,10 @@
     </x-slot>
 
 
+ 
+    <div class="py-6">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg mt-6">
                 <div class="p-6 text-gray-900">
 
@@ -18,6 +22,20 @@
                             <h3 class="text-xl font-bold mb-4 border-b pb-2">Informasi Laporan</h3>
 
                             <dl class="space-y-3">
+                                @php
+                                    $tingkatKeparahanMap = [
+                                        5 => 'A - Kecelakaan fatal',
+                                        3 => 'B - Hilang hari kerja',
+                                        1 => 'C - Luka ringan',
+                                    ];
+                                    $kemungkinanTerjadiMap = [
+                                        1 => '1 - Sangat Jarang',
+                                        2 => '2 - Jarang',
+                                        3 => '3 - Kadang-Kadang',
+                                        4 => '4 - Sering',
+                                        5 => '5 - Sangat Sering',
+                                    ];
+                                @endphp
 
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-500">ID Laporan</span>
@@ -49,25 +67,43 @@
                                     <span class="text-sm font-medium text-gray-900">{{ $hazard->aktivitas_kerja }}</span>
                                 </div>
 
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Kategori STOP6</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->kategori_stop6 }}</span>
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Tingkat Keparahan</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $tingkatKeparahanMap[$hazard->tingkat_keparahan] ?? 'N/A' }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Kemungkinan Terjadi</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $kemungkinanTerjadiMap[$hazard->kemungkinan_terjadi] ?? 'N/A' }}</span>
+                                </div>
+
+                                                                     @php
+                                        $tingkatKeparahanMap = [
+                                            5 => 'A - Kecelakaan fatal',
+                                            3 => 'B - Hilang hari kerja',
+                                            1 => 'C - Luka ringan',
+                                        ];
+                                        $kemungkinanTerjadiMap = [
+                                            1 => '1 - Sangat Jarang',
+                                            2 => '2 - Jarang',
+                                            3 => '3 - Kadang-Kadang',
+                                            4 => '4 - Sering',
+                                            5 => '5 - Sangat Sering',
+                                        ];
+                                    @endphp
+
+                                
                                 {{-- Deskripsi --}}
+                                <div class="pt-4"></div>
                                 <div>
                                     <div class="text-sm text-gray-500">Deskripsi Bahaya</div>
                                     <div class="p-3 bg-gray-50 border rounded-md text-sm mt-1">
                                         {{ $hazard->deskripsi_bahaya }}
                                     </div>
-                                </div>
-
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-500">Kategori STOP6</span>
-                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->kategori_stop6 }}</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-500">Severity</span>
-                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->tingkat_keparahan }}</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-500">Likelihood</span>
-                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->kemungkinan_terjadi }}</span>
                                 </div>
 
                                 {{-- Ide penanggulangan --}}
@@ -100,7 +136,7 @@
 
                                     @php
                                         $badge = [
-                                            'baru' => 'bg-yellow-100 text-yellow-800',
+                                            'menunggu validasi' => 'bg-yellow-100 text-yellow-800',
                                             'diproses' => 'bg-blue-100 text-blue-800',
                                             'disetujui' => 'bg-green-100 text-green-800',
                                             'selesai' => 'bg-purple-100 text-purple-800',

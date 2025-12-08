@@ -12,45 +12,62 @@ class DashboardController extends Controller
     /**
      * Menampilkan dashboard Karyawan, yang berisi ringkasan dan daftar laporan bahaya yang dibuat oleh user ini.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Mendapatkan ID pengguna yang sedang login
         $userId = Auth::id();
 
-        // 1. Data untuk Tabel Daftar Laporan
-        // Ambil semua laporan milik user yang sedang login.
-        $hazardsQuery = Hazard::where('user_id', $userId)
-        ->latest()
-        ->get();
+        // Base query for all hazards of the logged-in user
+        $baseHazardsQuery = Hazard::where('user_id', $userId)
+                                ->latest(); // Apply latest() once for consistent ordering
 
-        // Mengolah data hazards untuk menambahkan kolom yang dibutuhkan (Skor Risiko).
-        // Hasilnya adalah Illuminate\Support\Collection.
-        $hazards = $hazardsQuery->map(function ($hazard) {
-            // Hitung Skor Risiko: Rank Keparahan * Kemungkinan Terjadi
-            // Asumsi kolom ini adalah integer atau float
+        // Clone the base query to calculate statistics from ALL hazards (unfiltered)
+        $allHazardsForStats = clone $baseHazardsQuery;
+        $allHazardsCollection = $allHazardsForStats->get();
+
+        // Calculate statistics for cards from all hazards
+        $totalLaporan = $allHazardsCollection->count();
+        // Assuming your database status values are 'menunggu validasi', 'diproses', 'selesai', 'ditolak', 'disetujui'
+        $menungguValidasi = $allHazardsCollection->where('status', 'menunggu validasi')->count();
+        $diproses = $allHazardsCollection->where('status', 'diproses')->count();
+        $disetujui = $allHazardsCollection->where('status', 'disetujui')->count();
+        $selesai = $allHazardsCollection->where('status', 'selesai')->count();
+        $ditolak = $allHazardsCollection->where('status', 'ditolak')->count();
+
+        // Sum for 'Disetujui / Selesai' card
+        $sudahDivalidasi = $disetujui + $selesai;
+
+
+        // Apply search and filter conditions to the query for the table display
+        $hazardsForTable = $baseHazardsQuery; // Start with the base query again
+
+        // Search by description or area
+        if ($search = $request->query('search')) {
+            $hazardsForTable->where(function ($query) use ($search) {
+                $query->where('deskripsi_bahaya', 'like', "%{$search}%")
+                      ->orWhere('area_gedung', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if ($status = $request->query('status')) {
+            $hazardsForTable->where('status', $status);
+        }
+
+        $hazards = $hazardsForTable->get()->map(function ($hazard) {
+            // Hitung Skor Risiko
             $hazard->risk_score = $hazard->tingkat_keparahan * $hazard->kemungkinan_terjadi;
             return $hazard;
         });
 
-        // 2. Data untuk Kartu (Cards) Statistik
-        // PENTING: Karena $hazards sudah berupa Collection, kita bisa menggunakan filter/where 
-        // pada Collection untuk menghitung statistik di memori.
-        
-        $totalLaporan = $hazards->count();
-        
-        // Menggunakan where() pada Collection untuk menghitung laporan berdasarkan status
-        // Pastikan nama status (Pending, Divalidasi, Ditolak) sesuai dengan data di database.
-        $menungguValidasi = $hazards->where('status', 'Pending')->count();
-        $sudahDivalidasi = $hazards->where('status', 'Divalidasi')->count();
-        $ditolak = $hazards->where('status', 'Ditolak')->count(); 
-
-        // Mengarahkan ke view karyawan.dashboard dengan data yang diperlukan
         return view('karyawan.dashboard', compact(
-            'hazards', 
-            'totalLaporan', 
-            'menungguValidasi', 
-            'sudahDivalidasi', 
-            'ditolak'
+            'hazards',
+            'totalLaporan',
+            'menungguValidasi',
+            'sudahDivalidasi',
+            'ditolak',
+            'diproses',
+            'selesai',
+            'disetujui'
         ));
     }
 }

@@ -54,7 +54,6 @@ class SheUpdateHazardRequest extends FormRequest
             'upaya_penanggulangan.*' => 'nullable|string|max:100', 
             
             // --- FIELD UMUM (TIDAK BERGANTUNG STATUS) ---
-            'resiko_residual' => 'nullable|integer|min:1|max:25', 
             'kategori_stop6' => 'nullable|string|max:50',
 
             // --- FIELD SELESAI (Status = selesai) ---
@@ -82,7 +81,6 @@ class SheUpdateHazardRequest extends FormRequest
             'upaya_penanggulangan' => 'Upaya Penanggulangan',
             'upaya_penanggulangan.*' => 'Detail Upaya Penanggulangan',
             'tindakan_perbaikan' => 'Tindakan Perbaikan',
-            'resiko_residual' => 'Resiko Residual',
             'target_penyelesaian' => 'Target Penyelesaian',
             'alasan_penolakan' => 'Alasan Penolakan',
             'final_tingkat_keparahan' => 'Final Tingkat Keparahan',

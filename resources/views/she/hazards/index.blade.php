@@ -13,7 +13,7 @@
                 <!-- NAVIGATION TABS -->
                 <ul class="flex border-b mb-6" role="tablist">
                     <li class="mr-6">
-                        <a href="#tab-baru" class="tab-link font-semibold text-blue-600" data-tab="baru">
+                        <a href="#tab-baru" class="tab-link font-semibold text-blue-600" data-tab="menunggu validasi">
                             Laporan Baru
                         </a>
                     </li>
@@ -31,10 +31,10 @@
 
                 <!-- TAB: LAPORAN BARU -->
                 <div id="tab-baru" class="tab-content block">
-                    <h3 class="text-lg font-bold mb-3">Laporan Baru Masuk</h3>
+                    <h3 class="text-lg font-bold mb-3">Laporan Menunggu Validasi</h3>
 
-                    @if($hazardsBaru->isEmpty())
-                        <p class="text-gray-500 italic">Tidak ada laporan baru.</p>
+                    @if($hazardsMenungguValidasi->isEmpty())
+                        <p class="text-gray-500 italic">Tidak ada laporan menunggu validasi.</p>
                     @else
                         <table class="w-full table-auto border text-sm">
                             <thead class="bg-gray-100">
@@ -49,7 +49,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($hazardsBaru as $hazard)
+                                @foreach ($hazardsMenungguValidasi as $hazard)
                                     <tr>
                                         <td class="p-2 border">#{{ $hazard->id }}</td>
                                         <td class="p-2 border">{{ $hazard->nama }}</td>

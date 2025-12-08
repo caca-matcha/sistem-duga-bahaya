@@ -68,17 +68,25 @@
                     </div>
 
 
-                    {{-- Search and Filter Placeholder --}}
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
-                        <input type="text" placeholder="Cari deskripsi, area..." class="w-full md:w-1/3 border-gray-300 rounded-lg shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                        <select class="w-full md:w-auto border-gray-300 rounded-lg shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                            <option value="">Semua Status</option>
-                            <option>Baru</option>
-                            <option>Diproses</option>
-                            <option>Ditolak</option>
-                            <option>Selesai</option>
-                        </select>
-                    </div>
+                    {{-- Search and Filter --}}
+                    <form method="GET" action="{{ route('karyawan.dashboard') }}" class="mb-4">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                            <input type="text" name="search" placeholder="Cari deskripsi, area..." 
+                                   value="{{ request('search') }}"
+                                   class="w-full md:w-1/3 border-gray-300 rounded-lg shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                            <select name="status" class="w-full md:w-auto border-gray-300 rounded-lg shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                <option value="">Semua Status</option>
+                                <option value="menunggu validasi" {{ request('status') == 'menunggu validasi' ? 'selected' : '' }}>Menunggu Validasi</option>
+                                <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
+                                <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                            </select>
+                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700">
+                                Filter
+                            </button>
+                        </div>
+                    </form>
 
                     {{-- Table --}}
                     <div class="overflow-x-auto">
@@ -107,9 +115,9 @@
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             @php
-                                                // PERBAIKAN: Menambahkan status 'Baru', 'Diproses', dan 'Selesai'
+                                                // PERBAIKAN: Menambahkan status 'Menunggu Validasi', 'Diproses', dan 'Selesai'
                                                 $badgeClasses = [
-                                                    'Baru' => 'bg-yellow-100 text-yellow-800',
+                                                    'Menunggu Validasi' => 'bg-yellow-100 text-yellow-800',
                                                     'Diproses' => 'bg-blue-100 text-blue-800',
                                                     'Disetujui' => 'bg-blue-100 text-blue-800',
                                                     'Ditolak' => 'bg-red-100 text-red-800',

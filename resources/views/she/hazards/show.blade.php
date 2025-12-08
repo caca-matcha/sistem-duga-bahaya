@@ -43,8 +43,8 @@
                                                                 <span class="text-sm text-gray-500">Tanggal Observasi</span>
                                                                 <span class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}</span>
                                                             </div>                                
-                                <div class="pt-2">
-                                    @php
+                                <div class="pt-2">                  
+                                     @php
                                         $tingkatKeparahanMap = [
                                             5 => 'A - Kecelakaan fatal',
                                             3 => 'B - Hilang hari kerja',
@@ -77,9 +77,9 @@
                                     <div class="flex justify-between items-center">
                                     <span class="text-sm text-gray-500">Kemungkinan Terjadi Awal</span>
                                     <span class="text-sm font-medium text-gray-900">{{ $kemungkinanTerjadiMap[$hazard->kemungkinan_terjadi] ?? 'N/A' }}</span>
+                                </div>                                </div>
                                 </div>
-                                </div>
-                                
+
                                 {{-- Initial Risk Score --}}
                                 <div class="flex justify-between items-center text-sm font-bold pt-4 border-t">
                                     <span class="text-gray-500">Skor Risiko Awal (Pelapor)</span>
@@ -109,6 +109,11 @@
 
 
                         {{-- ===================================
+
+
+
+
+
                             COLUMN 2: VALIDASI & TINDAK LANJUT SHE
                         ==================================== --}}
                         <div class="md:col-span-1 border-l pl-8">
@@ -136,9 +141,21 @@
 
                                 @php
                                     $finalRiskScore = $hazard->final_tingkat_keparahan * $hazard->final_kemungkinan_terjadi;
+
+                                    // Array warna untuk skor 1–25
+                                    $riskColors = [
+                                        "#d1fae5","#a7f3d0","#6ee7b7","#34d399","#10b981", // 1–5
+                                        "#fef08a","#fde047","#facc15","#fbbf24","#f59e0b", // 6–10
+                                        "#fdba74","#fb923c","#f97316","#f87171","#ef4444", // 11–15
+                                        "#ef4444","#f87171","#f97316","#fb7185","#f43f5e", // 16–20
+                                        "#ffe4e1","#ffb3b3","#ff8080","#ff4d4d","#ff1a1a"  // 21–25
+                                    ];
+
+                                    // Ambil warna sesuai skor (indeks = skor-1)
+                                    $finalRiskColor = $riskColors[max(0, min($finalRiskScore-1, 24))];
                                 @endphp
 
-                                <span class="px-3 py-1 rounded-full font-semibold text-xs"
+                                 <span class="px-3 py-1 rounded-full font-semibold text-xs"
                                     style="background-color: {{ getRiskColor($finalRiskScore) }}; color: {{ getTextColor($finalRiskScore) }};">
                                     {{ $finalRiskScore }}
                                 </span>
