@@ -1,4 +1,3 @@
-<!-- resources/views/she/hazards/index.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -18,12 +17,12 @@
                         </a>
                     </li>
                     <li class="mr-6">
-                        <a href="#tab-diproses" class="tab-link text-blue-600" data-tab="diproses">
+                        <a href="#tab-diproses" class="tab-link text-gray-600" data-tab="diproses">
                             Sedang Diproses
                         </a>
                     </li>
                     <li>
-                        <a href="#tab-selesai" class="tab-link text-blue-600" data-tab="selesai">
+                        <a href="#tab-selesai" class="tab-link text-gray-600" data-tab="selesai">
                             Selesai / Ditolak
                         </a>
                     </li>
@@ -43,7 +42,7 @@
                                     <th class="p-2 border">Pelapor</th>
                                     <th class="p-2 border">Deskripsi</th>
                                     <th class="p-2 border">Tanggal</th>
-                                    <th claas="p-2 border">Skor Resiko</th>
+                                    <th class="p-2 border">Skor Resiko</th>
                                     <th class="p-2 border">Kategori Resiko</th>
                                     <th class="p-2 border">Aksi</th>
                                 </tr>
@@ -55,12 +54,28 @@
                                         <td class="p-2 border">{{ $hazard->nama }}</td>
                                         <td class="p-2 border">{{ Str::limit($hazard->deskripsi_bahaya, 40) }}</td>
                                         <td class="p-2 border">{{ $hazard->tgl_observasi->format('d/m/Y') }}</td>
-                                        <td class="p-2 border">{{ $hazard->risk_score }}</td>
-                                        <td class="p-2 border">{{ $hazard->kategori_resiko}}</td>
+                                        {{-- KOLOM SKOR RESIKO BARU DENGAN WARNA --}}
+                                        <td class="p-2 border text-center">
+                                          <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                            color: {{ getTextColor($hazard->risk_score) }};">
+                                                {{ $hazard->risk_score }}
+                                            </span>
+
+                                        </td>
+                                        {{-- KOLOM KATEGORI RESIKO BARU DENGAN WARNA --}}
+                                        <td class="p-2 border text-center">
+                                           <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                                                style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                                        color: {{ getTextColor($hazard->risk_score) }};">
+                                                {{ $hazard->kategori_resiko }}
+                                            </span>
+
+                                        </td>
                                         <td class="p-2 border text-center">
                                             <a href="{{ route('she.hazards.show', $hazard) }}" 
-                                               class="text-blue-600 hover:underline">
-                                               Review
+                                                class="text-blue-600 hover:underline">
+                                                Review
                                             </a>
                                         </td>
                                     </tr>
@@ -81,7 +96,7 @@
                                 <th class="p-2 border">Pelapor</th>
                                 <th class="p-2 border">Status</th>
                                 <th class="p-2 border">PIC</th>
-                                <th claas="p-2 border">Skor Resiko</th>
+                                <th class="p-2 border">Skor Resiko</th>
                                 <th class="p-2 border">Kategori Resiko</th>
                                 <th class="p-2 border">Aksi</th>
                             </tr>
@@ -95,12 +110,26 @@
                                         <span class="px-2 py-1 bg-yellow-200 text-xs font-semibold rounded">Diproses</span>
                                     </td>
                                     <td class="p-2 border">{{ $hazard->ditanganiOleh->name ?? '-' }}</td>
-                                    <td class="p-2 border">{{ $hazard->risk_score }}</td>
-                                    <td class="p-2 border">{{ $hazard->kategori_resiko}}</td>
+                                    {{-- KOLOM SKOR RESIKO DIPROSES DENGAN WARNA --}}
+                                    <td class="p-2 border text-center">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                                    color: {{ getTextColor($hazard->risk_score) }};">
+                                            {{ $hazard->risk_score }}
+                                        </span>
+                                    </td>
+                                    {{-- KOLOM KATEGORI RESIKO DIPROSES DENGAN WARNA --}}
+                                    <td class="p-2 border text-center">
+                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                                    color: {{ getTextColor($hazard->risk_score) }};">
+                                            {{ $hazard->kategori_resiko }}
+                                        </span>
+                                    </td>
                                     <td class="p-2 border text-center">
                                         <a href="{{ route('she.hazards.show', $hazard) }}" 
                                            class="text-blue-600 hover:underline">
-                                           Lihat
+                                            Lihat
                                         </a>
                                     </td>
                                 </tr>
@@ -123,6 +152,8 @@
                                 <th class="p-2 border">ID</th>
                                 <th class="p-2 border">Pelapor</th>
                                 <th class="p-2 border">Status</th>
+                                <th class="p-2 border">Skor Resiko</th>
+                                <th class="p-2 border">Kategori Resiko</th>
                                 <th class="p-2 border">Diselesaikan Pada</th>
                                 <th class="p-2 border">Aksi</th>
                             </tr>
@@ -139,13 +170,29 @@
                                             <span class="px-2 py-1 bg-red-200 text-xs font-semibold rounded">Ditolak</span>
                                         @endif
                                     </td>
+                                    {{-- KOLOM SKOR RESIKO SELESAI / DITOLAK DENGAN WARNA --}}
+                                    <td class="p-2 border text-center">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                                    color: {{ getTextColor($hazard->risk_score) }};">
+                                            {{ $hazard->risk_score }}
+                                        </span>
+                                    </td>
+                                    {{-- KOLOM KATEGORI RESIKO SELESAI / DITOLAK DENGAN WARNA --}}
+                                    <td class="p-2 border text-center">
+                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                                    color: {{ getTextColor($hazard->risk_score) }};">
+                                            {{ $hazard->kategori_resiko }}
+                                        </span>
+                                    </td>
                                     <td class="p-2 border">
-                                        {{ $hazard->ditangani_pada }}
+                                        {{ $hazard->report_selesai ? \Carbon\Carbon::parse($hazard->report_selesai)->format('d/m/Y H:i') : '-' }}
                                     </td>
                                     <td class="p-2 border text-center">
                                         <a href="{{ route('she.hazards.show', $hazard) }}" 
                                            class="text-blue-600 hover:underline">
-                                           Detail
+                                            Detail
                                         </a>
                                     </td>
                                 </tr>
@@ -167,17 +214,40 @@
     const links = document.querySelectorAll('.tab-link');
     const contents = document.querySelectorAll('.tab-content');
 
-    links.forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
+    // Logic untuk mengaktifkan tab saat pertama kali dimuat
+    const setActiveTab = (tabId) => {
+        links.forEach(l => l.classList.remove('text-blue-600', 'font-semibold', 'text-gray-600'));
+        contents.forEach(c => c.classList.add('hidden'));
 
-            const tab = this.dataset.tab;
+        const targetLink = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
+        const targetContent = document.getElementById('tab-' + tabId);
 
-            links.forEach(l => l.classList.remove('text-blue-600', 'font-semibold'));
-            this.classList.add('text-blue-600', 'font-semibold');
+        if (targetLink && targetContent) {
+            targetLink.classList.add('text-blue-600', 'font-semibold');
+            targetLink.classList.remove('text-gray-600');
+            targetContent.classList.remove('hidden');
+        } else {
+            // Default ke tab-baru jika tidak ditemukan
+            document.querySelector('.tab-link[data-tab="baru"]').classList.add('text-blue-600', 'font-semibold');
+            document.getElementById('tab-baru').classList.remove('hidden');
+        }
+    };
+    
+    // Inisialisasi tab saat DOM dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+        // Cek hash URL untuk tab aktif
+        const hash = window.location.hash.replace('#tab-', '');
+        setActiveTab(hash || 'baru'); // Default ke 'baru'
 
-            contents.forEach(c => c.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
+        // Event listener untuk klik tab
+        links.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const tab = this.dataset.tab;
+                setActiveTab(tab);
+                // Update URL hash agar tab tetap sama saat di-refresh
+                window.history.pushState(null, null, `#tab-${tab}`);
+            });
         });
     });
 </script>

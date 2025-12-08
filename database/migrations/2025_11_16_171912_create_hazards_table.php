@@ -11,53 +11,54 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hazards', function (Blueprint $table) {
-            $table->id();
+    Schema::create('hazards', function (Blueprint $table) {
+        $table->id();
 
-            //pelapor (karyawan)
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        // Pelapor (karyawan)
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            //data karyawan saat melapor
-            $table->string('nama');
-            $table->string('NPK');
-            $table->string('dept');
+        // Data karyawan saat melapor
+        $table->string('nama');
+        $table->string('NPK');
+        $table->string('dept');
 
-            //detail observasi
-            $table->date('tgl_observasi');
-            $table->string('area_gedung');
-            $table->string('aktivitas_kerja');
+        // Detail observasi
+        $table->date('tgl_observasi');
+        $table->string('area_gedung')->nullable();
+        $table->string('aktivitas_kerja')->nullable();
 
-            //detail bahaya
-            $table->text('deskripsi_bahaya');
-            $table->string('foto_bukti')->nullable();
+        // Detail bahaya
+        $table->text('deskripsi_bahaya');
+        $table->string('foto_bukti')->nullable();
+        $table->string('kategori_stop6')->nullable();
+        $table->string('faktor_penyebab')->nullable();
 
-            $table->string('jenis_bahaya');
-            $table->string('faktor_penyebab');
+        // Severity & Probability
+        $table->integer('tingkat_keparahan')->nullable();
+        $table->integer('kemungkinan_terjadi')->nullable();
+        $table->integer('risk_score')->nullable();
+        $table->string('kategori_resiko')->nullable();
 
-            $table->integer('tingkat_keparahan');
-            $table->integer('kemungkinan_terjadi');
-            $table->integer('skor_resiko');
+        $table->text('ide_penanggulangan')->nullable();
 
-            $table->text('ide_penanggulangan');
+        // Flow status
+        $table->enum('status', ['menunggu validasi', 'ditolak', 'diproses', 'selesai', 'disetujui'])
+            ->default('menunggu validasi');
 
-            // FLOW : baru-> ditolak/diproses -> selesai
+        $table->text('alasan_penolakan')->nullable();
+        $table->timestamp('report_selesai')->nullable()->default(null);
 
-            $table->enum('status', ['baru', 'ditolak', 'diproses', 'selesai'])
-            ->default('baru');
+        // SHE yang menangani
+        $table->foreignId('ditangani_oleh')
+            ->nullable()
+            ->constrained('users')
+            ->nullOnDelete();
 
-            $table->text('alasan_penolakan')->nullable();
-            $table->text('report_selesai')->nullable();
+        $table->timestamp('ditangani_pada')->nullable();
+        $table->timestamps();
 
-           // SHE yang menangani
-            $table->foreignId('ditangani_oleh')
-                  ->nullable()
-                  ->constrained('users')
-                  ->nullOnDelete();
+    });
 
-            $table->timestamp('ditangani_pada')->nullable();
-
-            $table->timestamps();
-        });
     }
 
     public function down(): void

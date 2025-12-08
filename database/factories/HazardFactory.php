@@ -69,19 +69,32 @@ class HazardFactory extends Factory
         ]),
             'deskripsi_bahaya' => $this->faker->sentence(),
             'foto_bukti' => null, // Placeholder for actual photo
-            'jenis_bahaya' => $this->faker->randomElement(['Unsafe Action', 'Unsafe Condition']),
-            'faktor_penyebab' => $this->faker->sentence()(['A-Aparatus', 'B-Big Heavy', 'C-Car', 'D-Drop', 'E-Electrical', 'F-Fire', 'O-Others']),
+            'kategori_stop6' => $this->faker->randomElement(['A', 'B', 'C', 'D', 'E', 'F', 'O']),
+            'faktor_penyebab' => $this->faker->randomElement(['Unsafe Action', 'Unsafe Condition']),
             'tingkat_keparahan' => $tingkatKeparahan,
             'kemungkinan_terjadi' => $kemungkinanTerjadi,
-            'skor_resiko' => $skorResiko,
+            'risk_score' => $skorResiko,
+            'kategori_resiko' => $this->getKategoriResiko($skorResiko),
             'ide_penanggulangan' => $this->faker->paragraph(),
-            'status' => $this->faker->randomElement(['Dilaporkan', 'Dalam Penanganan', 'Selesai', 'Ditolak']),
-            'alasan_penolakan' => $this->faker->boolean(20) ? $this->faker->sentence() : null, // 20% chance of rejection reason
-            'report_selesai' => $this->faker->boolean(70) ? $this->faker->dateTimeBetween('-6 months', 'now') : null, // 70% chance of being resolved
-            'ditangani_oleh' => $this->faker->boolean(50) ? User::factory() : null, // 50% chance of being handled by another user
-            'ditangani_pada' => $this->faker->boolean(50) ? $this->faker->dateTimeBetween('-6 months', 'now') : null,
+            'status' => 'menunggu validasi',
+            'alasan_penolakan' => null,
+            'report_selesai' => null, 
+            'ditangani_oleh' => null, 
+            'ditangani_pada' => null,
         ];
     }
+
+    protected function getKategoriResiko(int $skorResiko): string
+    {
+    if ($skorResiko <= 5) {
+            return 'Low';
+        } elseif ($skorResiko <= 12) {
+            return 'Medium';
+        } else {
+            return 'High';
+        }
+    }
+
 
     public function forUser(User $user)
     {

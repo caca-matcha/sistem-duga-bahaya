@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo; // WAJIB: Import untuk relasi BelongsTo
 
 class Hazard extends Model
 {
@@ -24,26 +25,28 @@ class Hazard extends Model
         'aktivitas_kerja',
         'deskripsi_bahaya',
         'foto_bukti',
+        'kategori_stop6',
         'tingkat_keparahan',
         'kemungkinan_terjadi',
-        'skor_resiko',
+        'risk_score',
         'kategori_resiko',
         'ide_penanggulangan',
         'status', // Status awal
-        'status', 
         'alasan_penolakan', // Untuk penolakan
         'ditangani_oleh',
         'ditangani_pada',
         'report_selesai',
+        
         // --- FIELDS BARU SHE ---
-        'jenis_bahaya',
         'faktor_penyebab',
         'upaya_penanggulangan',
-        'catatan_penanggulangan',
+        //'catatan_penanggulangan',
         'resiko_residual',
-        'pic_penanggung_jawab',
-        'target_penyelesaian',
-        'foto_bukti_penyelesaian',
+        //'pic_penanggung_jawab', (disamakan dengan ditangani_oleh)
+        'final_tingkat_keparahan',
+        'final_kemungkinan_terjadi',
+        'tindakan_perbaikan',
+        'foto_bukti_penyelesaian'
         ];
 
     /**
@@ -51,8 +54,36 @@ class Hazard extends Model
      */
     protected $casts = [
         'upaya_penanggulangan' => 'json',
-        'catatan_penanggulangan' => 'json',
+    //  	'catatan_penanggulangan' => 'json',
         'tgl_observasi' => 'date',
-        'target_penyelesaian' => 'date',
+    //    'target_penyelesaian' => 'date',
     ];
+
+    /**
+     * Relasi ke User yang melaporkan bahaya (Pelapor).
+     * Kolom foreign key: user_id
+     */
+    public function pelapor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke User (SHE Officer) yang memproses/menangani laporan.
+     * Kolom foreign key: ditangani_oleh
+     */
+    public function ditanganiOleh(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'ditangani_oleh');
+    }
+
+    public function getKategoriResikoAttribute()
+    {
+        $score = $this->risk_score;
+
+        if ($score <= 5) return 'Low';
+        if ($score <= 12) return 'Medium';
+        return 'High';
+    }
+
 }

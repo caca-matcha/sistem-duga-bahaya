@@ -1,176 +1,276 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Detail Laporan Bahaya') . ' #' . $hazard->id }}
+            Detail Laporan Bahaya #{{ $hazard->id }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+    <div class="py-6">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+
+            {{-- Pesan Sukses/Error --}}
+            @if (session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+            @endif
+
+            <div class="bg-white overflow-hidden shadow-xl">
                 <div class="p-6 text-gray-900">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Left Column: Report Details -->
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Informasi Laporan</h3>
-                            <dl class="divide-y divide-gray-200">
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">ID Laporan</dt>
-                                    <dd class="text-gray-900 font-semibold">{{ $hazard->id }}</dd>
+                    <div class="grid grid-cols-1 gap-10">
+
+                        {{-- ===================================
+                            COLUMN 1: INFORMASI LAPORAN AWAL
+                        ==================================== --}}
+                        <div class="md:col-span-1">
+                            <h3 class="text-xl font-bold mb-4 text-indigo-700 border-b pb-2">1. Laporan Awal Pelapor</h3>
+
+                            <dl class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">Pelapor</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $hazard->pelapor->name ?? 'N/A' }}</span>
+                            </div>
+                                <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">NPK Pelapor</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $hazard->NPK }}</span>
+                            </div>
+                                <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">Departemen</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $hazard->dept }}</span>
+                            </div>
+                                <div class="flex justify-between items-center">
+                                                                <span class="text-sm text-gray-500">Tanggal Observasi</span>
+                                                                <span class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}</span>
+                                                            </div>                                
+                                <div class="pt-2">
+                                    @php
+                                        $tingkatKeparahanMap = [
+                                            5 => 'A - Kecelakaan fatal',
+                                            3 => 'B - Hilang hari kerja',
+                                            1 => 'C - Luka ringan',
+                                        ];
+                                        $kemungkinanTerjadiMap = [
+                                            1 => '1 - Sangat Jarang',
+                                            2 => '2 - Jarang',
+                                            3 => '3 - Kadang-Kadang',
+                                            4 => '4 - Sering',
+                                            5 => '5 - Sangat Sering',
+                                        ];
+                                    @endphp
+                                    <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Area Kerja</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->area_gedung }}</span>
                                 </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Pelapor</dt>
-                                    <dd class="text-gray-900">{{ $hazard->pelapor->name ?? 'N/A' }}</dd>
+                                    <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Aktivitas Kerja</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->aktivitas_kerja }}</span>
                                 </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">NPK Pelapor</dt>
-                                    <dd class="text-gray-900">{{ $hazard->NPK ?? 'N/A' }}</dd>
+                                    <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Kategori STOP6</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->kategori_stop6 }}</span>
                                 </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Departemen Pelapor</dt>
-                                    <dd class="text-gray-900">{{ $hazard->dept ?? 'N/A' }}</dd>
+                                    <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Tingkat Keparahan Awal</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $tingkatKeparahanMap[$hazard->tingkat_keparahan] ?? 'N/A' }}</span>
                                 </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Tanggal Observasi</dt>
-                                    <dd class="text-gray-900">{{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}</dd>
+                                    <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Kemungkinan Terjadi Awal</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $kemungkinanTerjadiMap[$hazard->kemungkinan_terjadi] ?? 'N/A' }}</span>
                                 </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Area Kerja</dt>
-                                    <dd class="text-gray-900">{{ $hazard->area_gedung }}</dd>
                                 </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Aktivitas Kerja</dt>
-                                    <dd class="text-gray-900">{{ $hazard->aktivitas_kerja ?? 'N/A' }}</dd>
+                                
+                                {{-- Initial Risk Score --}}
+                                <div class="flex justify-between items-center text-sm font-bold pt-4 border-t">
+                                    <span class="text-gray-500">Skor Risiko Awal (Pelapor)</span>
+                                    <span class="px-3 py-1 rounded-full font-semibold text-xs"
+                                        style="background-color: {{ getRiskColor($hazard->risk_score) }}; color: {{ getTextColor($hazard->risk_score) }};">
+                                        {{ $hazard->risk_score }} ({{ $hazard->kategori_resiko }})
+                                    </span>
                                 </div>
-                                <div class="py-3 text-sm font-medium">
-                                    <dt class="text-gray-500">Deskripsi Bahaya</dt>
-                                    <dd class="text-gray-900 mt-1 p-2 bg-gray-50 rounded-md border">{{ $hazard->deskripsi_bahaya }}</dd>
-                                </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Jenis Bahaya</dt>
-                                    <dd class="text-gray-900">{{ $hazard->jenis_bahaya }}</dd>
-                                </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Faktor Penyebab</dt>
-                                    <dd class="text-gray-900">{{ $hazard->faktor_penyebab }}</dd>
-                                </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Tingkat Keparahan (Severity)</dt>
-                                    <dd class="text-gray-900">{{ $hazard->tingkat_keparahan }}</dd>
-                                </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Kemungkinan Terjadi (Likelihood)</dt>
-                                    <dd class="text-gray-900">{{ $hazard->kemungkinan_terjadi }}</dd>
-                                </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Skor Risiko</dt>
-                                    <dd class="text-gray-900 font-bold">{{ $hazard->skor_resiko }}</dd>
-                                </div>
-                                <div class="py-3 text-sm font-medium">
-                                    <dt class="text-gray-500">Ide Penanggulangan</dt>
-                                    <dd class="text-gray-900 mt-1 p-2 bg-gray-50 rounded-md border">{{ $hazard->ide_penanggulangan ?? 'N/A' }}</dd>
-                                </div>
-                                <div class="py-3 flex justify-between text-sm font-medium">
-                                    <dt class="text-gray-500">Status Laporan</dt>
-                                    <dd class="text-gray-900">
-                                        <!-- Status Badge Logic -->
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            @if ($hazard->status == 'disetujui') bg-green-100 text-green-800
-                                            @elseif ($hazard->status == 'diproses') bg-blue-100 text-blue-800
-                                            @elseif ($hazard->status == 'ditolak') bg-red-100 text-red-800
-                                            @elseif ($hazard->status == 'selesai') bg-purple-100 text-purple-800
-                                            @else bg-yellow-100 text-yellow-800 @endif
-                                        ">
-                                            {{ ucfirst($hazard->status) }}
-                                        </span>
-                                    </dd>
-                                </div>
-                                @if ($hazard->status == 'ditolak' && $hazard->alasan_penolakan)
-                                    <div class="py-3 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-200">
-                                        <dt class="text-gray-600 font-bold">Alasan Penolakan</dt>
-                                        <dd class="text-red-700 mt-1">{{ $hazard->alasan_penolakan }}</dd>
+
+                                {{-- Deskripsi --}}
+                                <div class="pt-4">
+                                    <div class="text-sm text-gray-500 font-medium">Deskripsi Bahaya</div>
+                                    <div class="p-3 bg-gray-50 border rounded-md text-sm mt-1 break-words">
+                                        {{ $hazard->deskripsi_bahaya }}
                                     </div>
-                                @endif
-                                @if ($hazard->ditangani_oleh)
-                                    <div class="py-3 flex justify-between text-sm font-medium">
-                                        <dt class="text-gray-500">Ditangani Oleh</dt>
-                                        <dd class="text-gray-900">{{ $hazard->penanganan->name ?? 'N/A' }}</dd>
+                                </div>
+                                
+                                {{-- Ide penanggulangan --}}
+                                <div>
+                                    <div class="text-sm text-gray-500 font-medium">Ide Penanggulangan Pelapor</div>
+                                    <div class="p-3 bg-gray-50 border rounded-md text-sm mt-1 break-words">
+                                        {{ $hazard->ide_penanggulangan ?? 'Tidak ada ide' }}
                                     </div>
-                                @endif
-                                @if ($hazard->ditangani_pada)
-                                    <div class="py-3 flex justify-between text-sm font-medium">
-                                        <dt class="text-gray-500">Ditangani Pada</dt>
-                                        <dd class="text-gray-900">{{ \Carbon\Carbon::parse($hazard->ditangani_pada)->format('d M Y H:i') }}</dd>
-                                    </div>
-                                @endif
-                                @if ($hazard->report_selesai)
-                                    <div class="py-3 flex justify-between text-sm font-medium">
-                                        <dt class="text-gray-500">Laporan Selesai Pada</dt>
-                                        <dd class="text-gray-900">{{ \Carbon\Carbon::parse($hazard->report_selesai)->format('d M Y H:i') }}</dd>
-                                    </div>
-                                @endif
+                                </div>
                             </dl>
                         </div>
 
-                        <!-- Right Column: Photo Documentation & Actions -->
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Foto Dokumentasi</h3>
-                            @if ($hazard->foto_bukti)
-                                <!-- Replace with actual image asset helper in your application -->
-                                <img src="{{ asset('storage/' . $hazard->foto_bukti) }}" alt="Foto Dokumentasi" class="max-w-full h-auto rounded-lg shadow-xl border object-cover">
+
+                        {{-- ===================================
+                            COLUMN 2: VALIDASI & TINDAK LANJUT SHE
+                        ==================================== --}}
+                        <div class="md:col-span-1 border-l pl-8">
+                            <h3 class="text-xl font-bold mb-4  text-indigo-700 border-b pb-2 mt-6">2. Validasi & Penanganan SHE</h3>
+
+                            @if ($hazard->status == 'ditolak')
+                                {{-- ALASAN PENOLAKAN --}}
+                                <div class="p-4 bg-red-50 border border-red-300 rounded-lg">
+                                    <div class="font-bold text-red-700 mb-1">Status: DITOLAK</div>
+                                    <div class="text-sm text-red-600">Alasan Penolakan:</div>
+                                    <p class="text-sm italic mt-1">{{ $hazard->alasan_penolakan }}</p>
+                                </div>
+                            @elseif ($hazard->status == 'menunggu validasi')
+                                {{-- Menunggu Proses Validasi --}}
+                                <div class="p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-sm text-yellow-800">
+                                    Laporan ini menunggu proses validasi dan perencanaan tindakan dari Tim SHE.
+                                </div>
                             @else
-                                <div class="bg-gray-100 p-8 rounded-lg text-center text-gray-500">
-                                    Tidak ada foto dokumentasi.
+                                {{-- Data Penanganan (Status DIPROSES atau SELESAI) --}}
+                                <dl class="space-y-4">
+                                    
+                                 {{-- Final Risk Score --}}
+                            <div class="flex justify-between items-center text-sm font-bold pt-2 border-b border-dashed">
+                                <span class="text-green-700 font-bold">SKOR RISIKO FINAL</span>
+
+                                @php
+                                    $finalRiskScore = $hazard->final_tingkat_keparahan * $hazard->final_kemungkinan_terjadi;
+                                @endphp
+
+                                <span class="px-3 py-1 rounded-full font-semibold text-xs"
+                                    style="background-color: {{ getRiskColor($finalRiskScore) }}; color: {{ getTextColor($finalRiskScore) }};">
+                                    {{ $finalRiskScore }}
+                                </span>
+                            </div>
+
+
+                                    <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Validasi Tingkat Keparahan</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->final_tingkat_keparahan ?? 'N/A' }}</span>
+                                </div>
+                                    <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Validasi Kemungkinan Terjadi</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->final_kemungkinan_terjadi ?? 'N/A' }}</span>
+                                </div>
+                                    
+                                    <div class="pt-4">
+                                        <div class="text-sm text-gray-500 font-medium">Faktor Penyebab</div>
+                                        <div class="p-3 bg-gray-50 border rounded-md text-sm mt-1 break-words">
+                                            {{ $hazard->faktor_penyebab ?? 'N/A' }}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-sm text-gray-500 font-medium">Upaya Penanggulangan (Hirarki)</div>
+                                        @php
+                                            $upaya = is_array($hazard->upaya_penanggulangan) ? $hazard->upaya_penanggulangan : json_decode($hazard->upaya_penanggulangan, true);
+                                        @endphp
+                                        @if (!empty($upaya))
+                                            <ul class="list-disc list-inside ml-2 text-sm mt-1">
+                                                @foreach ($upaya as $item)
+                                                    <li>{{ $item }}</li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <p class="p-3 bg-gray-50 border rounded-md text-sm mt-1 italic">Belum ada upaya yang dipilih</p>
+                                        @endif
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="text-sm text-gray-500 font-medium">Rencana Tindakan Perbaikan</div>
+                                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-md text-sm mt-1 break-words">
+                                            {{ $hazard->tindakan_perbaikan ?? 'N/A' }}
+                                        </div>
+                                    </div>
+                                    
+                                    @if ($hazard->ditangani_oleh)
+                                        <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Divalidasi Oleh</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ $hazard->ditanganiOleh->name ?? 'N/A' }}</span>
+                                    </div>
+                                    @endif
+                                    @if ($hazard->ditangani_pada)
+                                        <div class="flex justify-between items-center">
+                                                                                <span class="text-sm text-gray-500">Divalidasi Pada</span>
+                                                                                <span class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($hazard->ditangani_pada)->format('d M Y H:i') }}</span>
+                                                                            </div>                                    @endif
+
+                                    {{-- Data SELESAI --}}
+                                    @if ($hazard->status == 'selesai')
+                                        <div class="pt-4 border-t border-dashed">
+                                            <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-500">Selesai Pada</span>
+                                            <span class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($hazard->report_selesai)->format('d M Y H:i') }}</span>
+                                        </div>
+                                    @endif
+
+                                </dl>
+                            @endif
+                        </div>
+
+
+                        {{-- ===================================
+                            COLUMN 3: FOTO & AKSI BUTTONS
+                        ==================================== --}}
+                        <div class="md:col-span-1 border-l pl-8">
+                            <h3 class="text-xl font-bold mb-4  text-indigo-700 border-b pb-2 mt-6">3. Dokumentasi & Aksi</h3>
+                            @if ($hazard->foto_bukti)
+                                <a href="{{ asset('storage/' . $hazard->foto_bukti) }}" target="_blank">
+                                    <img src="{{ asset('storage/' . $hazard->foto_bukti) }}"
+                                        alt="Foto Bukti Bahaya"
+                                        class="rounded-lg shadow-md border object-cover max-h-48 w-full hover:shadow-lg transition">
+                                </a>
+                            @else
+                                <div class="p-8 bg-gray-100 rounded-lg text-center text-gray-500 text-sm">
+                                    Tidak ada foto bahaya.
                                 </div>
                             @endif
 
-                            <h3 class="text-xl font-bold text-gray-800 mt-8 mb-6 border-b pb-2">Aksi Proses Laporan</h3>
-                            <div class="flex flex-col space-y-3">
+                            @if ($hazard->status == 'selesai' && $hazard->foto_bukti_penyelesaian)
+                                <h4 class="font-semibold text-gray-600 mt-6 mb-2 border-t pt-4">Foto Bukti Penyelesaian</h4>
+                                <a href="{{ asset('storage/' . $hazard->foto_bukti_penyelesaian) }}" target="_blank">
+                                    <img src="{{ asset('storage/' . $hazard->foto_bukti_penyelesaian) }}"
+                                        alt="Foto Bukti Penyelesaian"
+                                        class="rounded-lg shadow-md border object-cover max-h-48 w-full hover:shadow-lg transition">
+                                </a>
+                            @endif
+
+                            {{-- ACTION BUTTONS BASED ON STATUS --}}
+                            <div class="flex justify-center space-y-3 space-x-3 mt-6">
+                                @php
+                                    // Define utility classes for buttons
+                                    $baseBtn = 'inline-block py-2 px-4 rounded-md text-sm font-semibold transition duration-150 ease-in-out text-center shadow-md';
+                                @endphp
+
+                                {{-- Status: BARU/MENUNGGU --}}
+                                @if ($hazard->status == 'menunggu validasi')
+                                    <a href="{{ route('she.hazards.diprosesForm', $hazard) }}" class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 {{ $baseBtn }}">
+                                        ➜ Validasi
+                                    </a>
+                                    <a href="{{ route('she.hazards.tolakForm', $hazard) }}" class="text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 {{ $baseBtn }}">
+                                        ✖ Tolak
+                                    </a>
                                 
-                                @if ($hazard->status == 'menunggu')
-                                    <!-- Aksi untuk status MENUNGGU: Setujui atau Tolak -->
-                                    <form action="{{ route('she.hazards.updateStatus', $hazard) }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="status" value="disetujui">
-                                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-3 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150">
-                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Setujui Laporan
-                                        </button>
-                                    </form>
-                                    
-                                    <a href="{{ route('she.hazards.tolakForm', $hazard) }}" class="w-full inline-flex justify-center rounded-md border border-red-300 shadow-sm px-4 py-3 bg-white text-base font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                        Tolak Laporan
+                                {{-- Status: DIPROSES --}}
+                                @elseif ($hazard->status == 'diproses')
+                                    <a href="{{ route('she.hazards.selesaiForm', $hazard) }}" class="text-white bg-green-600 hover:bg-green-700 focus:ring-green-500 {{ $baseBtn }}">
+                                        ✔ Verifikasi & Tandai Selesai
+                                    </a>
+                                    {{-- Opsi untuk mengedit rencana perbaikan --}}
+                                    <a href="{{ route('she.hazards.diprosesForm', $hazard) }}?edit=true" class="text-indigo-600 bg-white border border-indigo-600 hover:bg-indigo-50 {{ $baseBtn }}">
+                                        ⟲ Edit Rencana Tindakan
                                     </a>
 
-                                @elseif ($hazard->status == 'disetujui')
-                                    <!-- Aksi untuk status DISETUJUI: Tandai Diproses (Tindak Lanjut) -->
-                                    <form action="{{ route('she.hazards.updateStatus', $hazard) }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="status" value="diproses">
-                                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-3 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
-                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                            Tindak Lanjut / Tandai Diproses
-                                        </button>
-                                    </form>
-                                
-                                @elseif ($hazard->status == 'diproses')
-                                    <!-- Aksi untuk status DIPROSES: Tandai Selesai -->
-                                    <a href="{{ route('she.hazards.selesaiForm', $hazard) }}" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-3 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-150">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        Tandai Selesai
-                                    </a>
-                                
-                                @else
-                                    <!-- Status DITOLAK atau SELESAI: Tidak ada aksi -->
-                                    <div class="p-4 bg-gray-100 rounded-lg text-center">
-                                        <p class="text-sm text-gray-600 italic">Laporan ini sudah **{{ ucfirst($hazard->status) }}** dan tidak memerlukan aksi lebih lanjut.</p>
-                                    </div>
-                                @endif
+                                {{-- Status: SELESAI atau DITOLAK --}}
+                            @else
+                                <div class="p-4 bg-gray-100 rounded-lg text-center text-gray-600 italic border border-gray-200 whitespace-nowrap overflow-x-auto">
+                                    Laporan ini telah {{ strtoupper($hazard->status) }}. Tidak ada aksi lebih lanjut.
+                                </div>
+                            @endif
                             </div>
                         </div>
-                    </div>
+                    </div> {{-- END GRID --}}
                 </div>
             </div>
         </div>

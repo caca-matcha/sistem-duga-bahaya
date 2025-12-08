@@ -19,14 +19,16 @@ class DashboardController extends Controller
 
         // 1. Data untuk Tabel Daftar Laporan
         // Ambil semua laporan milik user yang sedang login.
-        $hazardsQuery = Hazard::where('user_id', $userId)->get();
+        $hazardsQuery = Hazard::where('user_id', $userId)
+        ->latest()
+        ->get();
 
         // Mengolah data hazards untuk menambahkan kolom yang dibutuhkan (Skor Risiko).
         // Hasilnya adalah Illuminate\Support\Collection.
         $hazards = $hazardsQuery->map(function ($hazard) {
             // Hitung Skor Risiko: Rank Keparahan * Kemungkinan Terjadi
             // Asumsi kolom ini adalah integer atau float
-            $hazard->skor_resiko = $hazard->rank_keparahan * $hazard->kemungkinan_terjadi;
+            $hazard->risk_score = $hazard->tingkat_keparahan * $hazard->kemungkinan_terjadi;
             return $hazard;
         });
 

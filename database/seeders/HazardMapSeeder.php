@@ -8,6 +8,7 @@ use App\Models\Map;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Faker\Generator as Faker;
 
@@ -20,24 +21,47 @@ class HazardMapSeeder extends Seeder
     {
         $faker = \Faker\Factory::create();
 
-        // Clear existing data (optional, but good for fresh seeding)
+        // Nonaktifkan foreign key checks untuk truncate
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Clear existing data
         Hazard::truncate();
         Cell::truncate();
         Map::truncate();
         // User::where('email', '!=', 'admin@example.com')->delete(); // Keep admin user if exists
 
-        // Create some regular users (employees)
+        // Aktifkan kembali foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // =========================================================
+        // 1. CREATE USERS (KARYAWAN & SHE)
+        // =========================================================
+        
+        // Create SHE User (Dibutuhkan oleh HazardFactory)
+        $sheUser = User::firstOrCreate(
+            ['email' => 'she@example.com'], // Attributes to check for existence
+            [ // Attributes to set if creating a new user
+                'name' => 'Safety Officer',
+                'password' => Hash::make('password'),
+                'role' => 'she',
+            ]
+        );
+        
+        // Create regular users (employees)
         $users = User::factory()->count(10)->create([
             'password' => Hash::make('password'), // Set a common password for dummy users
             'role' => 'karyawan', // Assign them the 'karyawan' role
         ]);
+
+        // Gabungkan semua user (karyawan dan SHE) untuk pelaporan
+        $allUsers = User::all();
 
         // Create a few maps
         $maps = collect();
         for ($i = 1; $i <= 3; $i++) {
             $mapAttributes = Map::factory()->make([
                 'name' => 'Map Area ' . $i . ' ' . $faker->unique()->word,
-                'created_by' => $faker->randomElement($users)->id,
+                'created_by' => $faker->randomElement($allUsers)->id,
             ])->toArray();
 
             // Ensure name is not duplicated
@@ -48,7 +72,9 @@ class HazardMapSeeder extends Seeder
             $maps->push(Map::create($mapAttributes));
         }
 
-        // For each map, create its cells and then create hazards
+        // =========================================================
+        // 2. CREATE CELLS & HAZARDS
+        // =========================================================
         foreach ($maps as $map) {
             // Create cells for the map based on its rows and cols
             $cells = [];
@@ -78,17 +104,34 @@ class HazardMapSeeder extends Seeder
 
             for ($i = 0; $i < $numHazardsForMap; $i++) {
                 $hazardCell = $faker->randomElement($cells);
-                $reportingUser = $faker->randomElement($users);
+                $reportingUser = $faker->randomElement($allUsers); // User pelapor bisa SHE atau Karyawan
 
-                // Create a few high-risk hazards for the hotspot cell
-                if ($hotspotCell && $i < ($numHazardsForMap * 0.2)) { // 20% of hazards go to hotspot
-                    Hazard::factory()->forUser($reportingUser)->forMapAndCell($map, $hotspotCell)->create([
-                        'tingkat_keparahan' => $faker->numberBetween(4, 5), // High severity
-                        'kemungkinan_terjadi' => $faker->numberBetween(4, 5), // High likelihood
-                        'skor_resiko' => $faker->numberBetween(4, 5) * $faker->numberBetween(4, 5),
-                    ]);
+                // Create a few high-risk hazards for the hotspot cell (20% of hazards)
+                if ($hotspotCell && $i < ($numHazardsForMap * 0.2)) { 
+                    
+                    // PERBAIKAN: Menggunakan state highRisk() dari HazardFactory
+                    // Mengatur risiko tinggi secara langsung di seeder
+                    $tingkatKeparahan = $faker->numberBetween(4, 5); // Higher severity
+                    $kemungkinanTerjadi = $faker->numberBetween(4, 5); // Higher probability
+                    $skorResiko = $tingkatKeparahan * $kemungkinanTerjadi;
+
+                    Hazard::factory()
+                        ->forUser($reportingUser)
+                        ->forMapAndCell($map, $hotspotCell)
+                        ->state([
+                            'tingkat_keparahan' => $tingkatKeparahan,
+                            'kemungkinan_terjadi' => $kemungkinanTerjadi,
+                            'risk_score' => $skorResiko,
+                            'status' => 'diproses', // Moved here
+                        ])
+                        ->create();
+                        
                 } else {
-                    Hazard::factory()->forUser($reportingUser)->forMapAndCell($map, $hazardCell)->create();
+                    // Normal hazards
+                    Hazard::factory()
+                        ->forUser($reportingUser)
+                        ->forMapAndCell($map, $hazardCell)
+                        ->create();
                 }
             }
         }

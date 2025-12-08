@@ -7,6 +7,7 @@ use App\Http\Controllers\SHE\MapController;
 use App\Http\Controllers\SHE\UserController;
 use App\Http\Controllers\SHE\CellController;
 use App\Http\Controllers\SHE\DashboardController as SHEDashboardController; // Ditambahkan Alias
+use App\Http\Controllers\SHE\ReportController; // PENTING: Import ReportController
 
 // Import Controller Karyawan untuk logika redirect yang lebih aman
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController; // Ditambahkan
@@ -46,27 +47,33 @@ Route::middleware(['auth'])->get('/dashboard', function () {
 })->name('dashboard');
 
 
-// ROUTE WEB UNTUK SHE
+// ROUTE WEB UNTUK SHE (Hanya rute yang tidak dimasukkan ke she.php)
 Route::middleware(['auth', 'role:she'])
     ->prefix('she')
     ->name('she.')
     ->group(function () {
         // Menggunakan alias SHEDashboardController
         Route::get('dashboard', [SHEDashboardController::class, 'index'])->name('dashboard'); 
+        
+        // HAZARD ROUTES
         Route::get('hazards', [SHEHazardController::class, 'index'])->name('hazards.index');
         Route::get('hazards/{hazard}', [SHEHazardController::class, 'show'])->name('hazards.show');
+        
+        // ===========================================
+        // 🚀 PENAMBAHAN ROUTE FORM BARU UNTUK SHE
+        // ===========================================
 
-        // Terima & proses
-        // Perbaikan: Ganti ke PUT jika ini adalah update status (walaupun ini bukan route tolak/selesai)
+        // Rute untuk menampilkan formulir Rencana Tindakan (menunggu validasi -> diproses)
+        Route::get('hazards/{hazard}/diproses-form', [SHEHazardController::class, 'diprosesForm'])->name('hazards.diprosesForm');
+
+        // Rute untuk menampilkan formulir Penolakan (menunggu validasi -> ditolak)
+        Route::get('hazards/{hazard}/tolak-form', [SHEHazardController::class, 'tolakForm'])->name('hazards.tolakForm');
+
+        // Rute untuk menampilkan formulir Penyelesaian (diproses -> selesai)
+        Route::get('hazards/{hazard}/selesai-form', [SHEHazardController::class, 'selesaiForm'])->name('hazards.selesaiForm');
+        
+        // ROUTE UTAMA UPDATE STATUS: Menangani semua status update (POST/PUT)
         Route::put('hazards/{hazard}/update-status', [SHEHazardController::class, 'updateStatus'])->name('hazards.updateStatus');
-
-        // Tolak
-        Route::get('hazards/{hazard}/tolak', [SHEHazardController::class, 'tolakForm'])->name('hazards.tolakForm');
-        Route::put('hazards/{hazard}/tolak', [SHEHazardController::class, 'tolak'])->name('hazards.tolak'); // Diubah dari POST ke PUT
-
-        // Selesai
-        Route::get('hazards/{hazard}/selesai', [SHEHazardController::class, 'selesaiForm'])->name('hazards.selesaiForm');
-        Route::put('hazards/{hazard}/selesai', [SHEHazardController::class, 'selesai'])->name('hazards.selesai'); // Diubah dari POST ke PUT
 
         // Kelola Peta
         Route::resource('maps', MapController::class);

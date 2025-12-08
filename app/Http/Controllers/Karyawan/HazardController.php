@@ -20,8 +20,8 @@ class HazardController extends Controller
 
         // Hitung statistik
         $totalLaporan = $allHazards->count();
-        // Laporan "baru" dianggap menunggu validasi/tinjauan awal
-        $menungguValidasi = $allHazards->whereIn('status', ['baru', 'diproses'])->count(); 
+        // Laporan menunggu validasi/tinjauan awal
+        $menungguValidasi = $allHazards->whereIn('status', ['menunggu validasi', 'diproses'])->count(); 
         
         // Laporan yang sudah ditindaklanjuti (Disetujui, Selesai)
         $sudahDivalidasi = $allHazards->whereIn('status', ['disetujui', 'selesai'])->count(); 
@@ -61,6 +61,9 @@ class HazardController extends Controller
             $filePath = $request->file('foto_bukti')->store('hazard_photos', 'public');
         }
 
+        // Hitung skor risiko
+        $riskScore = $validated['tingkat_keparahan'] * $validated['kemungkinan_terjadi'];
+
         Hazard::create([
             'user_id' => Auth::id(),
             'nama' => Auth::user()->name,
@@ -71,17 +74,32 @@ class HazardController extends Controller
             'aktivitas_kerja' => $validated['aktivitas_kerja'],
             'deskripsi_bahaya' => $validated['deskripsi_bahaya'],
             'foto_bukti' => $filePath,
+            'kategori_stop6' => $validated['kategori_stop6'],
             'tingkat_keparahan' => $validated['tingkat_keparahan'],
             'kemungkinan_terjadi' => $validated['kemungkinan_terjadi'],
             // Hitung skor risiko
-            'risk_score' => $validated['risk_r'], 
+            'risk_score' => $riskScore, 
             'kategori_resiko' => $validated['kategori_resiko'],
             'ide_penanggulangan' => $validated['ide_penanggulangan'], 
-            'status' => 'baru', // Status awal saat dikirim
+            'status' => 'menunggu validasi', // Status awal saat dikirim
         ]);
         
         // Redirect ke index/dashboard setelah berhasil
         return redirect()->route('karyawan.dashboard')
             ->with('success', 'Laporan Duga Bahaya berhasil dikirim. Menunggu tinjauan SHE.');
+    }
+
+    /**
+     * Menampilkan detail laporan bahaya tertentu.
+     */
+    public function show(Hazard $hazard)
+    {
+        // Pastikan hanya pemilik laporan yang bisa melihat
+        if ($hazard->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke laporan ini.');
+        }
+
+        $hazard->load(['pelapor', 'ditanganiOleh']); // Eager load relationships
+        return view('karyawan.hazards.show', compact('hazard'));
     }
 }

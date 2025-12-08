@@ -1,19 +1,32 @@
 <x-app-layout>
-    <style>
-        .glow-red:hover,
-        .glow-red:focus {
-            box-shadow: 0 0 5px rgba(255, 0, 0, 0.45);
-            border-color: rgb(220, 38, 38);
-            transition: 0.2s;
-        }
-        /* PERBAIKAN DROPDOWN SOROTAN KE MERAH (Menerapkan ke SEMUA dropdown) */
-        #dept option:hover, #area_gedung option:hover, #aktivitas_kerja option:hover, #rank_keparahan option:hover, #kemungkinan_terjadi option:hover,
-        #dept option:focus, #area_gedung option:focus, #aktivitas_kerja option:focus, #rank_keparahan option:focus, #kemungkinan_terjadi option:focus,
-        #dept option:checked, #area_gedung option:checked, #aktivitas_kerja option:checked, #rank_keparahan option:checked, #kemungkinan_terjadi option:checked {
-            background-color: rgb(220, 38, 38) !important; 
-            color: white !important;
-        }
-    </style>
+<style>
+    /* Efek cahaya merah ketika hover/focus */
+    .glow-red:hover,
+    .glow-red:focus {
+        box-shadow: 0 0 5px rgba(255, 0, 0, 0.45);
+        border-color: rgb(220, 38, 38);
+        transition: 0.2s;
+    }
+
+    /* Warna merah untuk opsi yang di-hover dan opsi yang dipilih */
+    #dept option:hover,
+    #area_gedung option:hover,
+    #aktivitas_kerja option:hover,
+    #kategori_stop6 option:hover,
+    #tingkat_keparahan option:hover,
+    #kemungkinan_terjadi option:hover,
+    
+    #dept option:checked,
+    #area_gedung option:checked,
+    #aktivitas_kerja option:checked,
+    #kategori_stop6 option:checked,
+    #tingkat_keparahan option:checked,
+    #kemungkinan_terjadi option:checked {
+        background-color: rgb(220, 38, 38) !important;
+        color: white !important;
+    }
+</style>
+
 
     <div class="py-12">
         <div class="max-w-6xl mx-auto py-10 px-10">
@@ -107,17 +120,51 @@
                             </div>
                             
                             <div>
-                                <label for="foto_temuan" class="block font-medium mb-1">Foto Temuan</label>
+                                <label for="foto_bukti" class="block font-medium mb-1">Foto Temuan</label>
                                 <p class="text-sm text-gray-500 mb-2">
                                     Format: JPG, JPEG, PNG. Ukuran maksimal: 5MB.
                                 </p>
-                                <input id="foto_temuan" name="foto_temuan" type="file" 
+                                <input id="foto_bukti" name="foto_bukti" type="file" 
                                     accept=".jpg, .jpeg, .png" 
                                     class="w-full rounded-lg border-gray-300 glow-red p-2
-                                        @error('foto_temuan') border-red-500 @enderror">
-                                @error('foto_temuan')
+                                        @error('foto_bukti') border-red-500 @enderror">
+                                @error('foto_bukti')
                                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                                 @enderror
+                            </div>
+
+                            <div>
+                                <label for="kategori_stop6" class="block font-medium mb-1"> Jenis Bahaya </label>
+                                    <p class="text-sm text-gray-500 mb-1">
+                                        Contoh Kategori (STOP 6):
+                                    </p>
+                                    <ul class="text-sm text-gray-500 mb-0 list-none pl-10">
+                                        <li><strong>A</strong> = Aparatus (Bahaya terjepit, tergores, terpotong, tersayat)</li>
+                                        <li><strong>B</strong> = Big Heavy (Bahaya tertimpa benda berat / terbentur)</li>
+                                        <li><strong>C</strong> = Car (Tertabrak kendaraan, alat angkut, alat transportasi)</li>
+                                        <li><strong>D</strong> = Drop (Terjatuh dari ketinggian, terpeleset, tersandung)</li>
+                                        <li><strong>E</strong> = Electrical (Tersengat aliran listrik)</li>
+                                        <li><strong>F</strong> = Fire (Terpapar panas, ledakan, kebakaran)</li>
+                                        <li><strong>O</strong> = Others (Paparan bahan kimia, pencemaran lingkungan, gigitan/sengatan hewan, dll.)</li>
+                                    </ul>
+                            </div>
+
+                            <select id="kategori_stop6" name="kategori_stop6"
+                                class="w-full rounded-lg border-gray-300 glow-red @error('kategori_stop6') border-red-500 @enderror">
+                                <option value="">Pilih Kategori</option>
+
+                                <option value="A" {{ old('kategori_stop6') === 'A' ? 'selected' : '' }}>A</option>
+                                <option value="B" {{ old('kategori_stop6') === 'B' ? 'selected' : '' }}>B</option>
+                                <option value="C" {{ old('kategori_stop6') === 'C' ? 'selected' : '' }}>C</option>
+                                <option value="D" {{ old('kategori_stop6') === 'D' ? 'selected' : '' }}>D</option>
+                                <option value="E" {{ old('kategori_stop6') === 'E' ? 'selected' : '' }}>E</option>
+                                <option value="F" {{ old('kategori_stop6') === 'F' ? 'selected' : '' }}>F</option>
+                                <option value="O" {{ old('kategori_stop6') === 'O' ? 'selected' : '' }}>O</option>
+                            </select>
+
+                            @error('kategori_stop6')
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                             </div>
 
                             <div>
@@ -146,7 +193,7 @@
 
                             {{-- Nilai Risk --}}
                                 {{-- INPUT HIDDEN UNTUK MENGIRIM NILAI RISK KE CONTROLLER --}}
-                                <input type="hidden" id="nilai_risk_hidden" name="nilai_risk" value="{{ old('nilai_risk') }}">
+                                <input type="hidden" id="risk_score_hidden" name="risk_score" value="{{ old('risk_score') }}">
 
                             {{-- Kategori Risk --}}
                                 {{-- INPUT HIDDEN UNTUK MENGIRIM KATEGORI RISK KE CONTROLLER --}}
@@ -174,20 +221,12 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const severity = document.getElementById('tingkat_keparahan');
                 const probability = document.getElementById('kemungkinan_terjadi');
-                const nilaiRisk = document.getElementById('nilai_risk');
-                const kategoriRisk = document.getElementById('kategori_resiko');
                 // Tambahkan referensi ke input hidden
-                const nilaiRiskHidden = document.getElementById('nilai_risk_hidden');
+                const nilaiRiskHidden = document.getElementById('risk_score_hidden');
                 const kategoriRiskHidden = document.getElementById('kategori_resiko_hidden');
 
-
-                const riskColors = [
-                    "#d1fae5","#a7f3d0","#6ee7b7","#34d399","#10b981", // Low (Greenish)
-                    "#fef08a","#fde047","#facc15","#fbbf24","#f59e0b", // Medium (Yellowish)
-                    "#fdba74","#fb923c","#f97316","#f87171","#ef4444", // Medium-High (Orange/Red)
-                    "#ef4444", "#f87171","#f97316","#fb7185","#f43f5e", // High (Red)
-                    "#ffe4e1","#ffb3b3","#ff8080","#ff4d4d","#ff1a1a" // Extreme (Deep Red)
-                ];
+                // The riskColors array has been removed as it was unused in this view.
+                // It is now available globally via the getRiskColorsArray() helper function if needed.
 
                 /* =============================
                     DEPENDENT DROPDOWN — FIXED
@@ -240,40 +279,35 @@
                     let s = parseInt(severity.value);
                     let p = parseInt(probability.value);
 
+                    console.log('Update Risk triggered. Severity:', s, 'Probability:', p);
+
                     if (!s || !p) {
-                        nilaiRisk.value = "";
-                        kategoriRisk.value = "";
-                        kategoriRisk.style.backgroundColor = "";
-                        kategoriRisk.style.color = "black";
-                        
-                        // Penting: Reset nilai hidden field jika kosong
                         nilaiRiskHidden.value = "";
                         kategoriRiskHidden.value = "";
+                        console.log('Risk/Kategori reset to empty.');
                         return;
                     }
 
                     let risk = s * p;
-                    nilaiRisk.value = risk;
 
                     let kategori;
-                    if (risk <= 5) kategori = "Low (Rendah)";
-                    else if (risk <= 12) kategori = "Medium (Sedang)";
-                    else kategori = "High (Tinggi)";
+                    if (risk <= 4) kategori = "Low";
+                    else if (risk <= 9) kategori = "Medium";
+                    else kategori = "High";
 
-                    let safeRisk = Math.min(Math.max(risk, 1), 25);
-                    let colorCode = riskColors[safeRisk - 1];
-
-                    kategoriRisk.value = kategori;
-                    kategoriRisk.style.backgroundColor = colorCode;
-                    kategoriRisk.style.color = safeRisk >= 15 ? "white" : "black";
-                    
-                    // Penting: Update nilai hidden field
                     nilaiRiskHidden.value = risk;
                     kategoriRiskHidden.value = kategori;
+                    console.log('Risk Score:', risk, 'Kategori Resiko:', kategori);
                 }
 
-                severity.addEventListener('change', updateRisk);
-                probability.addEventListener('change', updateRisk);
+                severity.addEventListener('change', function() {
+                    console.log('Severity changed to:', this.value);
+                    updateRisk();
+                });
+                probability.addEventListener('change', function() {
+                    console.log('Probability changed to:', this.value);
+                    updateRisk();
+                });
 
                 // ---- PERBAIKAN INISIALISASI PADA LOAD (SETELAH GAGAL VALIDASI) ----
                 // 1) Populate aktivitas kalau ada area_gedung terpilih (old value)
@@ -284,24 +318,8 @@
                 }
 
                 // 2) Jika sebelumnya user mengisi tingkat keparahan/kemungkinan, hitung risk awal
-                if (severity.value || probability.value) {
-                    updateRisk();
-                }
-
-                // 3) Set nilai Risk dari old value (jika ada) saat dimuat ulang setelah validasi gagal
-                if (nilaiRiskHidden.value && kategoriRiskHidden.value) {
-                    // Tampilkan nilai old ke input readonly
-                    nilaiRisk.value = nilaiRiskHidden.value;
-                    kategoriRisk.value = kategoriRiskHidden.value;
-                    
-                    // Recalculate color based on the old risk value
-                    let oldRisk = parseInt(nilaiRiskHidden.value);
-                    if (oldRisk >= 1 && oldRisk <= 25) {
-                        let colorCode = riskColors[oldRisk - 1];
-                        kategoriRisk.style.backgroundColor = colorCode;
-                        kategoriRisk.style.color = oldRisk >= 15 ? "white" : "black";
-                    }
-                }
+                // updateRisk(); // Call unconditionally, will reset if values are not selected
+                updateRisk();
             });
         </script>
     </div>

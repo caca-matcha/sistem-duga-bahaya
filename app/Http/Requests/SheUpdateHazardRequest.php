@@ -15,10 +15,7 @@ class SheUpdateHazardRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Ganti 'she' dengan nama peran yang benar di aplikasi Anda.
-        // Asumsi: user memiliki method hasRole() atau serupa.
-        // Untuk tujuan testing, Anda bisa menggunakan: return Auth::check();
-        return Auth::check() && Auth::user()->hasRole('she'); 
+        return Auth::check() && Auth::user()->hasRole('she');
     }
 
     /**
@@ -28,86 +25,49 @@ class SheUpdateHazardRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Aturan untuk data yang diubah atau ditambahkan oleh SHE
+        // Status yang diperbolehkan dalam update (Status 'baru' hanya ada di awal, tidak dikirim di request update)
+        $allowedStatus = ['diproses', 'ditolak', 'selesai'];
+        
+        // Tentukan status saat ini untuk validasi bersyarat
+        $status = $this->input('status');
+
         return [
             // Status wajib diubah oleh SHE.
-            'status' => 'required|string|in:baru,diproses,disetujui,ditolak,selesai',
+            'status' => 'required|string|in:' . implode(',', $allowedStatus),
             
-            // --- FIELD TAMBAHAN DARI SHE ---
-            'jenis_bahaya' => 'nullable|string|max:100', // Jenis bahaya (Kimia, Fisik, Ergonomi, dsb.)
-            'faktor_penyebab' => 'nullable|string|max:100', // Faktor penyebab (Unsafe Act / Condition)
+            // --- VALIDASI PENOLAKAN (Status = ditolak) ---
+            'alasan_penolakan' => 'required_if:status,ditolak|nullable|string|max:1000',
+            
+            // --- VALIDASI PENERIMAAN/PROSES (Status = diproses) ---
 
-            //--FILE INPUT dari Karyawan dan bisa di edit SHE
-            'tingkat_keparahan' => 'nullable|integer|min:1|max:5',
-            'kemungkinan_terjadi' => 'nullable|integer|min:1|max:5',
-            'nilai_risk' => 'nullable|integer|min:1|max:25',
-            'kategori_resiko' => 'nullable|string|max:50',
-            'alasan_penolakan' => 'nullabel|string|max:100',
+            // Wajib jika diproses (Verifikasi Final Risk Matrix)
+            'final_tingkat_keparahan' => 'required_if:status,diproses|nullable|integer|min:1|max:5',
+            'final_kemungkinan_terjadi' => 'required_if:status,diproses|nullable|integer|min:1|max:5',
 
+            // Data Penanganan Lanjutan (Wajib jika status = diproses)
+            'tindakan_perbaikan' => 'required_if:status,diproses|nullable|string',
+            'target_penyelesaian' => 'required_if:status,diproses|nullable|date|after_or_equal:today',
+            'faktor_penyebab' => 'required_if:status,diproses|nullable|string|max:100',
+            
             // Upaya Penanggulangan (Array dari Checkbox yang dipilih)
-            // Asumsi: nilai yang dipilih adalah array string (misal: ['Eliminasi', 'Substitusi']).
             'upaya_penanggulangan' => 'nullable|array',
-            'upaya_penanggulangan.*' => 'string|max:100', // Validasi setiap item dalam array
+            'upaya_penanggulangan.*' => 'nullable|string|max:100', 
             
-            // Catatan Textarea untuk setiap upaya (Dikirim sebagai array/objek dari frontend)
-            // Validasi ini fleksibel, Controller harus meng-encode ini ke JSON.
-            'catatan_penanggulangan' => 'nullable|array',
-            'catatan_penanggulangan.*' => 'string', // Validasi setiap catatan adalah string
-            
-            // --- FIELD TINDAK LANJUT STANDAR ---
-            'tindakan_perbaikan' => 'nullable|string',
+            // --- FIELD UMUM (TIDAK BERGANTUNG STATUS) ---
             'resiko_residual' => 'nullable|integer|min:1|max:25', 
-            'pic_penanggung_jawab' => 'nullable|string|max:150',
-            'target_penyelesaian' => 'nullable|date|after_or_equal:today',
+            'kategori_stop6' => 'nullable|string|max:50',
 
-            // FIELD BARU: FOTO BUKTI PENYELESAIAN
-            'foto_bukti_penyelesaian' => ['nullable','image','mimes:jpg,jpeg,png','max:5120'],
-            'ditangani_pada' => 'required|date|today',
+            // --- FIELD SELESAI (Status = selesai) ---
+            'foto_bukti_penyelesaian' => 'required_if:status,selesai|nullable|image|mimes:jpg,jpeg,png|max:5120',
+            
+            // Kolom di bawah ini dihapus karena nilainya dihitung di Controller atau diisi otomatis oleh Auth::id()
+            // risk_score, kategori_resiko (dihitung)
+            // ditangani_oleh (otomatis di Controller)
+            // pic_penanggung_jawab (dihapus/diganti ditangani_oleh)
+            // tingkat_keparahan / kemungkinan_terjadi (data awal karyawan, tidak boleh diedit)
         ];
     }
-
     
-    /**
-     * Tentukan kapan kolom tertentu menjadi 'wajib' (conditional validation).
-     * Jika SHE menyetujui atau menyelesaikan, beberapa field harus diisi.
-     */
-
-    public function quickReject(Hazard $hazard)
-    {
-    // Update status langsung jadi 'ditolak'
-    $hazard->update([
-        'status' => 'ditolak',
-        'pic_penanggung_jawab' => Auth::id(),
-        'ditangani_pada' => now(),
-        'alasan_penolakan',
-        ]);
-             return redirect()->route('she.hazards.show', $hazard)
-        ->with('success', 'Laporan berhasil ditolak.');
-    }
-
-
-    public function withValidator($validator)
-    {
-        $validator->sometimes([
-            'tindakan_perbaikan', 
-            'pic_penanggung_jawab', 
-            'target_penyelesaian',
-            'jenis_bahaya',
-            'faktor_penyebab',
-            'upaya_penanggulangan',
-            'resiko_residual',
-            'risk_score',
-            'kategori_resiko',
-        ], 'required', function ($input) {
-            return in_array($input->status, ['disetujui', 'selesai']);
-        });
-
-        // FOTO BUKTI PENYELESAIAN WAJIB HANYA KETIKA STATUS = 'selesai'
-        $validator->sometimes(['foto_bukti_penyelesaian'], ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], function ($input) {
-            return $input->status === 'selesai';
-        });
-    }
-
     /**
      * Dapatkan nama atribut yang disesuaikan.
      *
@@ -117,18 +77,17 @@ class SheUpdateHazardRequest extends FormRequest
     {
         return [
             'status' => 'Status Laporan',
-            'jenis_bahaya' => 'Jenis Bahaya',
+            'kategori_stop6' => 'Kategori STOP6',
             'faktor_penyebab' => 'Faktor Penyebab Kecelakaan',
             'upaya_penanggulangan' => 'Upaya Penanggulangan',
             'upaya_penanggulangan.*' => 'Detail Upaya Penanggulangan',
-            'tingkat_keparahan' => 'Tingkat Keparahan (Severity)',
-            'catatan_penanggulangan.*' => 'Catatan Penanggulangan',
             'tindakan_perbaikan' => 'Tindakan Perbaikan',
             'resiko_residual' => 'Resiko Residual',
-            'pic_penanggung_jawab' => 'PIC Penanggung Jawab',
             'target_penyelesaian' => 'Target Penyelesaian',
-            'foto_bukti_penyelesaian' => 'Foto Bukti Penyelesaian', // ATRIBUT BARU
-            'kategori_resiko' => 'kategori_resiko'
+            'alasan_penolakan' => 'Alasan Penolakan',
+            'final_tingkat_keparahan' => 'Final Tingkat Keparahan',
+            'final_kemungkinan_terjadi' => 'Final Kemungkinan Terjadi',
+            'foto_bukti_penyelesaian' => 'Foto Bukti Penyelesaian',
         ];
     }
 }

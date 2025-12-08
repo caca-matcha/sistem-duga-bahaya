@@ -22,6 +22,13 @@
                 <svg class="h-6 w-6 mr-3 stroke-current @if(request()->routeIs('she.dashboard')) text-red-700 @else text-gray-600 @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Dashboard
             </a>
+            
+            {{-- Tautan Laporan Bahaya (Reports) --}}
+            <a href="{{ route('she.hazards.index') }}" class="flex items-center px-4 py-2.5 rounded-lg transition duration-200 hover:bg-red-50 hover:text-red-700 @if(request()->routeIs('she.hazards.*')) bg-red-50 text-red-700 border-l-4 border-red-600 @else text-gray-700 @endif">
+                <svg class="h-6 w-6 mr-3 stroke-current @if(request()->routeIs('she.hazards.*')) text-red-700 @else text-gray-600 @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Reports
+            </a>
+
             <a href="{{ route('she.maps.index') }}" class="flex items-center px-4 py-2.5 rounded-lg transition duration-200 hover:bg-red-50 hover:text-red-700 @if(request()->routeIs('she.maps.*')) bg-red-50 text-red-700 border-l-4 border-red-600 @else text-gray-700 @endif">
                 <svg class="h-6 w-6 mr-3 stroke-current @if(request()->routeIs('she.maps.*')) text-red-700 @else text-gray-600 @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" /></svg>
                 Maps
@@ -34,10 +41,7 @@
                 <svg class="h-6 w-6 mr-3 stroke-current @if(request()->routeIs('karyawan.maps.*')) text-red-700 @else text-gray-600 @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" /></svg>
                 View Employee Risk Maps
             </a>
-            <a href="#" class="flex items-center px-4 py-2.5 rounded-lg transition duration-200 hover:bg-red-50 hover:text-red-700 text-gray-700">
-                <svg class="h-6 w-6 mr-3 stroke-current text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                Reports
-            </a>
+            
 
         @elseif(Auth::user()->role == 'supervisor')
             {{-- Supervisor Links --}}
@@ -45,6 +49,7 @@
                 <svg class="h-6 w-6 mr-3 stroke-current @if(request()->routeIs('supervisor.maps.*')) text-red-700 @else text-gray-600 @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" /></svg>
                 View Risk Maps
             </a>
+            {{-- Tautan Reports Supervisor (Jika ada route khusus, ganti #) --}}
             <a href="#" class="flex items-center px-4 py-2.5 rounded-lg transition duration-200 hover:bg-red-50 hover:text-red-700 text-gray-700">
                 <svg class="h-6 w-6 mr-3 stroke-current text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 Reports
@@ -86,7 +91,7 @@
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); this.closest('form').submit();"
                        class="text-xs text-gray-600 hover:text-red-700">
-                        Log Out
+                         Log Out
                     </a>
                 </form>
             </div>

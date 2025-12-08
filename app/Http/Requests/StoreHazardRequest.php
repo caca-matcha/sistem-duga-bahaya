@@ -37,11 +37,10 @@ class StoreHazardRequest extends FormRequest
             'foto_bukti' => ['nullable','image','mimes:jpg,jpeg,png','max:5120'],
             'tingkat_keparahan' => 'required|integer|min:1|max:5',
             'kemungkinan_terjadi' => 'required|integer|min:1|max:5',
-            
+            'kategori_stop6' => 'required|string|max:50',
             // ATURAN VALIDASI UNTUK SKOR DAN KATEGORI RISIKO (Wajib diisi dan divalidasi)
-            'risk_score' => 'required|integer|min:1|max:25', // Hasil kali Severity * Probability (1-25)
-            'kategori_resiko' => 'required|string|in:Low (Rendah),Medium (Sedang),High (Tinggi)', // Harus salah satu kategori ini
-            
+            'risk_score' => 'nullable|integer|min:1|max:25', // Hasil kali Severity * Probability (1-25)
+            'kategori_resiko' => 'required|string|in:Low,Medium,High,Low (Rendah),Medium (Sedang),High (Tinggi)', // Harus salah satu kategori ini
             'ide_penanggulangan' => 'nullable|string',
         ];
     }
@@ -84,6 +83,7 @@ class StoreHazardRequest extends FormRequest
             'foto_bukti' => 'Foto Bukti',
             'tingkat_keparahan' => 'Tingkat Keparahan (Severity)',
             'kemungkinan_terjadi' => 'Kemungkinan Terjadi (Probability)',
+            'kategori_stop6' => 'Kategori STOP6',
             'risk_score' => 'Skor Resiko',
             'kategori_resiko' => 'Kategori Resiko',
             'ide_penanggulangan' => 'Ide Penanggulangan',

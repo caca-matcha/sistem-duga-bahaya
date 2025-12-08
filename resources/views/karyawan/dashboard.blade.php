@@ -88,7 +88,6 @@
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Observasi</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi Bahaya</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Area Gedung</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skor Risiko</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
@@ -105,9 +104,6 @@
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $hazard->area_gedung }}
-                                        </td>
-                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                            {{ $hazard->skor_resiko }}
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             @php
@@ -127,12 +123,12 @@
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             {{-- Ganti '#' dengan rute ke halaman detail jika ada --}}
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Detail</a>
+                                            <a href="{{ route('karyawan.hazards.show', $hazard) }}" class="text-indigo-600 hover:text-indigo-900">Detail</a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-4 py-4 text-center text-sm text-gray-500">
+                                        <td colspan="5" class="px-4 py-4 text-center text-sm text-gray-500">
                                             Anda belum memiliki laporan bahaya yang tercatat.
                                             <a href="{{ route('karyawan.hazards.create') }}" class="text-red-600 hover:underline font-medium">Buat laporan pertama Anda.</a>
                                         </td>
