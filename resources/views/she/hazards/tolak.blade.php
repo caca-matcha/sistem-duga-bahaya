@@ -34,8 +34,23 @@
                         </div>
 
                         <div>
-                            <dt class="text-sm font-semibold text-gray-500">Area Kerja</dt>
+                            <dt class="text-sm font-semibold text-gray-500">Area Gedung</dt>
                             <dd class="text-sm mt-1">{{ $hazard->area_gedung }}</dd>
+                        </div>
+                        
+                        <div>
+                            <dt class="text-sm font-semibold text-gray-500">Area Type</dt>
+                            <dd class="text-sm mt-1">{{ $hazard->area_type }}</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-semibold text-gray-500">Area Name</dt>
+                            <dd class="text-sm mt-1">{{ $hazard->area_name }}</dd>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-semibold text-gray-500">Area ID</dt>
+                            <dd class="text-sm mt-1">{{ $hazard->area_id }}</dd>
                         </div>
 
                         <div class="sm:col-span-2">

@@ -13,11 +13,11 @@ class ReportController extends Controller
 {
     public function index()
     {
-        $hazardsBaru = Hazard::where('status', 'menunggu validasi')->latest()->with('pelapor', 'ditanganiOleh')->get();
+        $hazardsMenungguValidasi = Hazard::where('status', 'menunggu validasi')->latest()->with('pelapor', 'ditanganiOleh')->get();
         $hazardsDiproses = Hazard::where('status', 'diproses')->latest()->with('pelapor', 'ditanganiOleh')->paginate(10, ['*'], 'diproses_page');
         $hazardsSelesai = Hazard::whereIn('status', ['selesai', 'ditolak'])->latest()->with('pelapor', 'ditanganiOleh')->paginate(10, ['*'], 'selesai_page');
 
-        return view('she.reports.index', compact('hazardsBaru', 'hazardsDiproses', 'hazardsSelesai'));
+        return view('she.reports.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai'));
     }
 
     public function show(Hazard $hazard)

@@ -39,34 +39,8 @@ class HazardFactory extends Factory
             'NPK' => $this->faker->unique()->randomNumber(5),
             'dept' => $this->faker->randomElement(['Produksi', 'Gudang', 'SHE', 'HRD', 'Maintenance']),
             'tgl_observasi' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'area_gedung' => $this->faker->randomElement(['Gedung A', 'Gedung B', 'Gedung C', 'Gedung D', 'Gedung E', 'Gedung F', 'Gedung G', 'Gedung I']),
-            'aktivitas_kerja' => $this->faker->randomElement([// Gedung A
-            'Packing', 
-            'Produksi', 
-            'Sorting',
-            // Gedung B
-            'Maintenance Mesin', 
-            'Inspeksi Kualitas',
-            // Gedung C
-            'Administrasi', 
-            'Meeting', 
-            'Training',
-            // Gedung D
-            'Warehouse', 
-            'Forklift', 
-            'Loading / Unloading',
-            // Gedung E
-            'Laboratorium', 
-            'Pengujian Sampel',
-            // Gedung F
-            'Welding', 
-            'Assembly', 
-            'Finishing',
-            // Gedung G
-            'Area Umum', 
-            'Kantin', 
-            'Mushola'
-        ]),
+            'area_gedung' => $this->faker->randomElement(['Gedung A', 'Gedung B', 'Gedung C', 'Gedung D']),
+            
             'deskripsi_bahaya' => $this->faker->sentence(),
             'foto_bukti' => null, // Placeholder for actual photo
             'kategori_stop6' => $this->faker->randomElement(['A', 'B', 'C', 'D', 'E', 'F', 'O']),
@@ -76,11 +50,11 @@ class HazardFactory extends Factory
             'risk_score' => $skorResiko,
             'kategori_resiko' => $this->getKategoriResiko($skorResiko),
             'ide_penanggulangan' => $this->faker->paragraph(),
-            'status' => 'menunggu validasi',
-            'alasan_penolakan' => null,
-            'report_selesai' => null, 
-            'ditangani_oleh' => null, 
-            'ditangani_pada' => null,
+            'status' => $this->faker->randomElement(['menunggu validasi', 'ditolak', 'diproses', 'selesai']),
+            'alasan_penolakan' => $this->faker->boolean(20) ? $this->faker->sentence() : null, // 20% chance of rejection reason
+            'report_selesai' => $this->faker->boolean(70) ? $this->faker->dateTimeBetween('-6 months', 'now') : null, // 70% chance of being resolved
+            'ditangani_oleh' => $this->faker->boolean(50) ? User::factory() : null, // 50% chance of being handled by another user
+            'ditangani_pada' => $this->faker->boolean(50) ? $this->faker->dateTimeBetween('-6 months', 'now') : null,
         ];
     }
 

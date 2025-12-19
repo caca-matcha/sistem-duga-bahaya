@@ -16,7 +16,7 @@ class DashboardController extends Controller
     public function index()
     {
         $totalReports = Hazard::count();
-        $validatedReports = Hazard::where('status', 'divalidasi')->count();
+        $validatedReports = Hazard::where('status', 'selesai')->count();
         $latestReports = Hazard::latest()->take(5)->get(); // Get the 5 latest reports
 
         // Logic for "Notifikasi area berbahaya"
@@ -43,6 +43,8 @@ class DashboardController extends Controller
                                   ->take(5) // Get the top 5 locations
                                   ->get();
 
+
+        dd($riskCounts, $topRiskLocations);
 
         return view('she.dashboard', compact('totalReports', 'validatedReports', 'latestReports', 'dangerousAreas', 'riskCounts', 'topRiskLocations'));
     }

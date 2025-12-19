@@ -12,7 +12,7 @@
                 <!-- NAVIGATION TABS -->
                 <ul class="flex border-b mb-6" role="tablist">
                     <li class="mr-6">
-                        <a href="#tab-baru" class="tab-link font-semibold text-blue-600" data-tab="baru">
+                        <a href="#tab-baru" class="tab-link font-semibold text-blue-600" data-tab="menunggu validasi">
                             Laporan Baru
                         </a>
                     </li>
@@ -49,6 +49,9 @@
                             </thead>
                             <tbody>
                                 @foreach ($hazardsBaru as $hazard)
+                                    @php
+                                        $risk = getRiskClasses($hazard->risk_score);
+                                    @endphp
                                     <tr>
                                         <td class="p-2 border">#{{ $hazard->id }}</td>
                                         <td class="p-2 border">{{ $hazard->nama }}</td>
@@ -57,7 +60,7 @@
                                         {{-- KOLOM SKOR RESIKO BARU DENGAN WARNA --}}
                                         <td class="p-2 border text-center">
                                           <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                            style="background-color: {{ getRiskColor($hazard->risk_score, $riskColors) }};
                                             color: {{ getTextColor($hazard->risk_score) }};">
                                                 {{ $hazard->risk_score }}
                                             </span>
@@ -66,9 +69,9 @@
                                         {{-- KOLOM KATEGORI RESIKO BARU DENGAN WARNA --}}
                                         <td class="p-2 border text-center">
                                            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                                                style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                                style="background-color: {{ getRiskColor($hazard->risk_score, $riskColors) }};
                                                         color: {{ getTextColor($hazard->risk_score) }};">
-                                                {{ $hazard->kategori_resiko }}
+                                                {{ $hazard->risk_score }}
                                             </span>
 
                                         </td>
@@ -113,7 +116,7 @@
                                     {{-- KOLOM SKOR RESIKO DIPROSES DENGAN WARNA --}}
                                     <td class="p-2 border text-center">
                                     <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                            style="background-color: {{ getRiskColor($hazard->risk_score, $riskColors) }};
                                                     color: {{ getTextColor($hazard->risk_score) }};">
                                             {{ $hazard->risk_score }}
                                         </span>
@@ -121,9 +124,9 @@
                                     {{-- KOLOM KATEGORI RESIKO DIPROSES DENGAN WARNA --}}
                                     <td class="p-2 border text-center">
                                         <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                            style="background-color: {{ getRiskColor($hazard->risk_score, $riskColors) }};
                                                     color: {{ getTextColor($hazard->risk_score) }};">
-                                            {{ $hazard->kategori_resiko }}
+                                            {{ $hazard->kategori_resiko) }}
                                         </span>
                                     </td>
                                     <td class="p-2 border text-center">
@@ -173,7 +176,7 @@
                                     {{-- KOLOM SKOR RESIKO SELESAI / DITOLAK DENGAN WARNA --}}
                                     <td class="p-2 border text-center">
                                     <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                            style="background-color: {{ getRiskColor($hazard->risk_score, $riskColors) }};
                                                     color: {{ getTextColor($hazard->risk_score) }};">
                                             {{ $hazard->risk_score }}
                                         </span>
@@ -181,9 +184,9 @@
                                     {{-- KOLOM KATEGORI RESIKO SELESAI / DITOLAK DENGAN WARNA --}}
                                     <td class="p-2 border text-center">
                                         <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                                            style="background-color: {{ getRiskColor($hazard->risk_score) }};
+                                            style="background-color: {{ getRiskColor($hazard->risk_score, $riskColors) }};
                                                     color: {{ getTextColor($hazard->risk_score) }};">
-                                            {{ $hazard->kategori_resiko }}
+                                            {{ $hazard->kategori_resiko) }}
                                         </span>
                                     </td>
                                     <td class="p-2 border">
@@ -228,7 +231,7 @@
             targetContent.classList.remove('hidden');
         } else {
             // Default ke tab-baru jika tidak ditemukan
-            document.querySelector('.tab-link[data-tab="baru"]').classList.add('text-blue-600', 'font-semibold');
+            document.querySelector('.tab-link[data-tab="menunggu validasi"]').classList.add('text-blue-600', 'font-semibold');
             document.getElementById('tab-baru').classList.remove('hidden');
         }
     };

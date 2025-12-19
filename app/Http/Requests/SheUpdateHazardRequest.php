@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class SheUpdateHazardRequest extends FormRequest
 {
@@ -41,8 +42,9 @@ class SheUpdateHazardRequest extends FormRequest
             // --- VALIDASI PENERIMAAN/PROSES (Status = diproses) ---
 
             // Wajib jika diproses (Verifikasi Final Risk Matrix)
-            'final_tingkat_keparahan' => 'required_if:status,diproses|nullable|integer|min:1|max:5',
-            'final_kemungkinan_terjadi' => 'required_if:status,diproses|nullable|integer|min:1|max:5',
+            'final_tingkat_keparahan' => 'required_if:status,diproses|nullable|integer|in:1,3,5',
+            'final_kemungkinan_terjadi' => 'required_if:status,diproses|nullable|integer|in:1,2,3,4,5',
+            'final_kategori_stop6' => 'required_if:status,diproses|nullable|string|max:50',
 
             // Data Penanganan Lanjutan (Wajib jika status = diproses)
             'tindakan_perbaikan' => 'required_if:status,diproses|nullable|string',
@@ -57,13 +59,35 @@ class SheUpdateHazardRequest extends FormRequest
             'kategori_stop6' => 'nullable|string|max:50',
 
             // --- FIELD SELESAI (Status = selesai) ---
-            'foto_bukti_penyelesaian' => 'required_if:status,selesai|nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'foto_bukti_penyelesaian' => [
+                Rule::requiredIf(function () {
+                    return $this->input('status') === 'selesai' && 
+                           $this->input('tindakan_perbaikan') !== 'Validasi tanpa tindak lanjut.';
+                }),
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:5120',
+            ],
             
             // Kolom di bawah ini dihapus karena nilainya dihitung di Controller atau diisi otomatis oleh Auth::id()
             // risk_score, kategori_resiko (dihitung)
             // ditangani_oleh (otomatis di Controller)
             // pic_penanggung_jawab (dihapus/diganti ditangani_oleh)
             // tingkat_keparahan / kemungkinan_terjadi (data awal karyawan, tidak boleh diedit)
+        ];
+    }
+    
+    /**
+     * Dapatkan pesan kesalahan yang disesuaikan untuk aturan validasi tertentu.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'final_tingkat_keparahan.in' => 'Pilihan untuk Final Tingkat Keparahan tidak valid. Harap pilih salah satu dari opsi yang tersedia.',
+            'final_kemungkinan_terjadi.in' => 'Pilihan untuk Final Kemungkinan Terjadi tidak valid. Harap pilih salah satu dari opsi yang tersedia.',
         ];
     }
     
@@ -83,8 +107,11 @@ class SheUpdateHazardRequest extends FormRequest
             'tindakan_perbaikan' => 'Tindakan Perbaikan',
             'target_penyelesaian' => 'Target Penyelesaian',
             'alasan_penolakan' => 'Alasan Penolakan',
+            'aktivitas_kerja' => 'Aktivitas',
+            'area_gedung' => 'Area Gedung',
             'final_tingkat_keparahan' => 'Final Tingkat Keparahan',
             'final_kemungkinan_terjadi' => 'Final Kemungkinan Terjadi',
+            'final_kategori_stop6' => 'Final Kategori STOP6',
             'foto_bukti_penyelesaian' => 'Foto Bukti Penyelesaian',
         ];
     }

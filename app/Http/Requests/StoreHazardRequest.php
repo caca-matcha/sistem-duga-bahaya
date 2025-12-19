@@ -31,16 +31,15 @@ class StoreHazardRequest extends FormRequest
             'dept' => 'required|string|max:100',     
             'tgl_observasi' => 'required|date|before_or_equal:today',
             'area_gedung' => 'required|string|max:100',
-            // Nama field ini harus sinkron dengan field di Blade.
-            'aktivitas_kerja' => 'required|string|max:100',
+            'area_type' => 'required|string|max:100',
+            'area_name' => 'required|string|max:100',
+            'area_id' => 'required|string|max:100',
             'deskripsi_bahaya' => 'required|string',
             'foto_bukti' => ['nullable','image','mimes:jpg,jpeg,png','max:5120'],
-            'tingkat_keparahan' => 'required|integer|min:1|max:5',
-            'kemungkinan_terjadi' => 'required|integer|min:1|max:5',
+            'tingkat_keparahan' => 'required|integer|in:1,3,5',
+            'kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'kategori_stop6' => 'required|string|max:50',
-            // ATURAN VALIDASI UNTUK SKOR DAN KATEGORI RISIKO (Wajib diisi dan divalidasi)
-            'risk_score' => 'nullable|integer|min:1|max:25', // Hasil kali Severity * Probability (1-25)
-            'kategori_resiko' => 'required|string|in:Low,Medium,High,Low (Rendah),Medium (Sedang),High (Tinggi)', // Harus salah satu kategori ini
+            // ATURAN VALIDASI UNTUK SKOR DAN KATEGORI RISIKO (Dihitung di Backend)
             'ide_penanggulangan' => 'nullable|string',
         ];
     }
@@ -62,6 +61,8 @@ class StoreHazardRequest extends FormRequest
             'before_or_equal' => 'Tanggal Observasi tidak boleh melebihi hari ini.',
             'image' => 'File :attribute harus berupa gambar.',
             'mimes' => 'Format file :attribute yang diizinkan adalah :values.',
+            'tingkat_keparahan.in' => 'Pilihan untuk Tingkat Keparahan tidak valid. Harap pilih salah satu dari opsi yang tersedia.',
+            'kemungkinan_terjadi.in' => 'Pilihan untuk Kemungkinan Terjadi tidak valid. Harap pilih salah satu dari opsi yang tersedia.',
             'in' => 'Kolom :attribute memiliki nilai yang tidak valid.',
         ];
     }
@@ -78,14 +79,14 @@ class StoreHazardRequest extends FormRequest
             'dept' => 'Departemen',
             'tgl_observasi' => 'Tanggal Observasi',
             'area_gedung' => 'Area/Gedung',
-            'aktivitas_kerja' => 'Aktivitas Kerja',
+            'area_type' => 'Area Type',
+            'area_name' => 'Area Name',
+            'area_id' => 'Area ID (Kode Line)',
             'deskripsi_bahaya' => 'Deskripsi Bahaya',
             'foto_bukti' => 'Foto Bukti',
             'tingkat_keparahan' => 'Tingkat Keparahan (Severity)',
             'kemungkinan_terjadi' => 'Kemungkinan Terjadi (Probability)',
             'kategori_stop6' => 'Kategori STOP6',
-            'risk_score' => 'Skor Resiko',
-            'kategori_resiko' => 'Kategori Resiko',
             'ide_penanggulangan' => 'Ide Penanggulangan',
         ];
     }

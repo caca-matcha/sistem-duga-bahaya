@@ -5,6 +5,38 @@
         </h2>
     </x-slot>
 
+    {{-- Notifikasi Jatuh Tempo --}}
+    @php
+        if ($hazard->target_penyelesaian) {
+            $dueDate = \Carbon\Carbon::parse($hazard->target_penyelesaian);
+            $daysRemaining = now()->diffInDays($dueDate, false); // `false` to get signed difference
+        } else {
+            $daysRemaining = null;
+        }
+    @endphp
+
+    @if ($daysRemaining !== null)
+        @if ($daysRemaining >= 0 && $daysRemaining <= 7)
+            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 mt-6">
+                <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700" role="alert">
+                    <p class="font-bold">Perhatian</p>
+                    @if ($daysRemaining > 0)
+                        <p>Target penyelesaian untuk laporan ini akan jatuh tempo dalam <strong>{{ $daysRemaining }} hari</strong> lagi (pada tanggal {{ $dueDate->format('d M Y') }}).</p>
+                    @else
+                        <p>Target penyelesaian untuk laporan ini jatuh tempo <strong>hari ini</strong>.</p>
+                    @endif
+                </div>
+            </div>
+        @elseif($daysRemaining < 0)
+            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 mt-6">
+                <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700" role="alert">
+                    <p class="font-bold">Terlambat</p>
+                    <p>Target penyelesaian untuk laporan ini telah melewati batas waktu sejauh <strong>{{ abs($daysRemaining) }} hari</strong> (seharusnya selesai pada {{ $dueDate->format('d M Y') }}).</p>
+                </div>
+            </div>
+        @endif
+    @endif
+
     <div class="py-6">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-xl overflow-hidden">
@@ -18,40 +50,46 @@
                     </h3>
 
                     <div class="grid grid-cols-1 gap-10">
-
-                     <dl class="space-y-4">
-                                <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">Pelapor</span>
-                                <span class="text-sm font-medium text-gray-900">{{ $hazard->pelapor->name ?? 'N/A' }}</span>
+                        <dl class="space-y-4">
+                            {{-- Pelapor & NPK --}}
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Pelapor</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ $hazard->pelapor->name ?? 'N/A' }} ({{ $hazard->NPK }})</dd>
                             </div>
-
-                                                   <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">NPK Pelapor</span>
-                                <span class="text-sm font-medium text-gray-900">{{ $hazard->NPK }}</span>
+                            {{-- Departemen & Tanggal Observasi --}}
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Departemen</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ $hazard->dept }}</dd>
                             </div>
-                                <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">Departemen</span>
-                                <span class="text-sm font-medium text-gray-900">{{ $hazard->dept }}</span>
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Tanggal Observasi</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}</dd>
                             </div>
-                                <div class="flex justify-between items-center">
-                                                                <span class="text-sm text-gray-500">Tanggal Observasi</span>
-                                                                <span class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}</span>
-                                                            </div>                                
-                                <div class="pt-2">
-                                    <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-500">Area Kerja</span>
-                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->area_gedung }}</span>
-                                </div>
-                                    <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-500">Aktivitas Kerja</span>
-                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->aktivitas_kerja }}</span>
-                                </div>
-                                    <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-500">Kategori STOP6</span>
-                                    <span class="text-sm font-medium text-gray-900">{{ $hazard->kategori_stop6 }}</span>
-                                </div>
+                            {{-- Area Details --}}
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Area Gedung</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ $hazard->area_gedung }}</dd>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Area Type</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ $hazard->area_type }}</dd>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Area Name</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ $hazard->area_name }}</dd>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Area ID</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ $hazard->area_id }}</dd>
+                            </div>
+                            {{-- Kategori STOP6 Awal --}}
+                            <div class="flex justify-between items-center">
+                                <dt class="text-sm text-gray-500">Kategori STOP6 Awal</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ $hazard->kategori_stop6 }}</dd>
+                            </div>
+                        </dl>
                         
-
+                        {{-- Maps untuk Tingkat Keparahan dan Kemungkinan Terjadi --}}
                         @php
                             $tingkatKeparahanMap = [
                                 5 => 'A - Kecelakaan fatal',
@@ -67,40 +105,48 @@
                             ];
                         @endphp
 
-                    <div class="grid grid-cols-1 gap-10">
-                     <dl class="space-y-4"></dl>
+                        <dl class="space-y-4 pt-4 border-t border-gray-200">
                             <div class="flex justify-between items-center">
-                            <dt class="text-sm font-medium text-gray-500">Tingkat Keparahan Awal</dt>
-                            <dd class="text-sm mt-1">{{ $tingkatKeparahanMap[$hazard->tingkat_keparahan] ?? 'N/A' }}</dd>
-                        </div>
+                                <dt class="text-sm font-medium text-gray-500">Tingkat Keparahan Awal</dt>
+                                <dd class="text-sm mt-1">{{ $tingkatKeparahanMap[$hazard->tingkat_keparahan] ?? 'N/A' }}</dd>
+                            </div>
                             <div class="flex justify-between items-center">
-                            <dt class="text-sm font-medium text-gray-500">Kemungkinan Terjadi Awal</dt>
-                            <dd class="text-sm mt-1">{{ $kemungkinanTerjadiMap[$hazard->kemungkinan_terjadi] ?? 'N/A' }}</dd>
-                        </div>
+                                <dt class="text-sm font-medium text-gray-500">Kemungkinan Terjadi Awal</dt>
+                                <dd class="text-sm mt-1">{{ $kemungkinanTerjadiMap[$hazard->kemungkinan_terjadi] ?? 'N/A' }}</dd>
+                            </div>
 
-                        <div>
+                            @php
+                                // Calculate initial risk score directly in the view for robustness
+                                $initialSeverity = $hazard->tingkat_keparahan ?? 0;
+                                $initialProbability = $hazard->kemungkinan_terjadi ?? 0;
+                                $initialRiskScore = ($initialSeverity && $initialProbability) ? $initialSeverity * $initialProbability : null;
+
+                                // Determine initial risk category based on the calculated score
+                                $initialKategori = 'N/A';
+                                if ($initialRiskScore !== null) {
+                                    if ($initialRiskScore <= 5) $initialKategori = 'Low';
+                                    elseif ($initialRiskScore <= 12) $initialKategori = 'Medium';
+                                    else $initialKategori = 'High';
+                                }
+                            @endphp
                             <div class="flex justify-between items-center text-sm font-bold pt-4 border-t">
-                            
-                            <dt class="text-sm font-medium text-gray-500">Skor Risiko Awal (Pelapor)</dt>
-                            
-                            <dd class="text-sm mt-1">
-                                
-                                <span class="px-3 py-1 rounded-full font-semibold text-xs" style="background-color: {{ getRiskColor($hazard->risk_score) }}; color: {{ getTextColor($hazard->risk_score) }};">
-                                    {{ $hazard->risk_score }} ({{ $hazard->kategori_resiko }})
-                                </span>
-                            </dd>
-                        </div>
-                        <div class="pt-4">
-                            <dt class="text-sm font-medium text-gray-500">Deskripsi Bahaya</dt>
-                            <dd class="text-sm bg-gray-50 p-3 rounded-md mt-1">{{ $hazard->deskripsi_bahaya }}</dd>
-                        </div>
-
-                        
-                            <dt class="text-sm font-medium text-gray-500">Ide Penanggulangan Pelapor</dt>
-                            <dd class="text-sm bg-gray-50 p-3 rounded-md mt-1">{{ $hazard->ide_penanggulangan ?? 'Tidak ada ide' }}</dd>
-                        </div>
-                    </dl>
-
+                                <dt class="text-sm font-medium text-gray-500">Skor Risiko Awal (Pelapor)</dt>
+                                <dd class="text-sm mt-1">
+                                    <span class="px-3 py-1 rounded-full font-semibold text-xs" style="background-color: {{ getRiskColor($initialRiskScore) }}; color: {{ getTextColor($initialRiskScore) }};">
+                                        {{ $initialRiskScore ?? 'N/A' }} ({{ $initialKategori }})
+                                    </span>
+                                </dd>
+                            </div>
+                            <div class="pt-4">
+                                <dt class="text-sm font-medium text-gray-500">Deskripsi Bahaya</dt>
+                                <dd class="text-sm bg-gray-50 p-3 rounded-md mt-1">{{ $hazard->deskripsi_bahaya }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Ide Penanggulangan Pelapor</dt>
+                                <dd class="text-sm bg-gray-50 p-3 rounded-md mt-1">{{ $hazard->ide_penanggulangan ?? 'Tidak ada ide' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
 
                     {{-- Error Alert --}}
                     @if ($errors->any())
@@ -116,13 +162,11 @@
                     {{-- ============================
                            FORM VALIDASI SHE
                     ============================ --}}
-                    <form method="POST" action="{{ route('she.hazards.updateStatus', $hazard) }}">
+                    <form method="POST" id="diproses_form" action="{{ route('she.hazards.validasi.submit', $hazard) }}">
                         @csrf
-                        @method('PUT')
+                        {{-- The form's default method is POST, so no need for @method('POST') --}}
 
-                        <input type="hidden" name="status" value="diproses">
-                        <input type="hidden" id="risk_score_hidden" name="risk_score" value="{{ $hazard->risk_score }}">
-                        <input type="hidden" id="kategori_resiko_hidden" name="kategori_resiko" value="{{ $hazard->kategori_resiko }}">
+                        {{-- The status is determined by which button is clicked, so no hidden status needed here --}}
 
                         <div class="pt-4"></div>
                         <h3 class="text-lg font-bold mb-4 pb-2 border-b mt-10">
@@ -130,6 +174,38 @@
                         </h3>
 
                         <div class="space-y-6">
+
+                            {{-- Final Kategori STOP 6 --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Final Kategori STOP 6
+                                </label>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Contoh Kategori (STOP 6):
+                                </p>
+                                <ul class="text-xs text-gray-500 mb-2 list-none pl-6">
+                                    <li><strong>A</strong> = Aparatus (Bahaya terjepit, tergores, terpotong, tersayat)</li>
+                                    <li><strong>B</strong> = Big Heavy (Bahaya tertimpa benda berat / terbentur)</li>
+                                    <li><strong>C</strong> = Car (Tertabrak kendaraan, alat angkut, transportasi)</li>
+                                    <li><strong>D</strong> = Drop (Terjatuh dari ketinggian, terpeleset, tersandung)</li>
+                                    <li><strong>E</strong> = Electrical (Tersengat listrik)</li>
+                                    <li><strong>F</strong> = Fire (Terpapar panas, ledakan, kebakaran)</li>
+                                    <li><strong>O</strong> = Others (Bahan kimia, lingkungan, gigitan/sengatan hewan, dll.)</li>
+                                </ul>
+
+                                <select id="final_kategori_stop6" name="final_kategori_stop6"
+                                    class="mt-2 w-full rounded-md border-gray-300 shadow-sm"
+                                    required>
+                                    <option value="">Pilih Kategori</option>
+                                    <option value="A" {{ old('final_kategori_stop6', $hazard->kategori_stop6 ?? '') == 'A' ? 'selected' : '' }}>A</option>
+                                    <option value="B" {{ old('final_kategori_stop6', $hazard->kategori_stop6 ?? '') == 'B' ? 'selected' : '' }}>B</option>
+                                    <option value="C" {{ old('final_kategori_stop6', $hazard->kategori_stop6 ?? '') == 'C' ? 'selected' : '' }}>C</option>
+                                    <option value="D" {{ old('final_kategori_stop6', $hazard->kategori_stop6 ?? '') == 'D' ? 'selected' : '' }}>D</option>
+                                    <option value="E" {{ old('final_kategori_stop6', $hazard->kategori_stop6 ?? '') == 'E' ? 'selected' : '' }}>E</option>
+                                    <option value="F" {{ old('final_kategori_stop6', $hazard->kategori_stop6 ?? '') == 'F' ? 'selected' : '' }}>F</option>
+                                    <option value="O" {{ old('final_kategori_stop6', $hazard->kategori_stop6 ?? '') == 'O' ? 'selected' : '' }}>O</option>
+                                </select>
+                            </div>
 
                             {{-- Faktor Penyebab --}}
                             <div>
@@ -190,9 +266,9 @@
 
                             {{-- Final Risk Score --}}
                             @php
-                                $sevFinal = $hazard->final_tingkat_keparahan ?? 0;
-                                $probFinal = $hazard->final_kemungkinan_terjadi ?? 0;
-                                $finalRiskScore = ($sevFinal && $probFinal) ? $sevFinal * $probFinal : null;
+                                $sevFinal = old('final_tingkat_keparahan', $hazard->final_tingkat_keparahan ?? 0);
+                                $probFinal = old('final_kemungkinan_terjadi', $hazard->final_kemungkinan_terjadi ?? 0);
+                                $finalRiskScore = ($sevFinal && $probFinal) ? (int)$sevFinal * (int)$probFinal : null;
                             @endphp
                             <div class="flex justify-between items-center text-sm font-bold pt-2 border-b border-dashed">
                                 <span class="text-green-700 font-bold">SKOR RISIKO FINAL</span>
@@ -200,96 +276,29 @@
                                     {{ $finalRiskScore ?? 'N/A' }}
                                 </span>
                             </div>
-
-                            {{-- Upaya Penanggulangan --}}
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">
-                                    Upaya Penanggulangan (Boleh isi lebih dari satu)
-                                </label>
-
-                                @php
-                                    $options = ['Eliminasi', 'Substitusi', 'Rekayasa (Engineering)', 'Administrasi', 'APD'];
-                                    $selected = is_array($hazard->upaya_penanggulangan) 
-                                        ? $hazard->upaya_penanggulangan 
-                                        : json_decode($hazard->upaya_penanggulangan, true) ?? [];
-                                @endphp
-
-                                <div id="penanggulangan_container" class="mt-3 space-y-4">
-                                @foreach ($options as $index => $opt)
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">
-                                            {{ $index + 1 }}. {{ strtoupper($opt) }}
-                                        </label>
-                                        <input type="text" 
-                                            name="upaya_penanggulangan_text[{{ $opt }}]" 
-                                            value="{{ $selected[$opt] ?? '' }}" 
-                                            placeholder="Tulis upaya di sini..." 
-                                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm">
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            </div>
-
-                            {{-- Rencana Tindakan --}}
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">
-                                    Rencana Tindakan Perbaikan
-                                </label>
-                                <textarea id="tindakan_textarea" name="tindakan_perbaikan" rows="4"
-                                          class="mt-2 w-full rounded-md border-gray-300 shadow-sm"
-                                          required>{{ old('tindakan_perbaikan', $hazard->tindakan_perbaikan) }}</textarea>
-                            </div>
-
-                            {{-- Target Penyelesaian --}}
-                            <div>
-                                <label for="target_penyelesaian" class="block text-sm font-medium text-gray-700">
-                                    Target Penyelesaian
-                                </label>
-                                <input type="date" name="target_penyelesaian" id="target_penyelesaian"
-                                       class="mt-2 w-full rounded-md border-gray-300 shadow-sm"
-                                       value="{{ old('target_penyelesaian', $hazard->target_penyelesaian ? \Carbon\Carbon::parse($hazard->target_penyelesaian)->format('Y-m-d') : '') }}"
-                                       required>
-                            </div>
-
                         </div>
 
                         {{-- BUTTON ACTION --}}
                         <div class="flex justify-center mt-10"> 
-                            <button type="submit" class="px-5 py-2 bg-indigo-600 text-white text-m font-semibold rounded-md shadow hover:bg-indigo-700 transition">
+                            <button type="submit" name="action" value="dengan_tindak_lanjut" class="px-5 py-2 bg-indigo-600 text-white text-m font-semibold rounded-md shadow hover:bg-indigo-700 transition">
                                 Validasi dengan tindak lanjut
                             </button>
-                            <a href="{{ route('she.hazards.show', $hazard) }}" class="px-5 py-2 ml-3 border border-gray-300 text-gray-700 text-m font-semibold rounded-md shadow hover:bg-gray-50">
+                            <button type="submit" name="action" value="tanpa_tindak_lanjut" formaction="{{ route('she.hazards.validasi.submitTanpaTindakLanjut', $hazard) }}" class="px-5 py-2 ml-3 border border-gray-300 text-gray-700 text-m font-semibold rounded-md shadow hover:bg-gray-50">
                                 Validasi tanpa tindak lanjut
-                            </a>                 
+                            </button>               
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
+    
     {{-- SCRIPT PERHITUNGAN RISK SCORE & OTOMATIS PENANGGULANGAN --}}
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const sev = document.getElementById('final_tingkat_keparahan');
         const prob = document.getElementById('final_kemungkinan_terjadi');
         const disp = document.getElementById('final_risk_score_display');
-        const riskHidden = document.getElementById('risk_score_hidden');
-        const kategoriHidden = document.getElementById('kategori_resiko_hidden');
-
-        const checkboxes = document.querySelectorAll('.penanggulangan_checkbox');
-        const tindakanText = document.getElementById('tindakan_textarea');
-
-        const standar = 5;
-        const templateTindakan = 
-`Melakukan upaya penanggulangan sesuai hierarki kontrol seperti:
-- Eliminasi / Substitusi
-- Rekayasa Teknis
-- Administrasi
-- Penggunaan APD
-
-Tindakan dilakukan untuk mengurangi risiko yang melebihi standar perusahaan.`;
 
         function calc() {
             const s = parseInt(sev.value);
@@ -298,48 +307,16 @@ Tindakan dilakukan untuk mengurangi risiko yang melebihi standar perusahaan.`;
             if (!s || !p) {
                 disp.textContent = "N/A";
                 disp.style.backgroundColor = "#9CA3AF";
-                riskHidden.value = '';
-                kategoriHidden.value = '';
                 return;
             }
 
             const risk = s * p;
             disp.textContent = risk;
-            riskHidden.value = risk;
 
-
-            // Warna skor
             const riskColors = @json(getRiskColorsArray());
             const colorIndex = Math.min(Math.max(risk - 1, 0), 24);
             disp.style.backgroundColor = riskColors[colorIndex];
-
-            // Also update text color for consistency
-            if (risk <= 10) {
-                disp.style.color = '#1f2937';
-            } else {
-                disp.style.color = '#FFFFFF';
-            }
-
-            // Otomatis tampil penanggulangan jika > standar (DIMATIKAN SESUAI PERMINTAAN)
-            /*
-            if (risk > standar) {
-                checkboxes.forEach(cb => cb.checked = true);
-                if (tindakanText.value.trim() === "" || tindakanText.value === "{{ $hazard->tindakan_perbaikan }}") {
-                    tindakanText.value = templateTindakan;
-                }
-            } else {
-                // reset ke original
-                @if(is_array($selected))
-                    let original = @json($selected);
-                @else
-                    let original = [];
-                @endif
-                checkboxes.forEach(cb => cb.checked = original.includes(cb.value));
-                if (original.length === 0) {
-                    tindakanText.value = "";
-                }
-            }
-            */
+            disp.style.color = (risk <= 10) ? '#1f2937' : '#FFFFFF';
         }
 
         sev.addEventListener('change', calc);
@@ -347,5 +324,4 @@ Tindakan dilakukan untuk mengurangi risiko yang melebihi standar perusahaan.`;
         calc();
     });
     </script>
-
 </x-app-layout>

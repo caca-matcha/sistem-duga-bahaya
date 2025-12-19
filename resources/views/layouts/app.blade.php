@@ -19,6 +19,10 @@
             <!-- Sidebar -->
             @include('layouts.sidebar')
 
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Topbar -->
+            @include('layouts.topbar')
+
             <!-- Main Content -->
             <div class="flex-1 flex flex-col">
                 <!-- Page Heading -->
@@ -36,6 +40,7 @@
                 </main>
             </div>
         </div>
+        
         @stack('scripts')
     </body>
 </html>

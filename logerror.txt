@@ -1,1 +1,35 @@
-"hazard_photos/fUJeWYk2TUFAMVR5xSvGqAMLRmc4Kvp6lJrn5f8g.jpg" // app\Http\Controllers\Karyawan\HazardController.php:103
+App\Models\Hazard {#1067 ▼ // app\Http\Controllers\Karyawan\HazardController.php:104
+  #connection: "mysql"
+  #table: "hazards"
+  #primaryKey: "id"
+  #keyType: "int"
+  +incrementing: true
+  #with: []
+  #withCount: []
+  +preventsLazyLoading: false
+  #perPage: 15
+  +exists: true
+  +wasRecentlyCreated: false
+  #escapeWhenCastingToString: false
+  #attributes: array:34 [▶]
+  #original: array:34 [▶]
+  #changes: []
+  #previous: []
+  #casts: array:2 [▶]
+  #classCastCache: []
+  #attributeCastCache: []
+  #dateFormat: null
+  #appends: []
+  #dispatchesEvents: []
+  #observables: []
+  #relations: []
+  #touches: []
+  #relationAutoloadCallback: null
+  #relationAutoloadContext: null
+  +timestamps: true
+  +usesUniqueIds: false
+  #hidden: []
+  #visible: []
+  #fillable: array:26 [▶]
+  #guarded: array:1 [▶]
+}

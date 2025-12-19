@@ -25,6 +25,7 @@ return new class extends Migration
         // Detail observasi
         $table->date('tgl_observasi');
         $table->string('area_gedung')->nullable();
+        $table->string('area_id')->nullable();
         $table->string('aktivitas_kerja')->nullable();
 
         // Detail bahaya
@@ -41,8 +42,12 @@ return new class extends Migration
 
         $table->text('ide_penanggulangan')->nullable();
 
+        $table->integer('final_tingkat_keparahan')->nullable()->after('kategori_resiko');                                
+        $table->integer(column: 'final_kemungkinan_terjadi')->nullable()->after('final_tingkat_keparahan');                      
+        $table->string('final_kategori_stop6')->nullable()->after('final_kemungkinan_terjadi');   
+
         // Flow status
-        $table->enum('status', ['menunggu validasi', 'ditolak', 'diproses', 'selesai', 'disetujui'])
+        $table->enum('status', ['menunggu validasi', 'ditolak', 'diproses', 'selesai'])
             ->default('menunggu validasi');
 
         $table->text('alasan_penolakan')->nullable();

@@ -278,4 +278,13 @@ class MapController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * API Endpoint to get top-level maps (Gedung).
+     */
+    public function getGedung()
+    {
+        $gedung = Map::where('type', 'Gedung')->orWhereNull('parent_id')->get(['id', 'name']);
+        return response()->json($gedung);
+    }
 }

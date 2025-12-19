@@ -8,6 +8,8 @@ use App\Http\Requests\SheUpdateHazardRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Cell; // Import Cell Model
+use function App\Helpers\getRiskColor;
 
 class HazardController extends Controller
 {
@@ -15,7 +17,7 @@ class HazardController extends Controller
     public function index(Request $request)
     {
         // ... (Logika index tetap sama)
-        $hazardsBaru = Hazard::where('status', 'menunggu validasi')
+        $hazardsMenungguValidasi = Hazard::where('status', 'menunggu validasi')
             ->latest()
             ->with('pelapor', 'ditanganiOleh')
             ->get();
@@ -26,11 +28,11 @@ class HazardController extends Controller
             ->paginate(10, ['*'], 'diproses_page');
 
         $hazardsSelesai = Hazard::whereIn('status', ['selesai', 'ditolak'])
-            ->latest()
+            ->orderBy('ditangani_pada', 'desc')
             ->with('pelapor', 'ditanganiOleh')
             ->paginate(10, ['*'], 'selesai_page');
 
-        return view('she.hazards.index', compact('hazardsBaru', 'hazardsDiproses', 'hazardsSelesai'));
+        return view('she.hazards.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai'));
     }
 
     /**
@@ -49,7 +51,9 @@ class HazardController extends Controller
             'dept' => ['required', 'string'],
             'tgl_observasi' => ['required', 'date'],
             'area_gedung' => ['required', 'string'],
-            'aktivitas_kerja' => ['required', 'string'],
+            'area_type' => ['required', 'string'],
+            'area_name' => ['required', 'string'],
+            'area_id' => ['required', 'string'],
             'kategori_stop6' => ['required', 'string'],
             'ide_penanggulangan' => ['required', 'string'],
             'foto_bukti' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
@@ -79,9 +83,9 @@ class HazardController extends Controller
             $hazard->deskripsi_bahaya = $validatedData['deskripsi_bahaya'];
             $hazard->risk_score = $validatedData['risk_score'];
             $hazard->kategori_resiko = $validatedData['kategori_resiko'];
-            $hazard->kategori_stop6 = $validatedData['kategori_stop6'];
+            $hazard->kategori_stop6 = $validatedData['kategori_stop6'];            
             $hazard->ide_penanggulangan = $validatedData['ide_penanggulangan'];
-            $hazard->faktor_penyebab = $validatedData['faktor_penyebab'];
+            $hazard->faktor_penyebab = $validatedData['faktor_penyebab'];            
             
             if ($request->hasFile('foto_bukti')) {
                 $hazard->foto_bukti = $request->file('foto_bukti')->store('hazard_photos', 'public');
@@ -113,6 +117,42 @@ class HazardController extends Controller
         $hazard->load(['pelapor', 'ditanganiOleh']);
         return view('she.hazards.show', compact('hazard'));
     }
+    
+    // SUBMIT VALIDASI (STEP 1 DARI FORM DIPROSES)
+    public function submitValidasi(Request $request, Hazard $hazard)
+    {
+        // Validasi hanya bagian yang relevan dari form diproses
+        $validated = $request->validate([
+            'faktor_penyebab' => 'required|string|max:100',
+            'final_tingkat_keparahan' => 'required|integer|in:1,3,5',
+            'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
+            'final_kategori_stop6' => 'required|string|max:255',
+        ]);
+
+        // Simpan data yang divalidasi ke session untuk dibawa ke step berikutnya
+        $request->session()->flash('validated_data', $validated);
+
+        // Redirect ke form tindak lanjut
+        return redirect()->route('she.hazards.denganTindakLanjut', $hazard);
+    }
+
+    // SUBMIT VALIDASI (STEP 1 DARI FORM DIPROSES, JALUR TANPA TINDAK LANJUT)
+    public function submitValidasiTanpaTindakLanjut(Request $request, Hazard $hazard)
+    {
+        // Validasi hanya bagian yang relevan dari form diproses
+        $validated = $request->validate([
+            'faktor_penyebab' => 'required|string|max:100',
+            'final_tingkat_keparahan' => 'required|integer|in:1,3,5',
+            'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
+            'final_kategori_stop6' => 'required|string|max:255',
+        ]);
+
+        // Simpan data yang divalidasi ke session untuk dibawa ke step berikutnya
+        $request->session()->flash('validated_data', $validated);
+
+        // Redirect ke form tindak lanjut
+        return redirect()->route('she.hazards.tanpaTindakLanjut', $hazard);
+    }
 
     // UPDATE LAPORAN OLEH SHE (Menangani Tolak, Proses, Selesai)
 public function updateStatus(SheUpdateHazardRequest $request, Hazard $hazard)
@@ -132,8 +172,9 @@ public function updateStatus(SheUpdateHazardRequest $request, Hazard $hazard)
     if ($validated['status'] === 'diproses') {
         $finalSeverity = $validated['final_tingkat_keparahan'] ?? $hazard->tingkat_keparahan;
         $finalProbability = $validated['final_kemungkinan_terjadi'] ?? $hazard->kemungkinan_terjadi;
-
+        $finalKategoriStop6 = $validated['final_kategori_stop6'] ?? $hazard->kategori_stop6;
         $validated['risk_score'] = $finalSeverity * $finalProbability;
+
 
         // Tentukan kategori risiko berdasarkan risk_score
         $risk = $validated['risk_score'];
@@ -146,8 +187,10 @@ public function updateStatus(SheUpdateHazardRequest $request, Hazard $hazard)
         // Simpan final values ke DB jika kolom ada
         $hazard->final_tingkat_keparahan = $validated['final_tingkat_keparahan'] ?? null;
         $hazard->final_kemungkinan_terjadi = $validated['final_kemungkinan_terjadi'] ?? null;
+        $hazard->final_kategori_stop6 = $validated['final_kategori_stop6']?? null;
 
         unset($validated['final_tingkat_keparahan'], $validated['final_kemungkinan_terjadi']);
+        unset($validated['pic_penanggung_jawab']); // hapus jika ada
     }
 
     /* ----------------------------------------------------------
@@ -186,6 +229,54 @@ public function updateStatus(SheUpdateHazardRequest $request, Hazard $hazard)
     $hazard->update($validated);
     $hazard->save(); // pastikan final values ikut tersimpan
 
+    // --- RECALCULATE AND UPDATE CELL RISK SCORE & ZONE COLOR ---
+    if ($hazard->cell_id) { // Only proceed if the hazard is linked to a cell
+        $cell = $hazard->cell; // Retrieve the associated Cell model (using the cell() relationship)
+
+        if ($cell) {
+            // Get all 'active' hazards (diproses or selesai) associated with this cell
+            $activeHazards = Hazard::where('cell_id', $cell->id)
+                                    ->whereIn('status', ['diproses', 'selesai'])
+                                    ->get();
+
+            if ($activeHazards->count() > 0) {
+                // Calculate average risk score for the cell
+                // We will use the final_tingkat_keparahan and final_kemungkinan_terjadi
+                // of each hazard if available, otherwise fall back to initial.
+                $totalRiskScore = 0;
+                foreach ($activeHazards as $ah) {
+                    $sev = $ah->final_tingkat_keparahan ?? $ah->tingkat_keparahan;
+                    $prob = $ah->final_kemungkinan_terjadi ?? $ah->kemungkinan_terjadi;
+                    $totalRiskScore += ($sev * $prob);
+                }
+                $averageRiskScore = round($totalRiskScore / $activeHazards->count());
+                $cell->risk_score = $averageRiskScore;
+
+                $cell->zone_color = getRiskColor($averageRiskScore);
+            } else {
+                // If no active hazards, reset cell risk
+                $cell->risk_score = 0;
+                $cell->zone_color = '#ffffff'; // White or default for no risk
+            }
+
+            $cell->save(); // Save the updated cell
+        }
+    }
+    // Custom redirect for 'diproses' status
+    if ($validated['status'] === 'diproses') {
+        return redirect()
+            ->route('she.hazards.index')
+            ->with('success', 'Laporan dengan tindak lanjut telah berhasil disubmit.');
+    }
+
+    // Custom redirect for 'selesai' from 'tanpa tindak lanjut' form
+    if ($validated['status'] === 'selesai' && isset($validated['tindakan_perbaikan']) && $validated['tindakan_perbaikan'] === 'Validasi tanpa tindak lanjut.') {
+        return redirect()
+            ->route('she.hazards.index')
+            ->with('success', 'Laporan telah diselesaikan tanpa tindak lanjut.');
+    }
+
+    // Default redirect for other statuses
     return redirect()
         ->route('she.hazards.show', $hazard)
         ->with('success', 'Laporan berhasil diperbarui ke status: ' . ucfirst($validated['status']) . '.');
@@ -226,5 +317,62 @@ public function updateStatus(SheUpdateHazardRequest $request, Hazard $hazard)
                              ->with('error', 'Laporan harus berstatus DIPROSES untuk diselesaikan.');
         }
         return view('she.hazards.selesai', compact('hazard'));
+    }
+ // VIEW FORM DENGAN TINDAK LANJUT
+    public function denganTindakLanjutForm(Request $request, Hazard $hazard)
+    {
+        // Ambil data dari session yang di-flash oleh submitValidasi
+        $validatedData = $request->session()->get('validated_data');
+
+        // Jika data tidak ada (misal, user akses URL langsung), redirect kembali
+        if (!$validatedData) {
+            return redirect()->route('she.hazards.diprosesForm', $hazard)->with('error', 'Silakan isi form validasi terlebih dahulu.');
+        }
+
+        $final_tingkat_keparahan = $validatedData['final_tingkat_keparahan'];
+        $final_kemungkinan_terjadi = $validatedData['final_kemungkinan_terjadi'];
+        $faktor_penyebab = $validatedData['faktor_penyebab'];
+        $final_kategori_stop6 = $validatedData['final_kategori_stop6']; // Tambahkan ini
+
+        // Hitung skor risiko di backend
+        $final_risk_score = (int)$final_tingkat_keparahan * (int)$final_kemungkinan_terjadi;
+
+        return view('she.hazards.dengan_tindaklanjut', compact(
+            'hazard',
+            'final_tingkat_keparahan',
+            'final_kemungkinan_terjadi',
+            'final_risk_score',
+            'faktor_penyebab',
+            'final_kategori_stop6' // Tambahkan ini
+        ));
+    }
+
+    // VIEW FORM TANPA TINDAK LANJUT
+    public function tanpaTindakLanjutForm(Request $request, Hazard $hazard)
+    {
+        // Ambil data dari session yang di-flash oleh submitValidasi
+        $validatedData = $request->session()->get('validated_data');
+
+        // Jika data tidak ada (misal, user akses URL langsung), redirect kembali
+        if (!$validatedData) {
+            return redirect()->route('she.hazards.diprosesForm', $hazard)->with('error', 'Silakan isi form validasi terlebih dahulu.');
+        }
+
+        $final_tingkat_keparahan = $validatedData['final_tingkat_keparahan'] ?? null;
+        $final_kemungkinan_terjadi = $validatedData['final_kemungkinan_terjadi'] ?? null;
+        $faktor_penyebab = $validatedData['faktor_penyebab'] ?? null;
+        $final_kategori_stop6 = $validatedData['final_kategori_stop6'] ?? null;
+
+        // Hitung skor risiko di backend
+        $final_risk_score = (int)$final_tingkat_keparahan * (int)$final_kemungkinan_terjadi;
+
+        return view('she.hazards.tanpa_tindaklanjut', compact(
+            'hazard',
+            'final_tingkat_keparahan',
+            'final_kemungkinan_terjadi',
+            'final_risk_score',
+            'faktor_penyebab',
+            'final_kategori_stop6'
+        ));
     }
 }

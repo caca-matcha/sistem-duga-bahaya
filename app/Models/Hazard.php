@@ -22,6 +22,12 @@ class Hazard extends Model
         'dept',
         'tgl_observasi',
         'area_gedung',
+        'area_type',
+        'area_name',
+        'area_id',
+        'map_id',
+        'cell_id',
+        'lokasi_detail_manual',
         'aktivitas_kerja',
         'deskripsi_bahaya',
         'foto_bukti',
@@ -29,13 +35,15 @@ class Hazard extends Model
         'tingkat_keparahan',
         'kemungkinan_terjadi',
         'risk_score',
-        'kategori_resiko',
+        // 'risk_score', (dihitung di Controller)
+        // 'kategori_resiko', (dihitung di Controller)
         'ide_penanggulangan',
         'status', // Status awal
         'alasan_penolakan', // Untuk penolakan
         'ditangani_oleh',
         'ditangani_pada',
         'report_selesai',
+        'target_penyelesaian',
         
         // --- FIELDS BARU SHE ---
         'faktor_penyebab',
@@ -44,6 +52,7 @@ class Hazard extends Model
         //'pic_penanggung_jawab', (disamakan dengan ditangani_oleh)
         'final_tingkat_keparahan',
         'final_kemungkinan_terjadi',
+        'final_kategori_stop6',
         'tindakan_perbaikan',
         'foto_bukti_penyelesaian'
         ];
@@ -55,7 +64,7 @@ class Hazard extends Model
         'upaya_penanggulangan' => 'json',
     //  	'catatan_penanggulangan' => 'json',
         'tgl_observasi' => 'date',
-    //    'target_penyelesaian' => 'date',
+        'target_penyelesaian' => 'date',
     ];
 
     /**
@@ -74,6 +83,14 @@ class Hazard extends Model
     public function ditanganiOleh(): BelongsTo
     {
         return $this->belongsTo(User::class, 'ditangani_oleh');
+    }
+
+    /**
+     * Relasi ke Cell.
+     */
+    public function cell(): BelongsTo
+    {
+        return $this->belongsTo(Cell::class);
     }
 
     public function getKategoriResikoAttribute()

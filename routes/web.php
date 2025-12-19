@@ -68,10 +68,24 @@ Route::middleware(['auth', 'role:she'])
 
         // Rute untuk menampilkan formulir Penolakan (menunggu validasi -> ditolak)
         Route::get('hazards/{hazard}/tolak-form', [SHEHazardController::class, 'tolakForm'])->name('hazards.tolakForm');
+        // Rute untuk menampilkan formulir Penyelesaian tanpa rencana tindakan (menunggu validasi -> validasi)
+        Route::get('hazards/{hazard}/validasi-form', [SHEHazardController::class, 'validasiForm'])->name('hazards.validasiForm');
 
         // Rute untuk menampilkan formulir Penyelesaian (diproses -> selesai)
         Route::get('hazards/{hazard}/selesai-form', [SHEHazardController::class, 'selesaiForm'])->name('hazards.selesaiForm');
         
+        // Rute untuk menampilkan formulir tindak lanjut
+        Route::get('hazards/{hazard}/dengan-tindak-lanjut', [SHEHazardController::class, 'denganTindakLanjutForm'])->name('hazards.denganTindakLanjut');
+
+        // Rute untuk menampilkan formulir validasi tanpa tindak lanjut
+        Route::get('hazards/{hazard}/tanpa-tindak-lanjut', [SHEHazardController::class, 'tanpaTindakLanjutForm'])->name('hazards.tanpaTindakLanjut');
+
+        // Rute untuk submit validasi awal dari form diproses
+        Route::post('hazards/{hazard}/validasi-submit', [SHEHazardController::class, 'submitValidasi'])->name('hazards.validasi.submit');
+
+        // Rute untuk submit validasi awal dari form diproses (untuk jalur tanpa tindak lanjut)
+        Route::post('hazards/{hazard}/validasi-submit-tanpa-tindak-lanjut', [SHEHazardController::class, 'submitValidasiTanpaTindakLanjut'])->name('hazards.validasi.submitTanpaTindakLanjut');
+
         // ROUTE UTAMA UPDATE STATUS: Menangani semua status update (POST/PUT)
         Route::put('hazards/{hazard}/update-status', [SHEHazardController::class, 'updateStatus'])->name('hazards.updateStatus');
 
@@ -83,13 +97,22 @@ Route::middleware(['auth', 'role:she'])
         Route::get('maps/{map}/export-risk-excel', [MapController::class, 'exportRiskDataExcel'])->name('maps.export-risk-excel');
     });
 
-// ROUTE API UNTUK SHE (Grid Editor)
-Route::middleware(['auth', 'role:she'])
-    ->prefix('she/api')
-    ->name('she.api.')
-    ->group(function () {
-        Route::get('maps/{map_id}/cells', [CellController::class, 'index'])->name('maps.cells.index');
-        Route::post('cells', [CellController::class, 'store'])->name('cells.store');
-        Route::put('cells/{cell}', [CellController::class, 'update'])->name('cells.update');
-        Route::delete('cells/{cell}', [CellController::class, 'destroy'])->name('cells.destroy');
-    });
+// =========================================================================
+// API ROUTES
+// =========================================================================
+
+// API UMUM (untuk Karyawan & SHE)
+Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
+    // Endpoint untuk mendapatkan daftar gedung (Map top-level)
+    Route::get('maps/gedung', [MapController::class, 'getGedung'])->name('maps.gedung');
+    // Endpoint untuk mendapatkan semua cell dari sebuah map
+    Route::get('maps/{map_id}/cells', [CellController::class, 'index'])->name('maps.cells');
+});
+
+// API KHUSUS SHE (untuk Grid Editor & Aksi Administratif)
+Route::middleware(['auth', 'role:she'])->prefix('she/api')->name('she.api.')->group(function () {
+    Route::post('cells', [CellController::class, 'store'])->name('cells.store');
+    Route::post('cells/batch-update', [CellController::class, 'batchUpdate'])->name('cells.batchUpdate');
+    Route::put('cells/{cell}', [CellController::class, 'update'])->name('cells.update');
+    Route::delete('cells/{cell}', [CellController::class, 'destroy'])->name('cells.destroy');
+});

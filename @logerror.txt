@@ -1,0 +1,4 @@
+Illuminate\Database\Eloquent\Collection {#1072 ▼ // app\Http\Controllers\SHE\DashboardController.php:18
+  #items: array:166 [▶]
+  #escapeWhenCastingToString: false
+}
