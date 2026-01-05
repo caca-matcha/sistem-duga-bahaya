@@ -79,32 +79,17 @@
                                 class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
                         </div>
                         <div>
-                            <label for="area_gedung" class="block text-sm font-medium text-gray-700 mb-1">Gedung <span class="text-red-500">*</span></label>
-                            {{-- Dropdown Gedung --}}
-                            <select id="area_gedung" name="area_gedung" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm"
-                                data-old-gedung="{{ old('area_gedung') }}">
-                                <option value="">Pilih Gedung</option>
-                                {{-- Options akan diisi via JS --}}
+                            <label for="location_id" class="block text-sm font-medium text-gray-700 mb-1">Lokasi Kejadian <span class="text-red-500">*</span></label>
+                            <select id="location_id" name="location_id" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm"
+                                data-old-location="{{ old('location_id') }}">
+                                <option value="">Memuat lokasi...</option>
                             </select>
                         </div>
-                        <div>
-                            <label for="area_name" class="block text-sm font-medium text-gray-700 mb-1">
-                                Nama Area <span class="text-red-500">*</span>
-                            </label>
-                            {{-- Dropdown Area --}}
-                            <select id="area_name" name="area_name" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm" 
-                                disabled
-                                data-old-name="{{ old('area_name') }}">
-                                <option value="">Pilih Gedung Dulu</option>
-                            </select>
-                        </div>
-                        <input type="hidden" id="area_id" name="area_id" value="{{ old('area_id') }}">
-                        <input type="hidden" id="area_type" name="area_type" value="{{ old('area_type') }}">
                         <div class="md:col-span-2">
-                            <label for="lokasi_detail_manual" class="block text-sm font-medium text-gray-700 mb-1">Detail Lokasi</label>
+                            <label for="lokasi_detail_manual" class="block text-sm font-medium text-gray-700 mb-1">Detail Tambahan Lokasi</label>
                             <textarea id="lokasi_detail_manual" name="lokasi_detail_manual" rows="2" placeholder="Contoh: Di dekat mesin press No. 5, pilar C-12"
                                 class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">{{ old('lokasi_detail_manual') }}</textarea>
-                            <p class="text-xs text-gray-500 mt-1 italic">Isi jika lokasi spesifik tidak ada di pilihan 'Nama Area'.</p>
+                            <p class="text-xs text-gray-500 mt-1 italic">Isi jika perlu memberikan detail yang lebih spesifik dari pilihan lokasi.</p>
                         </div>
                     </div>
                 </div>
@@ -225,10 +210,6 @@
                                     </select>
                                 </div>
                             </div>
-
-                            {{-- Hidden Inputs (Data tetap dikirim) --}}
-                            <input type="hidden" id="risk_score_hidden" name="risk_score" value="{{ old('risk_score') }}">
-                            <input type="hidden" id="kategori_resiko_hidden" name="kategori_resiko" value="{{ old('kategori_resiko') }}">
                         </div>
                     </div>
                 </div>
@@ -251,187 +232,36 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            // --- 1. DATA MASTER GEDUNG DAN AREA ---
-            // Data ini disesuaikan dengan request: Gedung A s/d I, lengkap dengan ID dan Tipe
-            const dataLokasi = {
-                "Gedung A": [
-                    { name: "Lobby Utama", id: "GA-LU-01", type: "Umum" },
-                    { name: "Area Office Lt.1", id: "GA-AO1-02", type: "Kantor" },
-                    { name: "Area Office Lt.2", id: "GA-AO2-03", type: "Kantor" },
-                    { name: "Ruang Meeting A", id: "GA-RM-04", type: "Meeting" },
-                    { name: "Kantin A", id: "GA-K-05", type: "Fasilitas" },
-                    { name: "Toilet Umum", id: "GA-TU-06", type: "Fasilitas" }
-                ],
-                "Gedung B": [
-                    { name: "Line Produksi 1", id: "GB-LP1-01", type: "Produksi" },
-                    { name: "Line Produksi 2", id: "GB-LP2-02", type: "Produksi" },
-                    { name: "Gudang Material B", id: "GB-GM-03", type: "Gudang" },
-                    { name: "Ruang QC B", id: "GB-QC-04", type: "Kualitas" },
-                    { name: "Area Loading Dock B", id: "GB-LD-05", type: "Logistik" }
-                ],
-                "Gedung C": [
-                    { name: "Line Produksi 3", id: "GC-LP3-01", type: "Produksi" },
-                    { name: "Line Produksi 4", id: "GC-LP4-02", type: "Produksi" },
-                    { name: "Ruang Maintenance C", id: "GC-RM-03", type: "Maintenance" },
-                    { name: "Area Parkir C", id: "GC-AP-04", type: "Parkir" }
-                ],
-                "Gedung D": [
-                    { name: "Gudang Barang Jadi (FG)", id: "GD-GBJ-01", type: "Gudang" },
-                    { name: "Area Packing D", id: "GD-AP-02", type: "Packing" },
-                    { name: "Office Logistik", id: "GD-OL-03", type: "Kantor" },
-                    { name: "Area Forklift Charging", id: "GD-AFC-04", type: "Operasional" }
-                ],
-                "Gedung E": [
-                    { name: "Area Workshop Tooling", id: "GE-AWT-01", type: "Workshop" },
-                    { name: "Gudang Sparepart", id: "GE-GS-02", type: "Gudang" },
-                    { name: "Ruang Utility", id: "GE-RU-03", type: "Utility" },
-                    { name: "Genset Room", id: "GE-GR-04", type: "Utility" }
-                ],
-                "Gedung F": [
-                    { name: "Area Limbah B3", id: "GF-ALB3-01", type: "Lingkungan" },
-                    { name: "TPS Domestik", id: "GF-TPSD-02", type: "Lingkungan" },
-                    { name: "Water Treatment Plant (WTP)", id: "GF-WTP-03", type: "Utility" }
-                ],
-                "Gedung G": [
-                    { name: "Pos Security Utama", id: "GG-PSU-01", type: "Keamanan" },
-                    { name: "Area Parkir Motor", id: "GG-APM-02", type: "Parkir" },
-                    { name: "Area Parkir Mobil", id: "GG-APM-03", type: "Parkir" },
-                    { name: "Musholla", id: "GG-M-04", type: "Fasilitas" }
-                ],
-                "Gedung H": [
-                    { name: "Klinik Kesehatan", id: "GH-KK-01", type: "Kesehatan" },
-                    { name: "Ruang Training", id: "GH-RT-02", type: "Edukasi" },
-                    { name: "Area Koperasi", id: "GH-AK-03", type: "Fasilitas" }
-                ],
-                "Gedung I": [
-                    { name: "Area Pengembangan (R&D)", id: "GI-ARD-01", type: "Penelitian" },
-                    { name: "Laboratorium", id: "GI-L-02", type: "Penelitian" },
-                    { name: "Office Engineering", id: "GI-OE-03", type: "Kantor" }
-                ]
-            };
+            const locationSelect = document.getElementById('location_id');
+            const oldLocationValue = locationSelect.getAttribute('data-old-location');
 
-            const gedungSelect = document.getElementById('area_gedung');
-            const areaNameSelect = document.getElementById('area_name');
-            const areaIdInput = document.getElementById('area_id');
-            const areaTypeInput = document.getElementById('area_type');
+            // --- 1. Ambil data lokasi dari API dan bangun dropdown ---
+            fetch('/she/api/locations')
+                .then(response => response.json())
+                .then(data => {
+                    locationSelect.innerHTML = '<option value="">-- Pilih Lokasi --</option>';
 
-
-            // --- Fungsi untuk mempopulate Dropdown Area ---
-            function populateArea(gedungName, selectedAreaName = null, selectedAreaId = null, selectedAreaType = null) {
-                areaNameSelect.innerHTML = '<option value="">Pilih Area</option>';
-                areaIdInput.value = '';
-                areaTypeInput.value = '';
-                
-                if (gedungName && dataLokasi[gedungName]) {
-                    const areas = dataLokasi[gedungName];
-                    
-                    areas.forEach(area => {
+                    // Proses data dari Master Lokasi
+                    data.forEach(location => {
                         const option = document.createElement('option');
-                        option.value = area.name;
-                        option.textContent = area.name;
-                        // Store full area object as dataset for easy retrieval
-                        option.dataset.areaId = area.id;
-                        option.dataset.areaType = area.type;
-                        areaNameSelect.appendChild(option);
+                        option.value = location.id; // Value adalah location_id
+                        option.textContent = `${location.name} (${location.location_id_string}) - ${location.type}`; // Teks yang lebih informatif
+                        locationSelect.appendChild(option);
                     });
-
-                    areaNameSelect.disabled = false;
-
-                    if (selectedAreaName) {
-                        areaNameSelect.value = selectedAreaName;
-                        // Also set hidden inputs if old values are present
-                        const selectedOption = Array.from(areaNameSelect.options).find(opt => opt.value === selectedAreaName);
-                        if (selectedOption) {
-                            areaIdInput.value = selectedOption.dataset.areaId || '';
-                            areaTypeInput.value = selectedOption.dataset.areaType || '';
-                        }
+                    
+                    // Set nilai lama jika ada (untuk kasus validation error)
+                    if (oldLocationValue) {
+                        locationSelect.value = oldLocationValue;
                     }
-                } else {
-                    areaNameSelect.innerHTML = '<option value="">Pilih Gedung Dulu</option>';
-                    areaNameSelect.disabled = true;
-                }
-            }
 
-            // --- Fungsi untuk mengupdate input tersembunyi berdasarkan pilihan area ---
-            function updateHiddenAreaInputs() {
-                const selectedOption = areaNameSelect.options[areaNameSelect.selectedIndex];
-                if (selectedOption && selectedOption.value) {
-                    areaIdInput.value = selectedOption.dataset.areaId || '';
-                    areaTypeInput.value = selectedOption.dataset.areaType || '';
-                } else {
-                    areaIdInput.value = '';
-                    areaTypeInput.value = '';
-                }
-            }
-
-            // --- Init Dropdown Gedung ---
-            function initGedung() {
-                gedungSelect.innerHTML = '<option value="">-- Pilih Gedung --</option>';
-                Object.keys(dataLokasi).forEach(gedung => {
-                    const option = document.createElement('option');
-                    option.value = gedung;
-                    option.textContent = gedung;
-                    gedungSelect.appendChild(option);
+                })
+                .catch(error => {
+                    console.error('Error fetching master locations:', error);
+                    locationSelect.innerHTML = '<option value="">Gagal memuat Master Lokasi</option>';
                 });
-            }
-
-            // --- Event Listener Change Gedung ---
-            gedungSelect.addEventListener('change', function() {
-                const selectedGedung = this.value;
-                populateArea(selectedGedung);
-                updateHiddenAreaInputs(); // Update hidden inputs when gedung changes
-            });
-            
-            // --- Event Listener Change Area Name ---
-            areaNameSelect.addEventListener('change', updateHiddenAreaInputs);
 
 
-            // --- Run Initialization (Handling Old Input Laravel) ---
-            initGedung();
-            
-            const oldGedung = gedungSelect.getAttribute('data-old-gedung');
-            const oldAreaName = areaNameSelect.getAttribute('data-old-name');
-            // We cannot rely on oldAreaId and oldAreaType from input.value directly,
-            // as they are populated by JS. We must find them based on oldGedung and oldAreaName.
-
-            if (oldGedung) {
-                gedungSelect.value = oldGedung;
-                // Find the full area object to get oldAreaId and oldAreaType
-                const selectedGedungAreas = dataLokasi[oldGedung];
-                const oldFullArea = selectedGedungAreas ? selectedGedungAreas.find(area => area.name === oldAreaName) : null;
-
-                populateArea(oldGedung, oldAreaName, oldFullArea ? oldFullArea.id : null, oldFullArea ? oldFullArea.type : null);
-                updateHiddenAreaInputs(); // Ensure hidden inputs are set after populating
-            }
-
-            // --- 2. RISK MATRIX CALCULATION ---
-            const severity = document.getElementById('tingkat_keparahan');
-            const probability = document.getElementById('kemungkinan_terjadi');
-            const hiddenRisk = document.getElementById('risk_score_hidden');
-            const hiddenCat = document.getElementById('kategori_resiko_hidden');
-
-            function updateRisk() {
-                const s = parseInt(severity.value);
-                const p = parseInt(probability.value);
-
-                if (!s || !p) {
-                    hiddenRisk.value = "";
-                    hiddenCat.value = "";
-                    return;
-                }
-                const score = s * p;
-                let category = '';
-                if (score <= 4) category = 'Low';
-                else if (score <= 9) category = 'Medium';
-                else category = 'High';
-                hiddenRisk.value = score;
-                hiddenCat.value = category;
-            }
-            severity.addEventListener('change', updateRisk);
-            probability.addEventListener('change', updateRisk);
-            updateRisk();
-
-            // --- 3. FILE INPUT PREVIEW NAME ---
+            // --- 2. FILE INPUT PREVIEW NAME ---
             const fileInput = document.getElementById('foto_bukti');
             const fileNameDisplay = document.getElementById('file-name-display');
             fileInput.addEventListener('change', function() {

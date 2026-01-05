@@ -43,9 +43,6 @@ class DashboardController extends Controller
                                   ->take(5) // Get the top 5 locations
                                   ->get();
 
-
-        dd($riskCounts, $topRiskLocations);
-
         return view('she.dashboard', compact('totalReports', 'validatedReports', 'latestReports', 'dangerousAreas', 'riskCounts', 'topRiskLocations'));
     }
 }

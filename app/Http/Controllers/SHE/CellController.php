@@ -18,9 +18,8 @@ class CellController extends Controller
     {
         try {
             $map = Map::findOrFail($map_id);
-            $cells = $map->cells; // Get all cells for the map
-
-
+            // Muat relasi 'location' dan 'riskParameters'
+            $cells = $map->cells()->with(['location', 'riskParameters'])->paginate(500);
 
             return response()->json($cells);
 
@@ -162,24 +161,29 @@ class CellController extends Controller
     /**
      * Batch update multiple cells.
      */
-    public function batchUpdate(Request $request)
+        public function batchUpdate(Request $request)
     {
         $validatedData = $request->validate([
             'map_id' => 'required|exists:maps,id',
             'cells' => 'required|array',
             'cells.*.row_index' => 'required|integer|min:0',
             'cells.*.col_index' => 'required|integer|min:0',
-            'area_id' => 'nullable|string|max:255',
-            'area_name' => 'nullable|string|max:255',
-            'area_type' => 'nullable|string|max:255',
+            'location_id' => 'nullable|exists:locations,id', // Ganti dengan location_id
+            'risk_score' => 'nullable|integer|min:0|max:10', // Validate risk score
         ]);
 
         try {
             DB::transaction(function () use ($validatedData) {
-                $areaData = [
-                    'area_id' => $validatedData['area_id'],
-                    'area_name' => $validatedData['area_name'],
-                    'area_type' => $validatedData['area_type'],
+                $riskScore = $validatedData['risk_score'] ?? null;
+                $locationId = $validatedData['location_id'] ?? null; // Ambil location_id
+
+                $updateData = [
+                    'location_id' => $locationId, // Gunakan location_id
+                    'area_id' => null, // Set null atau kosongkan
+                    'area_name' => null, // Set null atau kosongkan
+                    'area_type' => null, // Set null atau kosongkan
+                    'risk_score' => $riskScore,
+                    'zone_color' => $this->getZoneColor($riskScore),
                 ];
 
                 foreach ($validatedData['cells'] as $cellCoord) {
@@ -189,7 +193,7 @@ class CellController extends Controller
                             'row_index' => $cellCoord['row_index'],
                             'col_index' => $cellCoord['col_index'],
                         ],
-                        $areaData // Apply the same area data to all selected cells
+                        $updateData // Apply the same data to all selected cells
                     );
                 }
             });
@@ -200,5 +204,25 @@ class CellController extends Controller
             Log::error('Error during batch cell update: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to update cells.', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Get zone color based on risk score.
+     *
+     * @param int|null $score
+     * @return string
+     */
+    private function getZoneColor($score)
+    {
+        if ($score === null) {
+            return 'white';
+        }
+        if ($score >= 8) {
+            return 'rgba(239, 68, 68, 0.7)'; // red-500
+        }
+        if ($score >= 4) {
+            return 'rgba(250, 204, 21, 0.7)'; // yellow-400
+        }
+        return 'rgba(74, 222, 128, 0.7)'; // green-400
     }
 }

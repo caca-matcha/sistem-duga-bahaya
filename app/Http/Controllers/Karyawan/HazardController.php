@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Hazard;
+use App\Models\Location; // Import Location Model
 use App\Models\Map; // Import Map Model
 use App\Models\Cell; // Import Cell Model
 use Illuminate\Support\Facades\Auth;
@@ -54,31 +55,19 @@ class HazardController extends Controller
      */
     public function store(StoreHazardRequest $request)
     {
-        // Data yang sudah dijamin valid
+        // Data yang sudah dijamin valid oleh StoreHazardRequest
         $validated = $request->validated();
         $filePath = null;
 
         if ($request->hasFile('foto_bukti')) {
-            // Simpan file ke storage (misalnya, 'public/hazard_photos')
             $filePath = $request->file('foto_bukti')->store('hazard_photos', 'public');
         }
 
-        // Hitung skor risiko
+        // Hitung skor risiko di backend
         $riskScore = $validated['tingkat_keparahan'] * $validated['kemungkinan_terjadi'];
 
-        // Tentukan kategori risiko berdasarkan risk_score yang dihitung
-        // Note: This 'kategoriResiko' is not saved to Hazard, it's recalculated in SHE controller.
-        // It's fine to keep it for potential future local use or if it was meant to be saved.
-
-        // Temukan Map dan Cell berdasarkan input user
-        $map = Map::where('name', $validated['area_gedung'])->first();
-        $cell = null;
-        if ($map) {
-            $cell = $map->cells()
-                        ->where('area_name', $validated['area_name'])
-                        ->where('area_id', $validated['area_id'])
-                        ->first();
-        }
+        // Ambil data Location Master
+        $location = Location::find($validated['location_id']);
 
         Hazard::create([
             'user_id' => Auth::id(),
@@ -86,19 +75,24 @@ class HazardController extends Controller
             'NPK' => $validated['NPK'],
             'dept' => $validated['dept'],
             'tgl_observasi' => $validated['tgl_observasi'],
-            'area_gedung' => $validated['area_gedung'],
-            'area_name' => $validated['area_name'],
+            
+            // --- Mengisi data lokasi dari Master Location ---
+            'location_id' => $location->id, // Gunakan location_id
+            'area_gedung' => $location->parent ? $location->parent->name : $location->name, // Ambil nama gedung dari parent jika ada, atau nama lokasi itu sendiri
+            'area_name' => $location->name,
+            'area_id' => $location->location_id_string,
+            'area_type' => $location->type,
+            // --- Kolom cell_id dan map_id bisa dikosongkan/null jika tidak relevan lagi ---
+            'cell_id' => null, // Set null karena sekarang menggunakan location_id
+            'map_id' => null, // Set null karena sekarang menggunakan location_id
+            // ----------------------------------------------------
+
             'lokasi_detail_manual' => $validated['lokasi_detail_manual'],
-            'area_type' => $validated['area_type'],
-            'area_id' => $validated['area_id'],
-            'map_id' => $map ? $map->id : null, // Set map_id
-            'cell_id' => $cell ? $cell->id : null, // Set cell_id
             'deskripsi_bahaya' => $validated['deskripsi_bahaya'],
             'foto_bukti' => $filePath,
             'kategori_stop6' => $validated['kategori_stop6'],
             'tingkat_keparahan' => $validated['tingkat_keparahan'],
             'kemungkinan_terjadi' => $validated['kemungkinan_terjadi'],
-            // Gunakan risk_score yang dihitung di backend
             'risk_score' => $riskScore,
             'ide_penanggulangan' => $validated['ide_penanggulangan'],
             'status' => 'menunggu validasi', // Status awal saat dikirim

@@ -37,8 +37,13 @@
                         </x-nav-link>
 
                         {{-- Kelola Peta --}}
-                        <x-nav-link :href="route('she.maps.index')" :active="request()->routeIs('she.maps.*')">
+                        <x-nav-link :href="route('she.maps.index')" :active="request()->routeIs('she.maps.index') || request()->routeIs('she.maps.create') || request()->routeIs('she.maps.show') || request()->routeIs('she.maps.edit')">
                             {{ __('Kelola Peta') }}
+                        </x-nav-link>
+                        
+                        {{-- Master Lokasi --}}
+                        <x-nav-link :href="route('she.locations.index')" :active="request()->routeIs('she.locations.*')">
+                            {{ __('Master Lokasi') }}
                         </x-nav-link>
 
                         {{-- Kelola User --}}
@@ -126,8 +131,12 @@
                     {{ __('Laporan/Reports') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('she.maps.index')" :active="request()->routeIs('she.maps.*')">
+                <x-responsive-nav-link :href="route('she.maps.index')" :active="request()->routeIs('she.maps.index') || request()->routeIs('she.maps.create') || request()->routeIs('she.maps.show') || request()->routeIs('she.maps.edit')">
                     {{ __('Kelola Peta') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('she.locations.index')" :active="request()->routeIs('she.locations.*')">
+                    {{ __('Master Lokasi') }}
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('she.users.index')" :active="request()->routeIs('she.users.*')">

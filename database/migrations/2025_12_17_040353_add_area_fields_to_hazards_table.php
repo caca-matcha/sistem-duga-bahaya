@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('hazards', function (Blueprint $table) {
-            $table->string('area_id')->nullable()->after('area_gedung');
+            // area_id DIHAPUS dari sini karena sudah ada di file create_hazards_table
             $table->string('area_name')->nullable()->after('area_id');
             $table->string('area_type')->nullable()->after('area_name');
             $table->dropColumn('aktivitas_kerja');
@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('hazards', function (Blueprint $table) {
-            $table->dropColumn(['area_id', 'area_name', 'area_type']);
+            $table->dropColumn(['area_name', 'area_type']);
             $table->string('aktivitas_kerja')->nullable()->after('area_gedung');
         });
     }

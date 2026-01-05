@@ -25,7 +25,7 @@
         @endphp
 
         {{-- ================= ROLE: SHE (ADMIN) ================= --}}
-        @if(Auth::user()->role == 'she')
+        @if(strtolower(Auth::user()->role) == 'she')
             <p class="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-2">Main Menu</p>
             
             <a href="{{ route('she.dashboard') }}" 
@@ -41,9 +41,15 @@
             </a>
 
             <a href="{{ route('she.maps.index') }}" 
-               class="group flex items-center px-3 py-2 rounded-lg text-sm mb-1 {{ request()->routeIs('she.maps.*') ? $activeClass : $inactiveClass }}">
-                <svg class="h-5 w-5 mr-3 {{ request()->routeIs('she.maps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" /></svg>
+               class="group flex items-center px-3 py-2 rounded-lg text-sm mb-1 {{ request()->routeIs('she.maps.index', 'she.maps.create', 'she.maps.show', 'she.maps.edit') ? $activeClass : $inactiveClass }}">
+                <svg class="h-5 w-5 mr-3 {{ request()->routeIs('she.maps.index', 'she.maps.create', 'she.maps.show', 'she.maps.edit') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" /></svg>
                 Peta Risiko
+            </a>
+            
+            <a href="{{ route('she.locations.index') }}" 
+               class="group flex items-center px-3 py-2 rounded-lg text-sm mb-1 {{ request()->routeIs('she.locations.*') ? $activeClass : $inactiveClass }}">
+                <svg class="h-5 w-5 mr-3 {{ request()->routeIs('she.locations.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Master Lokasi
             </a>
 
             <p class="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6">Administrasi</p>
@@ -61,7 +67,7 @@
             </a>
 
         {{-- ================= ROLE: SUPERVISOR ================= --}}
-        @elseif(Auth::user()->role == 'supervisor')
+        @elseif(strtolower(Auth::user()->role) == 'supervisor')
             <p class="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-2">Supervisor Menu</p>
 
             <a href="{{ route('supervisor.maps.index') }}" 

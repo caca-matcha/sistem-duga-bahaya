@@ -8,6 +8,7 @@ use App\Http\Controllers\SHE\UserController;
 use App\Http\Controllers\SHE\CellController;
 use App\Http\Controllers\SHE\DashboardController as SHEDashboardController; // Ditambahkan Alias
 use App\Http\Controllers\SHE\ReportController; // PENTING: Import ReportController
+use App\Http\Controllers\SHE\LocationController; // Tambahkan untuk Master Lokasi
 
 // Import Controller Karyawan untuk logika redirect yang lebih aman
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController; // Ditambahkan
@@ -91,7 +92,10 @@ Route::middleware(['auth', 'role:she'])
 
         // Kelola Peta
         Route::resource('maps', MapController::class);
+
+        
         Route::resource('users', UserController::class);
+        Route::resource('locations', LocationController::class); // Tambahkan untuk Master Lokasi
         Route::get('maps/{map}/export', [MapController::class, 'export'])->name('maps.export');
         Route::post('maps/import', [MapController::class, 'import'])->name('maps.import');
         Route::get('maps/{map}/export-risk-excel', [MapController::class, 'exportRiskDataExcel'])->name('maps.export-risk-excel');
@@ -115,4 +119,7 @@ Route::middleware(['auth', 'role:she'])->prefix('she/api')->name('she.api.')->gr
     Route::post('cells/batch-update', [CellController::class, 'batchUpdate'])->name('cells.batchUpdate');
     Route::put('cells/{cell}', [CellController::class, 'update'])->name('cells.update');
     Route::delete('cells/{cell}', [CellController::class, 'destroy'])->name('cells.destroy');
+
+    // API untuk Master Lokasi
+    Route::get('locations', [LocationController::class, 'apiIndex'])->name('locations.apiIndex');
 });

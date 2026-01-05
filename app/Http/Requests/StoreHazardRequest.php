@@ -30,16 +30,13 @@ class StoreHazardRequest extends FormRequest
             'NPK' => 'required|string|max:20', 
             'dept' => 'required|string|max:100',     
             'tgl_observasi' => 'required|date|before_or_equal:today',
-            'area_gedung' => 'required|string|max:100',
-            'area_type' => 'required|string|max:100',
-            'area_name' => 'required|string|max:100',
-            'area_id' => 'required|string|max:100',
+            'location_id' => 'required|integer|exists:locations,id',
+            'lokasi_detail_manual' => 'nullable|string',
             'deskripsi_bahaya' => 'required|string',
             'foto_bukti' => ['nullable','image','mimes:jpg,jpeg,png','max:5120'],
             'tingkat_keparahan' => 'required|integer|in:1,3,5',
             'kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'kategori_stop6' => 'required|string|max:50',
-            // ATURAN VALIDASI UNTUK SKOR DAN KATEGORI RISIKO (Dihitung di Backend)
             'ide_penanggulangan' => 'nullable|string',
         ];
     }
@@ -64,6 +61,7 @@ class StoreHazardRequest extends FormRequest
             'tingkat_keparahan.in' => 'Pilihan untuk Tingkat Keparahan tidak valid. Harap pilih salah satu dari opsi yang tersedia.',
             'kemungkinan_terjadi.in' => 'Pilihan untuk Kemungkinan Terjadi tidak valid. Harap pilih salah satu dari opsi yang tersedia.',
             'in' => 'Kolom :attribute memiliki nilai yang tidak valid.',
+            'location_id.exists' => 'Lokasi yang dipilih tidak valid atau tidak ada dalam sistem.',
         ];
     }
     
@@ -78,10 +76,8 @@ class StoreHazardRequest extends FormRequest
             'NPK' => 'Nomor Pokok Karyawan (NPK)',
             'dept' => 'Departemen',
             'tgl_observasi' => 'Tanggal Observasi',
-            'area_gedung' => 'Area/Gedung',
-            'area_type' => 'Area Type',
-            'area_name' => 'Area Name',
-            'area_id' => 'Area ID (Kode Line)',
+            'location_id' => 'Lokasi Kejadian',
+            'lokasi_detail_manual' => 'Detail Tambahan Lokasi',
             'deskripsi_bahaya' => 'Deskripsi Bahaya',
             'foto_bukti' => 'Foto Bukti',
             'tingkat_keparahan' => 'Tingkat Keparahan (Severity)',

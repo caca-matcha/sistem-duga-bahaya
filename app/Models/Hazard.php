@@ -21,6 +21,7 @@ class Hazard extends Model
         'NPK',
         'dept',
         'tgl_observasi',
+        'location_id',
         'area_gedung',
         'area_type',
         'area_name',
@@ -91,6 +92,14 @@ class Hazard extends Model
     public function cell(): BelongsTo
     {
         return $this->belongsTo(Cell::class);
+    }
+
+    /**
+     * Relasi ke Location (Master Data Lokasi).
+     */
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
     }
 
     public function getKategoriResikoAttribute()

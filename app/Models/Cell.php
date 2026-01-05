@@ -13,6 +13,7 @@ class Cell extends Model
         'map_id',
         'row_index',
         'col_index',
+        'location_id',
         'area_id',
         'area_name',
         'area_type',
@@ -33,5 +34,13 @@ class Cell extends Model
     public function riskParameters()
     {
         return $this->hasMany(RiskParameter::class);
+    }
+
+    /**
+     * Get the location associated with the cell.
+     */
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 }

@@ -315,3 +315,30 @@ Untuk admin:
 # 🎁 Mau Saya Buatkan *Flowchart gambar* + *ERD gambar (diagram lengkap)* + *MVP PDF* juga?
 
 Tinggal bilang, nanti aku buatkan versi visual + versi PDF siap untuk dipakai presentasi ke perusahaan atau sebagai dokumentasi developer.
+
+
+Secara sederhana, Master Data yang kamu buat di sisi Admin (SHE) bertindak sebagai "Pusat Kebenaran". Jadi, semua menu lainnya (Peta Risiko dan Form Karyawan) hanya tinggal "menumpang" atau mengambil data dari situ.
+1. Langkah Pertama: Isi Master Data (Admin SHE)
+Di menu baru yang kita bahas tadi (Administrasi > Master Lokasi), kamu mendaftarkan semua titik lokasi secara lengkap.
+
+Contoh Input: Nama: "Temporary Storage Rack", ID: "GA-TSR-01", Type: "Storage", Gedung: "Gedung A".
+
+Hasil: Data ini tersimpan permanen di database.
+
+2. Langkah Kedua: Hubungkan ke Peta Risiko (Grid Editor)
+Saat kamu membuka Grid Editor di menu Peta Risiko:
+
+Kamu tidak lagi mengetik manual nama lokasi di setiap kotak grid.
+
+Kamu cukup klik cell/kotak di grid, lalu akan muncul dropdown yang isinya mengambil data dari Master Data tadi.
+
+Keuntungan: Satu lokasi di Master Data bisa kamu "tempel" ke banyak kotak grid tanpa harus mengetik ulang, sehingga tidak akan ada typo.
+
+3. Langkah Ketiga: Otomatisasi di Form Karyawan
+Inilah bagian yang menyelesaikan masalah di gambar yang kamu kirimkan:
+
+Dropdown Lokasi: Di form karyawan, dropdown "Lokasi Kejadian" tidak lagi mengambil data dari "ketikan manual" atau "setiap kotak grid", melainkan mengambil data unik dari Master Data.
+
+Hasil: Nama "Temporary Storage Rack" hanya akan muncul satu kali di dropdown, meskipun di peta aslinya lokasi tersebut mencakup 5 kotak grid.
+
+Auto-fill: Begitu karyawan pilih lokasi tersebut, sistem langsung tahu bahwa itu adalah GA-TSR-01 dan tipenya Storage karena datanya sudah terhubung di belakang layar.
