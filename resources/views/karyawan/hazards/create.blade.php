@@ -241,13 +241,30 @@
                 .then(data => {
                     locationSelect.innerHTML = '<option value="">-- Pilih Lokasi --</option>';
 
-                    // Proses data dari Master Lokasi
-                    data.forEach(location => {
-                        const option = document.createElement('option');
-                        option.value = location.id; // Value adalah location_id
-                        option.textContent = `${location.name} (${location.location_id_string}) - ${location.type}`; // Teks yang lebih informatif
-                        locationSelect.appendChild(option);
-                    });
+                    // Kelompokkan lokasi berdasarkan map/gedung
+                    const groupedByMap = data.reduce((acc, location) => {
+                        const mapName = location.map ? location.map.name : 'Lainnya'; // Kelompokkan di 'Lainnya' jika tidak ada peta
+                        if (!acc[mapName]) {
+                            acc[mapName] = [];
+                        }
+                        acc[mapName].push(location);
+                        return acc;
+                    }, {});
+
+                    // Buat <optgroup> untuk setiap peta/gedung
+                    for (const mapName in groupedByMap) {
+                        const group = document.createElement('optgroup');
+                        group.label = mapName;
+                        
+                        groupedByMap[mapName].forEach(location => {
+                            const option = document.createElement('option');
+                            option.value = location.id;
+                            option.textContent = `${location.name} (${location.location_id_string}) - ${location.type}`;
+                            group.appendChild(option);
+                        });
+
+                        locationSelect.appendChild(group);
+                    }
                     
                     // Set nilai lama jika ada (untuk kasus validation error)
                     if (oldLocationValue) {

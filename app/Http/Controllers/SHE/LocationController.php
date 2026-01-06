@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SHE;
 
 use App\Http\Controllers\Controller;
 use App\Models\Location;
+use App\Models\Map;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -24,7 +25,8 @@ class LocationController extends Controller
     public function create()
     {
         $locations = Location::all();
-        return view('she.locations.create', compact('locations'));
+        $maps = Map::all();
+        return view('she.locations.create', compact('locations', 'maps'));
     }
 
     /**
@@ -37,6 +39,7 @@ class LocationController extends Controller
             'location_id_string' => 'required|string|max:255|unique:locations,location_id_string',
             'type' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:locations,id',
+            'map_id' => 'nullable|exists:maps,id',
         ]);
 
         Location::create([
@@ -44,6 +47,7 @@ class LocationController extends Controller
             'location_id_string' => $validatedData['location_id_string'],
             'type' => $validatedData['type'],
             'parent_id' => $validatedData['parent_id'],
+            'map_id' => $validatedData['map_id'],
             'created_by' => auth()->id(),
         ]);
 
@@ -64,7 +68,8 @@ class LocationController extends Controller
     public function edit(Location $location)
     {
         $locations = Location::where('id', '!=', $location->id)->get();
-        return view('she.locations.edit', compact('location', 'locations'));
+        $maps = Map::all();
+        return view('she.locations.edit', compact('location', 'locations', 'maps'));
     }
 
     /**
@@ -77,6 +82,7 @@ class LocationController extends Controller
             'location_id_string' => 'required|string|max:255|unique:locations,location_id_string,' . $location->id,
             'type' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:locations,id',
+            'map_id' => 'nullable|exists:maps,id',
         ]);
 
         $location->update([
@@ -84,6 +90,7 @@ class LocationController extends Controller
             'location_id_string' => $validatedData['location_id_string'],
             'type' => $validatedData['type'],
             'parent_id' => $validatedData['parent_id'],
+            'map_id' => $validatedData['map_id'],
         ]);
 
         return redirect()->route('she.locations.index')->with('success', 'Lokasi berhasil diperbarui!');
@@ -103,7 +110,7 @@ class LocationController extends Controller
      */
     public function apiIndex()
     {
-        $locations = Location::all(['id', 'name', 'location_id_string', 'type', 'parent_id']);
+        $locations = Location::with('map')->get(['id', 'name', 'location_id_string', 'type', 'parent_id', 'map_id']);
         return response()->json($locations);
     }
 }

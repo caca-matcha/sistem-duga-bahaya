@@ -33,6 +33,9 @@
                                         Tipe
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Peta/Gedung
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Parent
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -49,6 +52,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $location->name }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $location->location_id_string }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $location->type }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $location->map->name ?? '-' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $location->parent->name ?? '-' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $location->creator->name ?? 'N/A' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -62,7 +66,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">Belum ada data lokasi.</td>
+                                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">Belum ada data lokasi.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

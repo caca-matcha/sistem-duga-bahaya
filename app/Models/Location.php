@@ -14,8 +14,17 @@ class Location extends Model
         'location_id_string',
         'type',
         'parent_id',
+        'map_id',
         'created_by',
     ];
+
+    /**
+     * Get the map that the location belongs to.
+     */
+    public function map()
+    {
+        return $this->belongsTo(Map::class);
+    }
 
     /**
      * Get the parent location.

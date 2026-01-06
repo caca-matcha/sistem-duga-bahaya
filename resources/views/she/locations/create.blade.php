@@ -41,6 +41,22 @@
                             @enderror
                         </div>
 
+                        <!-- Peta/Gedung (Dropdown) -->
+                        <div class="mb-4">
+                            <label for="map_id" class="block text-sm font-medium text-gray-700">Induk Peta/Gedung (Opsional)</label>
+                            <select name="map_id" id="map_id" class="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <option value="">-- Pilih Peta/Gedung --</option>
+                                @foreach ($maps as $map)
+                                    <option value="{{ $map->id }}" @selected(old('map_id') == $map->id)>
+                                        {{ $map->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('map_id')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Parent Lokasi (Dropdown) -->
                         <div class="mb-6">
                             <label for="parent_id" class="block text-sm font-medium text-gray-700">Parent Lokasi (Opsional)</label>
