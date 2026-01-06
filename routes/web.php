@@ -111,6 +111,8 @@ Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
     Route::get('maps/gedung', [MapController::class, 'getGedung'])->name('maps.gedung');
     // Endpoint untuk mendapatkan semua cell dari sebuah map
     Route::get('maps/{map_id}/cells', [CellController::class, 'index'])->name('maps.cells');
+    // Endpoint untuk mendapatkan semua Master Lokasi
+    Route::get('locations', [LocationController::class, 'apiIndex'])->name('locations.index');
 });
 
 // API KHUSUS SHE (untuk Grid Editor & Aksi Administratif)
@@ -119,7 +121,4 @@ Route::middleware(['auth', 'role:she'])->prefix('she/api')->name('she.api.')->gr
     Route::post('cells/batch-update', [CellController::class, 'batchUpdate'])->name('cells.batchUpdate');
     Route::put('cells/{cell}', [CellController::class, 'update'])->name('cells.update');
     Route::delete('cells/{cell}', [CellController::class, 'destroy'])->name('cells.destroy');
-
-    // API untuk Master Lokasi
-    Route::get('locations', [LocationController::class, 'apiIndex'])->name('locations.apiIndex');
 });

@@ -236,7 +236,7 @@
             const oldLocationValue = locationSelect.getAttribute('data-old-location');
 
             // --- 1. Ambil data lokasi dari API dan bangun dropdown ---
-            fetch('/she/api/locations')
+            fetch('/api/locations')
                 .then(response => response.json())
                 .then(data => {
                     locationSelect.innerHTML = '<option value="">-- Pilih Lokasi --</option>';
