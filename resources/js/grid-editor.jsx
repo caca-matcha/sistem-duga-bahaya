@@ -448,7 +448,9 @@ const GridEditor = () => {
                                         <label htmlFor="location_id" className="block text-sm font-medium text-gray-600">Master Lokasi</label>
                                         <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({...formData, location_id: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
                                             <option value="">-- Pilih Lokasi --</option>
-                                            {masterLocations.map(loc => (
+                                            {masterLocations
+                                                .filter(loc => loc.map_id === mapId)
+                                                .map(loc => (
                                                 <option key={loc.id} value={loc.id}>
                                                     {loc.name} ({loc.location_id_string})
                                                 </option>
