@@ -25,11 +25,13 @@ const GridEditor = () => {
 
     const [formData, setFormData] = useState({
         location_id: '',
-        risk_score: '',
     });
     const [error, setError] = useState(null);
     const [backgroundImage, setBackgroundImage] = useState(null);
     const [masterLocations, setMasterLocations] = useState([]); // State baru untuk lokasi master
+
+    const [isStageDragging, setIsStageDragging] = useState(false);
+
 
     // Effect for measuring container width
     useEffect(() => {
@@ -42,6 +44,27 @@ const GridEditor = () => {
         window.addEventListener('resize', checkSize);
         return () => window.removeEventListener('resize', checkSize);
     }, [containerWidth]);
+        
+    // Effect to handle spacebar for panning
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === ' ') {
+                e.preventDefault(); // Prevent page from scrolling
+                setIsStageDragging(true);
+            }
+        };
+        const handleKeyUp = (e) => {
+            if (e.key === ' ') {
+                setIsStageDragging(false);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
 
     // Effect to load background image
     useEffect(() => {
@@ -54,15 +77,17 @@ const GridEditor = () => {
 
     // Effect to fetch master locations
     useEffect(() => {
-        axios.get('/she/api/locations')
+        if (!mapId) return; // Don't fetch if mapId isn't available yet
+
+        axios.get(`/api/locations?map_id=${mapId}`)
             .then(response => {
                 setMasterLocations(response.data);
             })
             .catch(err => {
                 console.error("Error fetching master locations:", err);
-                setError("Failed to load master locations.");
+                setError("Failed to load master locations for the current map.");
             });
-    }, []);
+    }, [mapId]); // Re-run if mapId changes
 
     useEffect(() => {
         if (!isModalOpen) setError(null);
@@ -72,7 +97,7 @@ const GridEditor = () => {
         if (pagination.isLoading) return;
 
         setPagination(p => ({ ...p, isLoading: true }));
-        axios.get(`/she/api/maps/${mapId}/cells?page=${page}`)
+        axios.get(`/api/maps/${mapId}/cells?page=${page}`)
             .then(response => {
                 const { data, current_page, last_page, per_page, total } = response.data;
                 
@@ -161,13 +186,10 @@ const GridEditor = () => {
     
     const handleCellClick = (rowIndex, colIndex) => {
         setError(null);
-        const cellKey = `${rowIndex}_${colIndex}`;
-        const existingCell = cells[cellKey];
         
         setSelectedCells([{ row_index: rowIndex, col_index: colIndex }]);
         setFormData({
-            location_id: existingCell?.location_id || '',
-            risk_score: existingCell?.risk_score ?? '',
+            location_id: '', // Reset form data to clear dropdown
         });
         setIsModalOpen(true);
     };
@@ -180,18 +202,10 @@ const GridEditor = () => {
             map_id: mapId,
             cells: selectedCells,
             location_id: formData.location_id === '' ? null : formData.location_id,
-            risk_score: formData.risk_score,
         };
 
         axios.post(`/she/api/cells/batch-update`, payload)
             .then(response => {
-                const getZoneColor = (score) => {
-                    if (score === null || score === '') return 'white';
-                    if (score <= 3) return 'rgba(74, 222, 128, 0.7)'; // green-400 with opacity
-                    if (score <= 7) return 'rgba(250, 204, 21, 0.7)';  // yellow-400 with opacity
-                    return 'rgba(239, 68, 68, 0.7)'; // red-500 with opacity
-                };
-
                 const newLocationId = formData.location_id === '' ? null : Number(formData.location_id);
                 const newLocation = newLocationId ? masterLocations.find(loc => loc.id === newLocationId) : null;
 
@@ -199,17 +213,16 @@ const GridEditor = () => {
                 const updatedCells = selectedCells.reduce((acc, cell) => {
                     const key = `${cell.row_index}_${cell.col_index}`;
                     const existing = acc[key] || { row_index: cell.row_index, col_index: cell.col_index };
-                    const newRiskScore = formData.risk_score === '' ? null : Number(formData.risk_score);
-
+                    
+                    // The risk_score and zone_color will be updated by a separate process based on backend calculations.
+                    // Here, we just reflect the location change. The color will update on the next full data fetch or via a websocket push.
                     acc[key] = {
                         ...existing,
                         location_id: newLocationId,
-                        location: newLocation, // Simpan objek lokasi yang relevan
-                        area_id: null, // Kosongkan
-                        area_name: null, // Kosongkan
-                        area_type: null, // Kosongkan
-                        risk_score: newRiskScore,
-                        zone_color: getZoneColor(newRiskScore),
+                        location: newLocation,
+                        area_id: null,
+                        area_name: null,
+                        area_type: null,
                     };
                     return acc;
                 }, {...cells});
@@ -228,7 +241,10 @@ const GridEditor = () => {
     // ... (mouse handlers need to be updated to account for stage position/scale)
 
     const handleMouseDown = (e) => {
-        if (e.target !== e.target.getStage()) return;
+        // If spacebar is pressed, do nothing and let the stage drag
+        if (isStageDragging) return;
+
+        // Proceed with selection logic
         e.evt.preventDefault();
         selectionStarted.current = true;
         isSelecting.current = false;
@@ -295,10 +311,8 @@ const GridEditor = () => {
 
         if (newSelectedCells.length > 0) {
             setSelectedCells(newSelectedCells);
-            const firstCell = getCellData(newSelectedCells[0].row_index, newSelectedCells[0].col_index);
             setFormData({
-                location_id: firstCell?.location_id || '',
-                risk_score: firstCell?.risk_score ?? '',
+                location_id: '', // Reset form data to clear dropdown
             });
             setIsModalOpen(true);
         }
@@ -323,6 +337,17 @@ const GridEditor = () => {
             x: pointer.x - mousePointTo.x * newScale,
             y: pointer.y - mousePointTo.y * newScale,
         });
+    };
+
+    const getTextColor = (score) => {
+        if (score === null || score < 1 || score > 25) {
+            return "#FFFFFF"; // White text for gray default background
+        }
+        if (score <= 10) { // Low to Medium
+            return "#1f2937"; // Dark gray/black text
+        } else { // Medium-High to Extreme
+            return "#FFFFFF"; // White text
+        }
     };
 
     const gridElements = [];
@@ -353,8 +378,9 @@ const GridEditor = () => {
                         y={i * cellHeight + 5}
                         text={(cellData?.risk_score ?? '').toString()}
                         fontSize={14 / stageScale}
-                        fill="black"
+                        fill={getTextColor(cellData?.risk_score)} // Use the new function
                         listening={false}
+                        visible={cellData && stageScale > 0.5} // Only show text when zoomed in
                     />
                 );
             }
@@ -374,17 +400,16 @@ const GridEditor = () => {
             {stageWidth > 0 && (
                  <Stage
                     ref={stageRef}
-                    width={stageWidth}
-                    height={stageHeight}
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    onWheel={handleWheel}
-                    draggable
-                    x={stagePos.x}
-                    y={stagePos.y}
-                    scaleX={stageScale}
-                    scaleY={stageScale}
+                                         width={stageWidth}
+                                        height={stageHeight}
+                                        onMouseDown={handleMouseDown}
+                                        onMouseMove={handleMouseMove}
+                                        onMouseUp={handleMouseUp}
+                                        onWheel={handleWheel}
+                                        draggable={isStageDragging}
+                                        x={stagePos.x}
+                                        y={stagePos.y}
+                                        scaleX={stageScale}                    scaleY={stageScale}
                     className="bg-gray-50 border border-gray-300 rounded-lg shadow-inner"
                 >
                     <Layer>
@@ -411,21 +436,50 @@ const GridEditor = () => {
             )}
             
             {/* Legend and other UI elements... */}
-             <div className="mt-4 p-4 bg-white rounded-lg shadow">
+                <div className="mt-4 p-4 bg-white rounded-lg shadow">
                 <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
+
                 <div className="flex items-center mb-1">
-                    <span className="block w-6 h-4 bg-green-500 rounded-sm mr-2 border border-gray-300"></span>
-                    <span className="text-sm text-gray-700">0-3 (Low Risk)</span>
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#10b981" }}
+                    />
+                    <span className="text-sm text-gray-700">1–5 (Low Risk)</span>
                 </div>
+
                 <div className="flex items-center mb-1">
-                    <span className="block w-6 h-4 bg-yellow-500 rounded-sm mr-2 border border-gray-300"></span>
-                    <span className="text-sm text-gray-700">4-7 (Medium Risk)</span>
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#f59e0b" }}
+                    />
+                    <span className="text-sm text-gray-700">6–10 (Medium Risk)</span>
                 </div>
+
+                <div className="flex items-center mb-1">
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#ef4444" }}
+                    />
+                    <span className="text-sm text-gray-700">11–15 (Medium-High Risk)</span>
+                </div>
+
+                <div className="flex items-center mb-1">
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#f43f5e" }}
+                    />
+                    <span className="text-sm text-gray-700">16–20 (High Risk)</span>
+                </div>
+
                 <div className="flex items-center">
-                    <span className="block w-6 h-4 bg-red-600 rounded-sm mr-2 border border-gray-300"></span>
-                    <span className="text-sm text-gray-700">8-10 (High Risk)</span>
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#ff1a1a" }}
+                    />
+                    <span className="text-sm text-gray-700">21–25 (Extreme Risk)</span>
                 </div>
-            </div>
+                </div>
+
 
             {/* Modal remains largely the same */}
             {isModalOpen && (
@@ -441,6 +495,7 @@ const GridEditor = () => {
                                     <p>{error}</p>
                                 </div>
                             )}
+
                             <div className="mb-6">
                                 <h4 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Informasi Lokasi</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -448,19 +503,14 @@ const GridEditor = () => {
                                         <label htmlFor="location_id" className="block text-sm font-medium text-gray-600">Master Lokasi</label>
                                         <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({...formData, location_id: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
                                             <option value="">-- Pilih Lokasi --</option>
-                                            {masterLocations
-                                                .filter(loc => loc.map_id === mapId)
-                                                .map(loc => (
+                                            {masterLocations.map(loc => (
                                                 <option key={loc.id} value={loc.id}>
                                                     {loc.name} ({loc.location_id_string})
                                                 </option>
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="md:col-span-2">
-                                        <label htmlFor="risk_score" className="block text-sm font-medium text-gray-600">Risk Score (0-10)</label>
-                                        <input type="number" name="risk_score" id="risk_score" min="0" max="10" value={formData.risk_score} onChange={(e) => setFormData({...formData, risk_score: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50" />
-                                    </div>
+
                                 </div>
                             </div>
                         </div>

@@ -75,41 +75,42 @@
             {{-- SECTION 3: LISTS (NOTIFICATIONS & LATEST) --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {{-- WARNING / NOTIFICATION (Col Span 1) --}}
-                <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden">
+                {{-- HIGH-RISK HAZARDS (Col Span 1) --}}
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden h-full">
                         <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
                             <h3 class="text-red-800 font-bold flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                Area Perlu Perhatian
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Laporan Berisiko Tinggi Aktif
                             </h3>
-                            <span class="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded-full">{{ $dangerousAreas->count() }}</span>
+                            @if($hazardsPerluPerhatian->isNotEmpty())
+                                <span class="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded-full">{{ $hazardsPerluPerhatian->count() }}</span>
+                            @endif
                         </div>
                         <div class="p-4">
-                            @if ($dangerousAreas->isEmpty())
+                            @if ($hazardsPerluPerhatian->isEmpty())
                                 <div class="text-center py-6">
                                     <svg class="mx-auto h-10 w-10 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <p class="text-sm text-gray-500 mt-2">Semua area dalam batas aman.</p>
+                                    <p class="text-sm text-gray-500 mt-2">Tidak ada laporan berisiko tinggi yang aktif.</p>
                                 </div>
                             @else
-                                <ul class="space-y-3">
-                                    @foreach ($dangerousAreas as $area)
-                                        <li class="flex items-start bg-red-50 p-3 rounded-lg border border-red-100">
-                                            <div class="flex-shrink-0 mt-0.5">
-                                                <div class="h-2 w-2 rounded-full bg-red-500"></div>
-                                            </div>
-                                            <div class="ml-3 w-full">
-                                                <p class="text-sm font-bold text-gray-800">{{ $area->area_gedung }}</p>
-                                                <p class="text-xs text-red-600 mt-0.5">
-                                                    {{ $area->hazard_count }} laporan (7 hari terakhir)
-                                                </p>
-                                                <div class="w-full bg-red-200 rounded-full h-1.5 mt-2">
-                                                    <div class="bg-red-500 h-1.5 rounded-full" style="width: {{ min(100, ($area->hazard_count * 10)) }}%"></div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                </ul>
+                                <div class="max-h-72 overflow-y-auto pr-2">
+                                    <ul class="space-y-3">
+                                        @foreach ($hazardsPerluPerhatian as $hazard)
+                                            <li class="p-3 bg-red-50 rounded-lg border border-red-100 hover:bg-red-100 transition-colors">
+                                                <a href="{{ route('she.hazards.show', $hazard) }}" class="flex justify-between items-center">
+                                                    <div>
+                                                        <p class="text-sm font-bold text-gray-800 line-clamp-1">{{ $hazard->deskripsi_bahaya }}</p>
+                                                        <p class="text-xs text-red-600 mt-0.5">
+                                                            Risk Score: <span class="font-bold">{{ $hazard->risk_score }}</span> &bull; {{ $hazard->area_gedung }}
+                                                        </p>
+                                                    </div>
+                                                    <svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -117,49 +118,51 @@
 
                 {{-- LATEST REPORTS (Col Span 2) --}}
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full">
-                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col">
+                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
                             <h3 class="font-bold text-gray-800">Laporan Masuk Terbaru</h3>
                             <a href="{{ route('she.hazards.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">Lihat Semua &rarr;</a>
                         </div>
-                        <div class="p-0">
+                        <div class="p-0 flex-grow overflow-y-auto max-h-[26rem]">
                             @if ($latestReports->isEmpty())
                                 <div class="p-6 text-center text-gray-500">Belum ada laporan terbaru.</div>
                             @else
                                 <ul class="divide-y divide-gray-50">
                                     @foreach ($latestReports as $report)
-                                        <li class="p-4 hover:bg-gray-50 transition-colors flex items-start gap-4">
-                                            <div class="flex-shrink-0 mt-1">
-                                                @if($report->status == 'menunggu validasi')
-                                                    <span class="flex h-3 w-3 relative">
-                                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                                                        <span class="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
-                                                    </span>
-                                                @elseif($report->status == 'selesai')
-                                                    <span class="inline-block h-3 w-3 rounded-full bg-green-500"></span>
-                                                @else
-                                                    <span class="inline-block h-3 w-3 rounded-full bg-blue-500"></span>
-                                                @endif
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 truncate">
-                                                    {{ $report->deskripsi_bahaya }}
-                                                </p>
-                                                <div class="flex items-center gap-2 mt-1">
-                                                    <p class="text-xs text-gray-500">
-                                                        {{ $report->pelapor->name ?? 'Anonim' }} &bull; {{ $report->area_gedung }}
-                                                    </p>
-                                                    <span class="text-xs text-gray-400">&bull; {{ $report->created_at->diffForHumans() }}</span>
+                                        <li>
+                                            <a href="{{ route('she.hazards.show', $report) }}" class="p-4 hover:bg-gray-50 transition-colors flex items-start gap-4">
+                                                <div class="flex-shrink-0 mt-1">
+                                                    @if($report->status == 'menunggu validasi')
+                                                        <span class="flex h-3 w-3 relative">
+                                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                                                        </span>
+                                                    @elseif($report->status == 'selesai')
+                                                        <span class="inline-block h-3 w-3 rounded-full bg-green-500"></span>
+                                                    @else
+                                                        <span class="inline-block h-3 w-3 rounded-full bg-blue-500"></span>
+                                                    @endif
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                    {{ $report->status == 'selesai' ? 'bg-green-100 text-green-800' : 
-                                                      ($report->status == 'diproses' ? 'bg-blue-100 text-blue-800' : 
-                                                      'bg-yellow-100 text-yellow-800') }}">
-                                                    {{ ucfirst($report->status) }}
-                                                </span>
-                                            </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                                        {{ $report->deskripsi_bahaya }}
+                                                    </p>
+                                                    <div class="flex items-center gap-2 mt-1">
+                                                        <p class="text-xs text-gray-500">
+                                                            {{ $report->pelapor->name ?? 'Anonim' }} &bull; {{ $report->area_gedung }}
+                                                        </p>
+                                                        <span class="text-xs text-gray-400">&bull; {{ $report->created_at->diffForHumans() }}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                        {{ $report->status == 'selesai' ? 'bg-green-100 text-green-800' : 
+                                                          ($report->status == 'diproses' ? 'bg-blue-100 text-blue-800' : 
+                                                          'bg-yellow-100 text-yellow-800') }}">
+                                                        {{ ucfirst($report->status) }}
+                                                    </span>
+                                                </div>
+                                            </a>
                                         </li>
                                     @endforeach
                                 </ul>

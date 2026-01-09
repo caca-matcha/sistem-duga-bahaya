@@ -1,17 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-// Import Controllers SHE dengan alias
-use App\Http\Controllers\SHE\HazardController as SHEHazardController;
-use App\Http\Controllers\SHE\MapController;
-use App\Http\Controllers\SHE\UserController;
 use App\Http\Controllers\SHE\CellController;
-use App\Http\Controllers\SHE\DashboardController as SHEDashboardController; // Ditambahkan Alias
-use App\Http\Controllers\SHE\ReportController; // PENTING: Import ReportController
-use App\Http\Controllers\SHE\LocationController; // Tambahkan untuk Master Lokasi
+// Import Controllers SHE dengan alias
+use App\Http\Controllers\SHE\DashboardController as SHEDashboardController;
+use App\Http\Controllers\SHE\HazardController as SHEHazardController;
+use App\Http\Controllers\SHE\LocationController;
+use App\Http\Controllers\SHE\MapController;
+use App\Http\Controllers\SHE\ReportController; // Ditambahkan Alias
+use App\Http\Controllers\SHE\UserController; // PENTING: Import ReportController
+use Illuminate\Support\Facades\Route; // Tambahkan untuk Master Lokasi
 
 // Import Controller Karyawan untuk logika redirect yang lebih aman
-use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController; // Ditambahkan
+// Ditambahkan
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ Route::middleware(['auth'])->get('/dashboard', function () {
     if ($user->role === 'she') {
         return redirect()->route('she.dashboard');
     }
-    
+
     // REDIRECT KE DASHBOARD KARYAWAN
     if ($user->role === 'karyawan') {
         return redirect()->route('karyawan.dashboard');
@@ -47,19 +47,19 @@ Route::middleware(['auth'])->get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
-
 // ROUTE WEB UNTUK SHE (Hanya rute yang tidak dimasukkan ke she.php)
 Route::middleware(['auth', 'role:she'])
     ->prefix('she')
     ->name('she.')
     ->group(function () {
         // Menggunakan alias SHEDashboardController
-        Route::get('dashboard', [SHEDashboardController::class, 'index'])->name('dashboard'); 
-        
+        Route::get('dashboard', [SHEDashboardController::class, 'index'])->name('dashboard');
+
         // HAZARD ROUTES
         Route::get('hazards', [SHEHazardController::class, 'index'])->name('hazards.index');
+        Route::get('hazards/export-excel-bulk', [SHEHazardController::class, 'exportExcelBulk'])->name('hazards.exportExcelBulk');
         Route::get('hazards/{hazard}', [SHEHazardController::class, 'show'])->name('hazards.show');
-        
+
         // ===========================================
         // 🚀 PENAMBAHAN ROUTE FORM BARU UNTUK SHE
         // ===========================================
@@ -74,7 +74,7 @@ Route::middleware(['auth', 'role:she'])
 
         // Rute untuk menampilkan formulir Penyelesaian (diproses -> selesai)
         Route::get('hazards/{hazard}/selesai-form', [SHEHazardController::class, 'selesaiForm'])->name('hazards.selesaiForm');
-        
+
         // Rute untuk menampilkan formulir tindak lanjut
         Route::get('hazards/{hazard}/dengan-tindak-lanjut', [SHEHazardController::class, 'denganTindakLanjutForm'])->name('hazards.denganTindakLanjut');
 
@@ -89,15 +89,15 @@ Route::middleware(['auth', 'role:she'])
 
         // ROUTE UTAMA UPDATE STATUS: Menangani semua status update (POST/PUT)
         Route::put('hazards/{hazard}/update-status', [SHEHazardController::class, 'updateStatus'])->name('hazards.updateStatus');
+        Route::get('hazards/export-excel-bulk', [SHEHazardController::class, 'exportExcelBulk'])->name('hazards.exportExcelBulk');
 
         // Kelola Peta
         Route::resource('maps', MapController::class);
 
-        
         Route::resource('users', UserController::class);
         Route::resource('locations', LocationController::class); // Tambahkan untuk Master Lokasi
         Route::get('maps/{map}/export', [MapController::class, 'export'])->name('maps.export');
-        Route::post('maps/import', [MapController::class, 'import'])->name('maps.import');
+
         Route::get('maps/{map}/export-risk-excel', [MapController::class, 'exportRiskDataExcel'])->name('maps.export-risk-excel');
     });
 
@@ -109,10 +109,10 @@ Route::middleware(['auth', 'role:she'])
 Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
     // Endpoint untuk mendapatkan daftar gedung (Map top-level)
     Route::get('maps/gedung', [MapController::class, 'getGedung'])->name('maps.gedung');
+    // Endpoint untuk mendapatkan semua Master Lokasi, difilter berdasarkan map_id
+    Route::get('locations', [LocationController::class, 'apiIndex'])->name('locations.index');
     // Endpoint untuk mendapatkan semua cell dari sebuah map
     Route::get('maps/{map_id}/cells', [CellController::class, 'index'])->name('maps.cells');
-    // Endpoint untuk mendapatkan semua Master Lokasi
-    Route::get('locations', [LocationController::class, 'apiIndex'])->name('locations.index');
 });
 
 // API KHUSUS SHE (untuk Grid Editor & Aksi Administratif)

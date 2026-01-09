@@ -48,7 +48,7 @@ const MapViewer = () => {
         if (pagination.isLoading) return;
 
         setPagination(p => ({ ...p, isLoading: true }));
-        axios.get(`/she/api/maps/${mapId}/cells?page=${page}`)
+        axios.get(`/api/maps/${mapId}/cells?page=${page}`)
             .then(response => {
                 const { data, current_page, last_page, per_page, total } = response.data;
                 
@@ -209,16 +209,6 @@ const MapViewer = () => {
                         stroke={'black'}
                         strokeWidth={0.5 / stageScale}
                         opacity={cellData ? 0.7 : 0.3}
-                    />,
-                    <Text
-                        key={`text-${i}-${j}`}
-                        x={j * cellWidth + 5}
-                        y={i * cellHeight + 5}
-                        text={(cellData?.risk_score ?? '').toString()}
-                        fontSize={14 / stageScale}
-                        fill="black"
-                        listening={false}
-                        visible={cellData && stageScale > 0.5} // Only show text when zoomed in
                     />
                 );
             }
@@ -265,11 +255,50 @@ const MapViewer = () => {
                         <Layer>{gridElements}</Layer>
                     </Stage>
                 )}
-                 <div className="mt-4 p-4 bg-white rounded-lg shadow">
-                    <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
-                    <div className="flex items-center mb-1"><span className="block w-6 h-4 bg-green-500 rounded-sm mr-2 border border-gray-300"></span><span className="text-sm text-gray-700">0-3 (Low Risk)</span></div>
-                    <div className="flex items-center mb-1"><span className="block w-6 h-4 bg-yellow-500 rounded-sm mr-2 border border-gray-300"></span><span className="text-sm text-gray-700">4-7 (Medium Risk)</span></div>
-                    <div className="flex items-center"><span className="block w-6 h-4 bg-red-600 rounded-sm mr-2 border border-gray-300"></span><span className="text-sm text-gray-700">8-10 (High Risk)</span></div>
+
+                
+                <div className="mt-4 p-4 bg-white rounded-lg shadow">
+                <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
+
+                <div className="flex items-center mb-1">
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#10b981" }}
+                    />
+                    <span className="text-sm text-gray-700">1–5 (Low Risk)</span>
+                </div>
+
+                <div className="flex items-center mb-1">
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#f59e0b" }}
+                    />
+                    <span className="text-sm text-gray-700">6–10 (Medium Risk)</span>
+                </div>
+
+                <div className="flex items-center mb-1">
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#ef4444" }}
+                    />
+                    <span className="text-sm text-gray-700">11–15 (Medium-High Risk)</span>
+                </div>
+
+                <div className="flex items-center mb-1">
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#f43f5e" }}
+                    />
+                    <span className="text-sm text-gray-700">16–20 (High Risk)</span>
+                </div>
+
+                <div className="flex items-center">
+                    <span
+                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                    style={{ backgroundColor: "#ff1a1a" }}
+                    />
+                    <span className="text-sm text-gray-700">21–25 (Extreme Risk)</span>
+                </div>
                 </div>
             </div>
 

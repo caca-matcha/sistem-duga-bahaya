@@ -6,11 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Map;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log; // Added for logging
+use Illuminate\Support\Str; // Added for logging
 
 class MapController extends Controller
 {
@@ -20,6 +18,7 @@ class MapController extends Controller
     public function index()
     {
         $maps = Map::with('parent')->get();
+
         return view('she.maps.index', compact('maps'));
     }
 
@@ -29,6 +28,7 @@ class MapController extends Controller
     public function create()
     {
         $maps = Map::all(); // Fetch all maps to populate parent_id dropdown
+
         return view('she.maps.create', compact('maps'));
     }
 
@@ -70,7 +70,8 @@ class MapController extends Controller
     public function show(Map $map)
     {
         $map->load(['cells.riskParameters']); // Eager load relations
-        Log::info('Map data for show view: ' . json_encode($map->toArray())); // Log the map data
+        Log::info('Map data for show view: '.json_encode($map->toArray())); // Log the map data
+
         return view('she.maps.show', compact('map'));
     }
 
@@ -80,6 +81,7 @@ class MapController extends Controller
     public function edit(Map $map)
     {
         $maps = Map::all(); // Fetch all maps to populate parent_id dropdown
+
         return view('she.maps.edit', compact('map', 'maps'));
     }
 
@@ -133,87 +135,9 @@ class MapController extends Controller
     {
         $mapData = $map->load(['cells.riskParameters']); // Eager load relations
 
-        $filename = 'map-' . Str::slug($map->name) . '-' . $map->id . '.json';
+        $filename = 'map-'.Str::slug($map->name).'-'.$map->id.'.json';
 
-        return response()->json($mapData)->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
-    }
-
-    /**
-     * Import a map from a JSON file.
-     */
-    public function import(Request $request)
-    {
-        $request->validate([
-            'map_file' => 'required|file|mimes:json|max:2048', // Max 2MB, JSON file
-        ]);
-
-        try {
-            $jsonContent = file_get_contents($request->file('map_file')->getRealPath());
-            $importedData = json_decode($jsonContent, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw ValidationException::withMessages(['map_file' => 'Invalid JSON file.']);
-            }
-
-            // Basic validation for the imported data structure
-            $request->merge($importedData); // Merge for easier validation
-            $validatedImportData = $request->validate([
-                'name' => 'required|string|max:255',
-                'type' => 'required|string|max:255',
-                'rows' => 'required|integer|min:1',
-                'cols' => 'required|integer|min:1',
-                'background_image' => 'nullable|string', // Path, not file
-                'cells' => 'nullable|array',
-                'cells.*.row_index' => 'required|integer|min:0',
-                'cells.*.col_index' => 'required|integer|min:0',
-                'cells.*.area_id' => 'nullable|string|max:255',
-                'cells.*.area_name' => 'nullable|string|max:255',
-                'cells.*.area_type' => 'nullable|string|max:255',
-                'cells.*.risk_score' => 'nullable|integer|min:0|max:10',
-                'cells.*.zone_color' => 'nullable|string|max:255',
-                'cells.*.metadata' => 'nullable|array',
-                'cells.*.risk_parameters' => 'nullable|array',
-                'cells.*.risk_parameters.*.parameter_name' => 'required|string|max:255',
-                'cells.*.risk_parameters.*.value' => 'required|numeric',
-            ]);
-
-            DB::transaction(function () use ($validatedImportData) {
-                $map = Map::create([
-                    'name' => $validatedImportData['name'] . ' (Imported)', // Append to avoid name conflicts
-                    'type' => $validatedImportData['type'],
-                    'rows' => $validatedImportData['rows'],
-                    'cols' => $validatedImportData['cols'],
-                    'background_image' => $validatedImportData['background_image'] ?? null,
-                    'created_by' => Auth::id(),
-                ]);
-
-                if (isset($validatedImportData['cells'])) {
-                    foreach ($validatedImportData['cells'] as $cellData) {
-                        $cell = $map->cells()->create([
-                            'row_index' => $cellData['row_index'],
-                            'col_index' => $cellData['col_index'],
-                            'area_id' => $cellData['area_id'] ?? null,
-                            'area_name' => $cellData['area_name'] ?? null,
-                            'area_type' => $cellData['area_type'] ?? null,
-                            'risk_score' => $cellData['risk_score'] ?? null,
-                            'zone_color' => $cellData['zone_color'] ?? null,
-                            'metadata' => $cellData['metadata'] ?? null,
-                        ]);
-
-                        if (isset($cellData['risk_parameters'])) {
-                            $cell->riskParameters()->createMany($cellData['risk_parameters']);
-                        }
-                    }
-                }
-            });
-
-            return redirect()->route('she.maps.index')->with('success', 'Map imported successfully.');
-
-        } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error importing map: ' . $e->getMessage())->withInput();
-        }
+        return response()->json($mapData)->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
     /**
@@ -223,14 +147,14 @@ class MapController extends Controller
     {
         $map->load(['cells.riskParameters']); // Eager load relations
 
-        $filename = 'risk_data_' . Str::slug($map->name) . '_' . $map->id . '.csv';
+        $filename = 'risk_data_'.Str::slug($map->name).'_'.$map->id.'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
-        $callback = function() use ($map) {
+        $callback = function () use ($map) {
             $file = fopen('php://output', 'w');
 
             // Add BOM for UTF-8 compatibility in Excel
@@ -239,10 +163,10 @@ class MapController extends Controller
             // CSV Headers
             $columns = [
                 'Map Name', 'Map Type', 'Row Index', 'Col Index', 'Area ID', 'Area Name', 'Area Type',
-                'Risk Score', 'Zone Color', 'Metadata'
+                'Risk Score', 'Zone Color', 'Metadata',
             ];
             // Dynamically add risk parameter columns
-            $allRiskParamNames = $map->cells->flatMap(fn($cell) => $cell->riskParameters->pluck('parameter_name'))->unique()->sort()->toArray();
+            $allRiskParamNames = $map->cells->flatMap(fn ($cell) => $cell->riskParameters->pluck('parameter_name'))->unique()->sort()->toArray();
             $columns = array_merge($columns, $allRiskParamNames);
 
             fputcsv($file, $columns);
@@ -285,6 +209,7 @@ class MapController extends Controller
     public function getGedung()
     {
         $gedung = Map::where('type', 'Gedung')->orWhereNull('parent_id')->get(['id', 'name']);
+
         return response()->json($gedung);
     }
 }

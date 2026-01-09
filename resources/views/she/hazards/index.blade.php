@@ -25,9 +25,28 @@ Memantau keselamatan kerja area
 <div class="py-8 bg-gray-50 min-h-screen relative z-10" 
      x-data="{ 
         activeTab: window.location.hash ? window.location.hash.replace('#', '') : 'baru',
+        selectedHazards: [],
         setTab(tab) {
             this.activeTab = tab;
             window.location.hash = tab;
+        },
+        toggleSelectAll(ids) {
+            const allSelected = ids.every(id => this.selectedHazards.includes(id));
+            if (allSelected) {
+                this.selectedHazards = this.selectedHazards.filter(id => !ids.includes(id));
+            } else {
+                ids.forEach(id => {
+                    if (!this.selectedHazards.includes(id)) {
+                        this.selectedHazards.push(id);
+                    }
+                });
+            }
+        },
+        get exportUrl() {
+            const baseUrl = '{{ route('she.hazards.exportExcelBulk') }}';
+            const params = new URLSearchParams();
+            this.selectedHazards.forEach(id => params.append('ids[]', id));
+            return `${baseUrl}?${params.toString()}`;
         }
      }">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -45,6 +64,25 @@ Memantau keselamatan kerja area
                 <p>{{ session('success') }}</p>
             </div>
         @endif
+
+        {{-- Floating Export Button --}}
+        <div x-show="selectedHazards.length > 0" 
+             x-transition:enter="transition ease-out duration-300" 
+             x-transition:enter-start="opacity-0 transform translate-y-4" 
+             x-transition:enter-end="opacity-100 transform translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform translate-y-0"
+             x-transition:leave-end="opacity-0 transform translate-y-4"
+             class="fixed bottom-10 right-10 z-20"
+             x-cloak>
+            <a :href="exportUrl"
+               class="flex items-center justify-center px-6 py-4 bg-green-600 text-white font-bold rounded-full shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all">
+                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Ekspor <span x-text="selectedHazards.length"></span> Laporan
+            </a>
+        </div>
 
         <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
 
@@ -103,7 +141,6 @@ Memantau keselamatan kerja area
             <div class="p-6">
                 
                 {{-- ================= TAB: LAPORAN BARU ================= --}}
-                {{-- Semua tab diberi transisi yang sama untuk UX yang lebih baik --}}
                 <div x-show="activeTab === 'baru'" 
                      x-transition:enter="transition ease-out duration-300" 
                      x-transition:enter-start="opacity-0 translate-y-2" 
@@ -126,6 +163,9 @@ Memantau keselamatan kerja area
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
+                                        <th scope="col" class="p-4">
+                                            <input type="checkbox" @click="toggleSelectAll({{ $hazardsMenungguValidasi->pluck('id') }})" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID & Tanggal</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelapor</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi Singkat</th>
@@ -135,7 +175,10 @@ Memantau keselamatan kerja area
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($hazardsMenungguValidasi as $hazard)
-                                        <tr class="hover:bg-gray-50 transition-colors">
+                                        <tr class="hover:bg-gray-50 transition-colors" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
+                                            <td class="p-4">
+                                                <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-bold text-indigo-600">#{{ $hazard->id }}</div>
                                                 <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->format('d M Y') }}</div>
@@ -155,7 +198,6 @@ Memantau keselamatan kerja area
                                                 <div class="text-xs text-gray-500 mt-1">{{ $hazard->kategori_resiko }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                {{-- Tombol "Review" sudah benar, asumsikan route sudah terdefinisi --}}
                                                 <a href="{{ route('she.hazards.show', $hazard) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
                                                     Review
                                                     <svg class="ml-1.5 -mr-0.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -188,6 +230,9 @@ Memantau keselamatan kerja area
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th scope="col" class="p-4">
+                                        <input type="checkbox" @click="toggleSelectAll({{ $hazardsDiproses->pluck('id') }})" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelapor</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC / Penanggung Jawab</th>
@@ -198,7 +243,10 @@ Memantau keselamatan kerja area
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($hazardsDiproses as $hazard)
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-50" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
+                                        <td class="p-4">
+                                            <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-500">#{{ $hazard->id }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">{{ $hazard->nama }}</div>
@@ -226,13 +274,12 @@ Memantau keselamatan kerja area
                                             <div class="text-sm text-gray-900 font-bold">{{ $hazard->risk_score }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            {{-- Tombol "Lihat Detail" sudah benar, asumsikan route sudah terdefinisi --}}
                                             <a href="{{ route('she.hazards.show', $hazard) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold transition-colors">Lihat Detail</a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 italic">
+                                        <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 italic">
                                             Tidak ada laporan yang sedang diproses.
                                         </td>
                                     </tr>
@@ -241,9 +288,6 @@ Memantau keselamatan kerja area
                         </table>
                     </div>
                     <div class="mt-4">
-                        {{-- Catatan: Paginasi ini akan kembali ke tab 'baru' saat diklik 
-                                     kecuali Anda memodifikasi view Paginator Laravel untuk 
-                                     menyertakan hash fragment (e.g., ?page=2#diproses) --}}
                         {{ $hazardsDiproses->links() }}
                     </div>
                 </div>
@@ -265,6 +309,9 @@ Memantau keselamatan kerja area
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th scope="col" class="p-4">
+                                        <input type="checkbox" @click="toggleSelectAll({{ $hazardsSelesai->pluck('id') }})" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelapor</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Akhir</th>
@@ -274,7 +321,10 @@ Memantau keselamatan kerja area
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($hazardsSelesai as $hazard)
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-50" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
+                                        <td class="p-4">
+                                            <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{{ $hazard->id }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">{{ $hazard->nama }}</div>
@@ -296,7 +346,6 @@ Memantau keselamatan kerja area
                                             {{ $hazard->ditangani_pada ? \Carbon\Carbon::parse($hazard->ditangani_pada)->format('d M Y') : '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            {{-- Ikon mata sudah benar, asumsikan route sudah terdefinisi --}}
                                             <a href="{{ route('she.hazards.show', $hazard) }}" class="text-gray-400 hover:text-indigo-600 transition-colors" title="Lihat Detail">
                                                 <svg class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -307,7 +356,7 @@ Memantau keselamatan kerja area
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 italic">
+                                        <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 italic">
                                             Belum ada riwayat laporan selesai.
                                         </td>
                                     </tr>

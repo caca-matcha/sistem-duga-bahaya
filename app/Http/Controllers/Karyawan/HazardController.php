@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
-use App\Models\Hazard;
-use App\Models\Location; // Import Location Model
-use App\Models\Map; // Import Map Model
-use App\Models\Cell; // Import Cell Model
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreHazardRequest;
+use App\Models\Hazard; // Import Location Model
+use App\Models\Location;
+use Illuminate\Support\Facades\Auth;
 
 class HazardController extends Controller
 {
@@ -24,11 +22,11 @@ class HazardController extends Controller
         // Hitung statistik
         $totalLaporan = $allHazards->count();
         // Laporan menunggu validasi/tinjauan awal
-        $menungguValidasi = $allHazards->whereIn('status', ['menunggu validasi', 'diproses'])->count(); 
-        
+        $menungguValidasi = $allHazards->whereIn('status', ['menunggu validasi', 'diproses'])->count();
+
         // Laporan yang sudah ditindaklanjuti (Disetujui, Selesai)
-        $sudahDivalidasi = $allHazards->whereIn('status', ['disetujui', 'selesai'])->count(); 
-        
+        $sudahDivalidasi = $allHazards->whereIn('status', ['disetujui', 'selesai'])->count();
+
         // Laporan yang ditolak
         $ditolak = $allHazards->where('status', 'ditolak')->count();
 
@@ -75,7 +73,7 @@ class HazardController extends Controller
             'NPK' => $validated['NPK'],
             'dept' => $validated['dept'],
             'tgl_observasi' => $validated['tgl_observasi'],
-            
+
             // --- Mengisi data lokasi dari Master Location ---
             'location_id' => $location->id, // Gunakan location_id
             'area_gedung' => $location->parent ? $location->parent->name : $location->name, // Ambil nama gedung dari parent jika ada, atau nama lokasi itu sendiri
@@ -124,7 +122,7 @@ class HazardController extends Controller
             'date' => $hazard->created_at,
             'is_active' => true,
             'is_current' => $hazard->status === 'menunggu validasi',
-            'details' => 'Laporan telah dikirim dan menunggu tinjauan dari Tim SHE.'
+            'details' => 'Laporan telah dikirim dan menunggu tinjauan dari Tim SHE.',
         ];
 
         // 2. Status: Diproses oleh SHE
@@ -134,9 +132,9 @@ class HazardController extends Controller
             'date' => $hazard->ditangani_pada,
             'is_active' => $isDiproses,
             'is_current' => $hazard->status === 'diproses',
-            'details' => $isDiproses 
-                ? 'Laporan sedang ditangani. Target penyelesaian: ' . ($hazard->target_penyelesaian ? \Carbon\Carbon::parse($hazard->target_penyelesaian)->format('d M Y') : 'Belum ditentukan')
-                : 'Menunggu laporan divalidasi dan diterima oleh Tim SHE.'
+            'details' => $isDiproses
+                ? 'Laporan sedang ditangani. Target penyelesaian: '.($hazard->target_penyelesaian ? \Carbon\Carbon::parse($hazard->target_penyelesaian)->format('d M Y') : 'Belum ditentukan')
+                : 'Menunggu laporan divalidasi dan diterima oleh Tim SHE.',
         ];
 
         // 3. Status: Selesai atau Ditolak
@@ -146,7 +144,7 @@ class HazardController extends Controller
                 'date' => $hazard->report_selesai,
                 'is_active' => true,
                 'is_current' => true,
-                'details' => 'Tindak lanjut untuk laporan ini telah selesai.'
+                'details' => 'Tindak lanjut untuk laporan ini telah selesai.',
             ];
         } elseif ($hazard->status === 'ditolak') {
             // Jika ditolak, ganti 'Diproses' dan 'Selesai' dengan 'Ditolak'
@@ -158,7 +156,7 @@ class HazardController extends Controller
                 'date' => $hazard->updated_at, // Asumsi tanggal ditolak adalah saat record di-update terakhir
                 'is_active' => true,
                 'is_current' => true,
-                'details' => 'Laporan ditolak. Alasan: ' . ($hazard->alasan_penolakan ?? 'Tidak ada alasan spesifik.')
+                'details' => 'Laporan ditolak. Alasan: '.($hazard->alasan_penolakan ?? 'Tidak ada alasan spesifik.'),
             ];
         } else {
             // Placeholder untuk status Selesai jika belum tercapai
@@ -167,7 +165,7 @@ class HazardController extends Controller
                 'date' => null,
                 'is_active' => false,
                 'is_current' => false,
-                'details' => 'Menunggu proses penanganan dari Tim SHE selesai.'
+                'details' => 'Menunggu proses penanganan dari Tim SHE selesai.',
             ];
         }
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\SHE;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use App\Models\Map;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
@@ -16,6 +15,7 @@ class LocationController extends Controller
     public function index()
     {
         $locations = Location::with(['parent', 'creator'])->get();
+
         return view('she.locations.index', compact('locations'));
     }
 
@@ -26,6 +26,7 @@ class LocationController extends Controller
     {
         $locations = Location::all();
         $maps = Map::all();
+
         return view('she.locations.create', compact('locations', 'maps'));
     }
 
@@ -69,6 +70,7 @@ class LocationController extends Controller
     {
         $locations = Location::where('id', '!=', $location->id)->get();
         $maps = Map::all();
+
         return view('she.locations.edit', compact('location', 'locations', 'maps'));
     }
 
@@ -79,7 +81,7 @@ class LocationController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'location_id_string' => 'required|string|max:255|unique:locations,location_id_string,' . $location->id,
+            'location_id_string' => 'required|string|max:255|unique:locations,location_id_string,'.$location->id,
             'type' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:locations,id',
             'map_id' => 'nullable|exists:maps,id',
@@ -102,15 +104,23 @@ class LocationController extends Controller
     public function destroy(Location $location)
     {
         $location->delete();
+
         return redirect()->route('she.locations.index')->with('success', 'Lokasi berhasil dihapus!');
     }
 
     /**
      * Display a listing of the resource for API.
      */
-    public function apiIndex()
+    public function apiIndex(Request $request)
     {
-        $locations = Location::with('map')->get(['id', 'name', 'location_id_string', 'type', 'parent_id', 'map_id']);
+        $query = Location::with('map');
+
+        if ($request->has('map_id')) {
+            $query->where('map_id', $request->input('map_id'));
+        }
+
+        $locations = $query->get();
+
         return response()->json($locations);
     }
 }
