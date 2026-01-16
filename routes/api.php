@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\MapApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Map;
+
+// Assuming this exists or will be created for /api/locations
 
 /*
 |--------------------------------------------------------------------------
@@ -18,3 +20,6 @@ use App\Models\Map;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/maps', [MapApiController::class, 'index']);
+Route::get('/maps/{map}/cells', [MapApiController::class, 'getCells']);

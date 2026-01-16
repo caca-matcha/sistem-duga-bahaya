@@ -8,7 +8,8 @@ use App\Models\Cell;
 use App\Models\Hazard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; // Import Cell Model
+use Illuminate\Support\Facades\DB; // Import Cell Model
+use Illuminate\Support\Facades\Storage; // Import DB Facade
 
 use function App\Helpers\getRiskColor;
 
@@ -17,21 +18,65 @@ class HazardController extends Controller
     // DASHBOARD: tampilkan semua laporan
     public function index(Request $request)
     {
-        // ... (Logika index tetap sama)
-        $hazardsMenungguValidasi = Hazard::where('status', 'menunggu validasi')
-            ->latest()
-            ->with('pelapor', 'ditanganiOleh')
-            ->get();
+        $baseQuery = Hazard::query()->with('pelapor', 'ditanganiOleh', 'location');
 
-        $hazardsDiproses = Hazard::where('status', 'diproses')
-            ->latest()
-            ->with('pelapor', 'ditanganiOleh')
-            ->paginate(10, ['*'], 'diproses_page');
+        // Apply Month and Year Filters
+        $month = $request->input('month');
+        $year = $request->input('year');
 
-        $hazardsSelesai = Hazard::whereIn('status', ['selesai', 'ditolak'])
-            ->orderBy('ditangani_pada', 'desc')
-            ->with('pelapor', 'ditanganiOleh')
-            ->paginate(10, ['*'], 'selesai_page');
+        if (! empty($month)) {
+            $baseQuery->whereMonth('tgl_observasi', $month);
+        }
+        if (! empty($year)) {
+            $baseQuery->whereYear('tgl_observasi', $year);
+        }
+
+        // Apply Search Filter
+        if ($request->has('search') && ! empty($request->search)) {
+            $searchTerm = strtolower($request->search);
+            $baseQuery->where(function ($q) use ($searchTerm) {
+                $q->where('hazards.id', 'LIKE', '%'.$searchTerm.'%') // Search ID
+                    ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', '%'.$searchTerm.'%') // Search Date
+                    ->orWhereHas('pelapor', function ($userQuery) use ($searchTerm) { // Search Reporter Name
+                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
+                    })
+                    ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', '%'.$searchTerm.'%'); // Search Short Description
+
+                // Risk Level (Low, Medium, High, Medium-High, Extreme) - Case-insensitive
+                if (strtolower($searchTerm) === 'low') {
+                    $q->orWhere('risk_score', '<=', 4);
+                } elseif (strtolower($searchTerm) === 'medium') {
+                    $q->orWhereBetween('risk_score', [5, 9]);
+                } elseif (strtolower($searchTerm) === 'medium-high') {
+                    $q->orWhereBetween('risk_score', [10, 15]);
+                } elseif (strtolower($searchTerm) === 'high') {
+                    $q->orWhereBetween('risk_score', [16, 20]);
+                } elseif (strtolower($searchTerm) === 'extreme') {
+                    $q->orWhere('risk_score', '>', 20);
+                }
+                // Also allow direct search on 'kategori_resiko' string itself
+                $q->orWhere(DB::raw('LOWER(kategori_resiko)'), 'LIKE', '%'.$searchTerm.'%');
+            });
+        }
+
+        // Split by status after applying global filters
+        $hazardsMenungguValidasi = (clone $baseQuery)->where('status', 'menunggu validasi')->latest()->paginate(10, ['*'], 'baru_page')->withQueryString();
+        $hazardsDiproses = (clone $baseQuery)->where('status', 'diproses')->latest()->paginate(10, ['*'], 'diproses_page')->withQueryString();
+        $hazardsSelesai = (clone $baseQuery)->whereIn('status', ['selesai', 'ditolak'])->orderBy('ditangani_pada', 'desc')->paginate(10, ['*'], 'selesai_page')->withQueryString();
+
+        // If it's an AJAX request, return JSON with rendered partials
+        if ($request->ajax()) {
+            return response()->json([
+                'menunggu_validasi_html' => view('she.hazards._table_menunggu_validasi_rows', compact('hazardsMenungguValidasi'))->render(),
+                'menunggu_validasi_pagination' => $hazardsMenungguValidasi->links()->toHtml(),
+
+                'diproses_html' => view('she.hazards._table_diproses_rows', compact('hazardsDiproses'))->render(),
+                'diproses_pagination' => $hazardsDiproses->links()->toHtml(),
+
+                'selesai_html' => view('she.hazards._table_selesai_rows', compact('hazardsSelesai'))->render(),
+                'selesai_pagination' => $hazardsSelesai->links()->toHtml(),
+            ]);
+        }
 
         return view('she.hazards.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai'));
     }
@@ -489,5 +534,26 @@ class HazardController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Hazard  $hazard
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Hazard $hazard)
+    {
+        // Delete associated files from storage
+        if ($hazard->foto_bukti) {
+            Storage::disk('public')->delete($hazard->foto_bukti);
+        }
+        if ($hazard->foto_bukti_penyelesaian) {
+            Storage::disk('public')->delete($hazard->foto_bukti_penyelesaian);
+        }
+
+        $hazard->delete();
+
+        return redirect()->route('she.hazards.index')->with('success', 'Laporan berhasil dihapus.');
     }
 }

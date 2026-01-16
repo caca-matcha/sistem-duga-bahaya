@@ -89,6 +89,7 @@ Route::middleware(['auth', 'role:she'])
 
         // ROUTE UTAMA UPDATE STATUS: Menangani semua status update (POST/PUT)
         Route::put('hazards/{hazard}/update-status', [SHEHazardController::class, 'updateStatus'])->name('hazards.updateStatus');
+        Route::delete('hazards/{hazard}', [SHEHazardController::class, 'destroy'])->name('hazards.destroy');
         Route::get('hazards/export-excel-bulk', [SHEHazardController::class, 'exportExcelBulk'])->name('hazards.exportExcelBulk');
 
         // Kelola Peta
@@ -113,6 +114,8 @@ Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
     Route::get('locations', [LocationController::class, 'apiIndex'])->name('locations.index');
     // Endpoint untuk mendapatkan semua cell dari sebuah map
     Route::get('maps/{map_id}/cells', [CellController::class, 'index'])->name('maps.cells');
+    // Endpoint baru untuk mendapatkan lokasi yang terkait dengan peta tertentu
+    Route::get('maps/{map}/locations', [LocationController::class, 'getLocationsForMap'])->name('maps.locations');
 });
 
 // API KHUSUS SHE (untuk Grid Editor & Aksi Administratif)

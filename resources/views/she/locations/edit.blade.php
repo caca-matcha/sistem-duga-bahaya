@@ -35,17 +35,15 @@
 
                         <!-- Tipe Lokasi -->
                         <div class="mb-4">
-                            <label for="type" class="block text-sm font-medium text-gray-700">Tipe Lokasi</label>
-                            <input type="text" name="type" id="type" class="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" value="{{ old('type', $location->type) }}" required>
-                            @error('type')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            <label for="type_display" class="block text-sm font-medium text-gray-700">Tipe Lokasi</label>
+                            <input type="hidden" name="type" id="type" value="Area">
+                            <p id="type_display" class="mt-1 block w-full text-gray-800">Area</p>
                         </div>
 
                         <!-- Peta/Gedung (Dropdown) -->
                         <div class="mb-4">
-                            <label for="map_id" class="block text-sm font-medium text-gray-700">Induk Peta/Gedung (Opsional)</label>
-                            <select name="map_id" id="map_id" class="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <label for="map_id" class="block text-sm font-medium text-gray-700">Induk Peta/Gedung</label>
+                            <select name="map_id" id="map_id" class="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
                                 <option value="">-- Pilih Peta/Gedung --</option>
                                 @foreach ($maps as $map)
                                     <option value="{{ $map->id }}" @selected(old('map_id', $location->map_id) == $map->id)>
@@ -54,22 +52,6 @@
                                 @endforeach
                             </select>
                             @error('map_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Parent Lokasi (Dropdown) -->
-                        <div class="mb-6">
-                            <label for="parent_id" class="block text-sm font-medium text-gray-700">Parent Lokasi (Opsional)</label>
-                            <select name="parent_id" id="parent_id" class="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="">-- Pilih Parent Lokasi --</option>
-                                @foreach ($locations as $loc)
-                                    <option value="{{ $loc->id }}" @selected(old('parent_id', $location->parent_id) == $loc->id)>
-                                        {{ $loc->name }} ({{ $loc->location_id_string }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('parent_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>

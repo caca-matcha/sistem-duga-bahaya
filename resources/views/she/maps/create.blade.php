@@ -16,10 +16,16 @@
                             <input type="text" name="name" id="name" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50" required>
                         </div>
                         <div class="mb-4">
-                            <label for="type" class="block font-medium text-sm text-gray-700">Type</label>
-                            <input type="text" name="type" id="type" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50" required>
+                            <label for="type_display" class="block font-medium text-sm text-gray-700">Type</label>
+                            <input type="hidden" name="type" id="type_hidden" value="{{ $type }}">
+                            <p id="type_display" class="block mt-1 w-full text-gray-800">{{ $type }}</p>
+                            @if ($type === 'Pabrik' && $existingPabrikMap)
+                                <p class="text-sm text-red-600 mt-2">
+                                    Peta dengan tipe 'Pabrik' sudah ada. Anda tidak dapat membuat lebih dari satu peta 'Pabrik'.
+                                </p>
+                            @endif
                         </div>
-                        <div class="mb-4">
+                        <div class="mb-4" id="parent_id_container" style="{{ $type === 'Pabrik' ? 'display: none;' : '' }}"> <!-- Conditional display -->
                             <label for="parent_id" class="block font-medium text-sm text-gray-700">Parent Map (Optional)</label>
                             <select name="parent_id" id="parent_id" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
                                 <option value="">-- No Parent Map --</option>
