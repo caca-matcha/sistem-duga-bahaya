@@ -183,17 +183,57 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- CHART 1: RISK LEVEL ---
+            // --- CHART 1: RISK LEVEL (DYNAMIC) ---
             const riskCounts = @json($riskCounts);
+            
+            // Define all possible categories, their labels, and colors.
+            // This ensures a consistent order and color scheme.
+            const riskConfig = {
+                'Low': { label: 'Rendah', color: '#10B981' }, // Green-500
+                'Medium': { label: 'Sedang', color: '#3B82F6' }, // Blue-500 (will be merged)
+                'Medium-High': { label: 'Sedang & Menengah', color: '#F59E0B' }, // Amber-500
+                'High': { label: 'Tinggi', color: '#F97316' }, // Orange-500 (will be merged)
+                'Extreme': { label: 'Tinggi & Ekstrem', color: '#EF4444' }, // Red-500
+            };
+
+            // Aggregate data as requested
+            const aggregatedData = {
+                'Low': riskCounts['Low'] || 0,
+                'Medium-High': (riskCounts['Medium'] || 0) + (riskCounts['Medium-High'] || 0),
+                'Extreme': (riskCounts['High'] || 0) + (riskCounts['Extreme'] || 0)
+            };
+
+            const chartLabels = [];
+            const chartData = [];
+            const chartColors = [];
+
+            // Populate chart data based on the final aggregated data
+            // We use the config to ensure a consistent order and color
+            if (aggregatedData['Low'] > 0) {
+                chartLabels.push(riskConfig['Low'].label);
+                chartData.push(aggregatedData['Low']);
+                chartColors.push(riskConfig['Low'].color);
+            }
+            if (aggregatedData['Medium-High'] > 0) {
+                chartLabels.push(riskConfig['Medium-High'].label);
+                chartData.push(aggregatedData['Medium-High']);
+                chartColors.push(riskConfig['Medium-High'].color);
+            }
+            if (aggregatedData['Extreme'] > 0) {
+                chartLabels.push(riskConfig['Extreme'].label);
+                chartData.push(aggregatedData['Extreme']);
+                chartColors.push(riskConfig['Extreme'].color);
+            }
+
             const riskCtx = document.getElementById('riskLevelChart').getContext('2d');
             
             new Chart(riskCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Rendah', 'Sedang', 'Tinggi'],
+                    labels: chartLabels,
                     datasets: [{
-                        data: [riskCounts.low, riskCounts.medium, riskCounts.high],
-                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], // Green, Amber, Red
+                        data: chartData,
+                        backgroundColor: chartColors,
                         borderWidth: 0,
                         hoverOffset: 10
                     }]

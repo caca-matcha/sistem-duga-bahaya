@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Hazard;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB; // IMPORT DB FACADE
 
 class DashboardController extends Controller
 {
@@ -16,58 +17,46 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // Base query for all hazards of the logged-in user
-        $baseHazardsQuery = Hazard::where('user_id', $userId)
-                                ->latest(); // Apply latest() once for consistent ordering
+        // --- 1. STATISTIK (Dihitung dari semua data user tanpa filter) ---
+        $allUserHazards = Hazard::where('user_id', $userId)->get();
+        $totalLaporan = $allUserHazards->count();
+        $menungguValidasi = $allUserHazards->where('status', 'menunggu validasi')->count();
+        $diproses = $allUserHazards->where('status', 'diproses')->count();
+        $selesai = $allUserHazards->where('status', 'selesai')->count();
+        $ditolak = $allUserHazards->where('status', 'ditolak')->count();
+        $sudahDivalidasi = $allUserHazards->where('status', 'selesai')->count(); // Or adjust logic as needed
 
-        // Clone the base query to calculate statistics from ALL hazards (unfiltered)
-        $allHazardsForStats = clone $baseHazardsQuery;
-        $allHazardsCollection = $allHazardsForStats->get();
+        // --- 2. QUERY UTAMA DENGAN FILTER UNTUK TABEL ---
+        $query = Hazard::where('user_id', $userId);
 
-        // Calculate statistics for cards from all hazards
-        $totalLaporan = $allHazardsCollection->count();
-        // Assuming your database status values are 'menunggu validasi', 'diproses', 'selesai', 'ditolak', 'disetujui'
-        $menungguValidasi = $allHazardsCollection->where('status', 'menunggu validasi')->count();
-        $diproses = $allHazardsCollection->where('status', 'diproses')->count();
-        $disetujui = $allHazardsCollection->where('status', 'disetujui')->count();
-        $selesai = $allHazardsCollection->where('status', 'selesai')->count();
-        $ditolak = $allHazardsCollection->where('status', 'ditolak')->count();
+        // Filter by Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
-        // Sum for 'Disetujui / Selesai' card
-        $sudahDivalidasi = $disetujui + $selesai;
-
-
-        // Apply search and filter conditions to the query for the table display
-        $hazardsForTable = $baseHazardsQuery; // Start with the base query again
-
-        // Search by description or area
-        if ($search = $request->query('search')) {
-            $hazardsForTable->where(function ($query) use ($search) {
-                $query->where('deskripsi_bahaya', 'like', "%{$search}%")
-                      ->orWhere('area_gedung', 'like', "%{$search}%");
+        // Filter by Search Term
+        if ($request->filled('search')) {
+            $searchTerm = strtolower($request->search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('id', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(area_gedung)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(area_name)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(status)'), 'LIKE', "%{$searchTerm}%");
             });
         }
 
-        // Filter by status
-        if ($status = $request->query('status')) {
-            $hazardsForTable->where('status', $status);
-        }
+        // Ambil hasil yang sudah difilter dan paginasi
+        $hazards = $query->latest()->paginate(10)->withQueryString();
 
-        $hazards = $hazardsForTable->get()->map(function ($hazard) {
-            // Hitung Skor Risiko
-            $hazard->risk_score = $hazard->tingkat_keparahan * $hazard->kemungkinan_terjadi;
-            return $hazard;
-        });
-
-        return view('karyawan.dashboard', compact(
-            'hazards',
-            'totalLaporan',
-            'menungguValidasi',
-            'sudahDivalidasi',
-            'ditolak',
-            'diproses',
-            'selesai',
-            'disetujui'
-        ));
+        return view('karyawan.dashboard', [
+            'hazards' => $hazards,
+            'totalLaporan' => $totalLaporan,
+            'menungguValidasi' => $menungguValidasi,
+            'sudahDivalidasi' => $sudahDivalidasi,
+            'ditolak' => $ditolak,
+            'searchTerm' => $request->search ?? null, // Pass search term to view
+        ]);
     }
 }

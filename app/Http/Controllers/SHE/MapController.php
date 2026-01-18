@@ -90,12 +90,15 @@ class MapController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Map $map)
+    public function show(Map $map, Request $request)
     {
         $map->load(['cells.riskParameters']); // Eager load relations
+
+        $searchQuery = $request->query('search_query'); // Get search query from request
+
         Log::info('Map data for show view: '.json_encode($map->toArray())); // Log the map data
 
-        return view('she.maps.show', compact('map'));
+        return view('she.maps.show', compact('map', 'searchQuery')); // Pass searchQuery to view
     }
 
     /**

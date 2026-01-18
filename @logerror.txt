@@ -1,4 +1,154 @@
-Illuminate\Database\Eloquent\Collection {#1072 ▼ // app\Http\Controllers\SHE\DashboardController.php:18
-  #items: array:166 [▶]
-  #escapeWhenCastingToString: false
+# ErrorException - Internal Server Error
+
+Attempt to read property "name" on null
+
+PHP 8.2.4
+Laravel 12.46.0
+127.0.0.1:8000
+
+## Stack Trace
+
+0 - resources\views\she\hazards\show.blade.php:97
+1 - vendor\laravel\framework\src\Illuminate\Filesystem\Filesystem.php:123
+2 - vendor\laravel\framework\src\Illuminate\Filesystem\Filesystem.php:124
+3 - vendor\laravel\framework\src\Illuminate\View\Engines\PhpEngine.php:57
+4 - vendor\laravel\framework\src\Illuminate\View\Engines\CompilerEngine.php:76
+5 - vendor\laravel\framework\src\Illuminate\View\View.php:208
+6 - vendor\laravel\framework\src\Illuminate\View\View.php:191
+7 - vendor\laravel\framework\src\Illuminate\View\View.php:160
+8 - vendor\laravel\framework\src\Illuminate\Http\Response.php:78
+9 - vendor\laravel\framework\src\Illuminate\Http\Response.php:34
+10 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:939
+11 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:906
+12 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:821
+13 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
+14 - app\Http\Middleware\RoleMiddleware.php:26
+15 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+16 - vendor\laravel\boost\src\Middleware\InjectBoost.php:22
+17 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+18 - vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php:50
+19 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+20 - vendor\laravel\framework\src\Illuminate\Auth\Middleware\Authenticate.php:63
+21 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+22 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken.php:87
+23 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+24 - vendor\laravel\framework\src\Illuminate\View\Middleware\ShareErrorsFromSession.php:48
+25 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+26 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:120
+27 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:63
+28 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+29 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse.php:36
+30 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+31 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\EncryptCookies.php:74
+32 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+33 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
+34 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:821
+35 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:800
+36 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:764
+37 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:753
+38 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:200
+39 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
+40 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+41 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php:31
+42 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+43 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+44 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php:51
+45 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+46 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php:27
+47 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+48 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php:109
+49 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+50 - vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php:48
+51 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+52 - vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php:58
+53 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+54 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks.php:22
+55 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+56 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePathEncoding.php:26
+57 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+58 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
+59 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:175
+60 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:144
+61 - vendor\laravel\framework\src\Illuminate\Foundation\Application.php:1220
+62 - public\index.php:20
+63 - vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+
+## Request
+
+GET /she/hazards/131
+
+## Headers
+
+* **host**: 127.0.0.1:8000
+* **connection**: keep-alive
+* **sec-ch-ua**: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"
+* **sec-ch-ua-mobile**: ?0
+* **sec-ch-ua-platform**: "Windows"
+* **upgrade-insecure-requests**: 1
+* **user-agent**: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+* **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+* **sec-fetch-site**: same-origin
+* **sec-fetch-mode**: navigate
+* **sec-fetch-user**: ?1
+* **sec-fetch-dest**: document
+* **referer**: http://127.0.0.1:8000/she/hazards
+* **accept-encoding**: gzip, deflate, br, zstd
+* **accept-language**: id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7
+* **cookie**: XSRF-TOKEN=eyJpdiI6Iks2czFhd1FqTWUvdWt4emRtNEMxK2c9PSIsInZhbHVlIjoiSDhqakhXWFFFbmpHaFVUTUtXOUYwUnlHb1BSSWVpMUJqQXBDUTBoT04rQzRPNU5tZU8vaExWcVZ2VUpiUkozN3Q4cHp4c3FjZ0ZKa0s3OGxsYkpOaTZmTkNwNXhNL3JlcVZCL0l5ZGdhVk9FS3o4Tk9qSHM4eE9rRFhNaHQ0eUgiLCJtYWMiOiI3ZWE5YzM3NGUxOTZhNGRjNWU5MGRiNWZjYjMyYmY4MzNmMGExMzU0ODdmZWI0OTAzZDQxMzczZTIzODZjNTY2IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkwzRXVlSWhELzVVL3JsVS9rangzY0E9PSIsInZhbHVlIjoiKzFmdkhYditYMmd0Y2xXTUNTZ3puU1gwN0liUWdRVXV4TmhIcXpEeHJKUzdmQ2xDN0ZMSkg2VWpEdko5UjVML0pEL3ZWWjhtYkczWlBsd1hPNzZWK25kWVJoUTJiVkpqSmhWUUJDQVFIaFdPbnBJajljcjFtTW1QSW1jSUpyTUYiLCJtYWMiOiI4MTIyZmQ3ZWViMzVmMDNhM2Q1ZGVmYzRlY2FhYjdkYjExNDBhNmUzODhjNDQ2M2JjNzIwMjVjOWYwMTgzYjhhIiwidGFnIjoiIn0%3D
+
+## Route Context
+
+controller: App\Http\Controllers\SHE\HazardController@show
+route name: she.hazards.show
+middleware: web, auth, role:she
+
+## Route Parameters
+
+{
+    "hazard": {
+        "id": 131,
+        "user_id": 2,
+        "map_id": null,
+        "cell_id": null,
+        "nama": "Karyawan Satu",
+        "NPK": "843743",
+        "dept": "Human Resource",
+        "tgl_observasi": "2026-01-17T00:00:00.000000Z",
+        "area_gedung": "Kantin 2",
+        "area_id": "K2_GE",
+        "location_id": 1,
+        "lokasi_detail_manual": "fguefegfuw",
+        "area_name": "Kantin 2",
+        "area_type": "Area",
+        "deskripsi_bahaya": "oecfnefe",
+        "foto_bukti": "hazard_photos/O4ETkW81NVDd5hbwTHxOtH5iT06LTLQgJWZtASlc.jpg",
+        "kategori_stop6": "A",
+        "faktor_penyebab": null,
+        "upaya_penanggulangan": null,
+        "tingkat_keparahan": 3,
+        "kemungkinan_terjadi": 4,
+        "risk_score": 12,
+        "kategori_resiko": "Medium",
+        "ide_penanggulangan": "wodnwfhw",
+        "final_tingkat_keparahan": null,
+        "final_kemungkinan_terjadi": null,
+        "tindakan_perbaikan": null,
+        "foto_bukti_penyelesaian": null,
+        "target_penyelesaian": null,
+        "final_kategori_stop6": null,
+        "status": "menunggu validasi",
+        "alasan_penolakan": null,
+        "report_selesai": null,
+        "ditangani_oleh": null,
+        "ditangani_pada": null,
+        "created_at": "2026-01-17T17:39:40.000000Z",
+        "updated_at": "2026-01-17T17:39:40.000000Z"
+    }
 }
+
+## Database Queries
+
+* mysql - select * from `sessions` where `id` = 'rABq9kPhCzWA3KU16Z2arMwCVZZIfVQPuRJjQiFH' limit 1 (28.9 ms)
+* mysql - select * from `users` where `id` = 1 limit 1 (0.95 ms)
+* mysql - select * from `hazards` where `id` = '131' limit 1 (1 ms)
+* mysql - select * from `users` where `users`.`id` in (2) (0.55 ms)

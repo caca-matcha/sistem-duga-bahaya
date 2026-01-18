@@ -30,7 +30,6 @@
                         <input type="text" id="location-search-input" name="search" placeholder="Cari lokasi..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 transition-all">
                     </div>
                     <a href="{{ route('she.locations.create') }}" class="inline-flex items-center px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-blue-200 hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m0-6H6"/></svg>
                         Tambah Lokasi
                     </a>
                 </div>

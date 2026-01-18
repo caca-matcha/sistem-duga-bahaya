@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <div class="py-6 sm:py-12">
+    <div class="py-6 sm:py-12 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             {{-- Bagian Selamat Datang dan Pesan --}}
@@ -99,28 +99,37 @@
                     </div>
 
                     {{-- Search and Filter --}}
-                    <form method="GET" action="{{ route('karyawan.dashboard') }}" class="mb-6">
-                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <form id="filter-form" method="GET" action="{{ route('karyawan.dashboard') }}" class="mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
                             
-                            <input type="text" name="search" placeholder="Cari deskripsi atau area spesifik..." 
-                                   value="{{ request('search') }}"
-                                   class="w-full md:flex-grow border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 focus:ring-opacity-50 transition duration-150">
+                            {{-- Search Input --}}
+                            <div class="lg:col-span-4">
+                                <input type="text" name="search" placeholder="Cari ID, tgl, deskripsi, area, status..." 
+                                       value="{{ request('search') }}"
+                                       class="w-full border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 focus:ring-opacity-50 transition duration-150">
+                            </div>
                             
-                            <select name="status" class="w-full md:w-56 border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 focus:ring-opacity-50 transition duration-150">
-                                <option value="">Semua Status</option>
-                                <option value="menunggu validasi" {{ request('status') == 'menunggu validasi' ? 'selected' : '' }}>Menunggu Validasi</option>
-                                <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
-                                <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
-                                <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
-                            </select>
+                            {{-- Filter Status --}}
+                            <div class="lg:col-span-1">
+                                <select name="status" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 focus:ring-opacity-50 transition duration-150">
+                                    <option value="">Semua Status</option>
+                                    <option value="menunggu validasi" {{ request('status') == 'menunggu validasi' ? 'selected' : '' }}>Menunggu Validasi</option>
+                                    <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
+                                    <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                    <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                    <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                                </select>
+                            </div>
                             
-                            <button type="submit" class="w-full md:w-auto px-6 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 inline-flex items-center justify-center space-x-2 transition duration-150">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                </svg>
-                                <span>Filter Data</span>
-                            </button>
+                            {{-- Tombol Submit --}}
+                            <div class="lg:col-span-1">
+                                <button type="submit" class="w-full px-3 py-1.5 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 inline-flex items-center justify-center space-x-2 transition duration-150">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                    </svg>
+                                    <span>Cari</span>
+                                </button>
+                            </div>
                         </div>
                     </form>
 
@@ -138,62 +147,54 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-100">
-                                @forelse($hazards as $hazard)
-                                    <tr class="hover:bg-red-50/30 transition duration-150">
-                                        {{-- ID Laporan (Baru) --}}
+                                @forelse ($hazards as $hazard)
+                                    <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            #{{ $hazard->id }}
+                                            {{ $hazard->id }}
                                         </td>
-                                        
-                                        {{-- Tanggal Observasi --}}
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            {{ $hazard->tgl_observasi ? \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') : '-' }}
-                                        </td>
-                                        
-                                        {{-- Deskripsi Bahaya --}}
-                                        <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate" title="{{ $hazard->deskripsi_bahaya }}">
-                                            {{ \Illuminate\Support\Str::limit($hazard->deskripsi_bahaya, 45) }}
-                                        </td>
-                                        
-                                        {{-- Area Gedung (Lebih Detail) --}}
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ collect([$hazard->area_gedung, $hazard->area_name])->filter()->join(' -> ') }}
+                                            {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d F Y') }}
                                         </td>
-                                        
-                                        {{-- Status (Menggunakan Badge yang Jelas) --}}
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                            {{ $hazard->deskripsi_bahaya }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $hazard->area_gedung }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             @php
-                                                $status = ucfirst($hazard->status);
-                                                $badgeClasses = [
-                                                    'Menunggu Validasi' => 'bg-yellow-100 text-yellow-800 border border-yellow-300',
-                                                    'Diproses' => 'bg-blue-100 text-blue-800 border border-blue-300',
-                                                    'Disetujui' => 'bg-indigo-100 text-indigo-800 border border-indigo-300',
-                                                    'Ditolak' => 'bg-red-100 text-red-800 border border-red-300',
-                                                    'Selesai' => 'bg-green-100 text-green-800 border border-green-300',
-                                                ];
+                                                $statusClass = '';
+                                                switch ($hazard->status) {
+                                                    case 'menunggu validasi':
+                                                        $statusClass = 'bg-yellow-100 text-yellow-800';
+                                                        break;
+                                                    case 'disetujui':
+                                                    case 'selesai':
+                                                        $statusClass = 'bg-green-100 text-green-800';
+                                                        break;
+                                                    case 'ditolak':
+                                                        $statusClass = 'bg-red-100 text-red-800';
+                                                        break;
+                                                    case 'diproses':
+                                                        $statusClass = 'bg-blue-100 text-blue-800';
+                                                        break;
+                                                    default:
+                                                        $statusClass = 'bg-gray-100 text-gray-800';
+                                                        break;
+                                                }
                                             @endphp
-                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full shadow-sm {{ $badgeClasses[$status] ?? 'bg-gray-100 text-gray-800' }}">
-                                                {{ $status }}
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
+                                                {{ ucfirst($hazard->status) }}
                                             </span>
                                         </td>
-                                        
-                                        {{-- Aksi --}}
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('karyawan.hazards.show', $hazard) }}" 
-                                               class="text-red-600 hover:text-red-800 font-semibold transition duration-150 hover:underline">
-                                                Detail
-                                            </a>
+                                            <a href="{{ route('karyawan.hazards.show', $hazard->id) }}" class="text-indigo-600 hover:text-indigo-900">Lihat</a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-12 text-center text-lg text-gray-500 bg-gray-50/50">
-                                            <svg class="w-12 h-12 text-red-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 19.172A4 4 0 018 17.586V15M3 15h18a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2zM12 21v-4m0-4h.01"></path></svg>
-                                            <p class="font-bold mb-2">Belum Ada Laporan</p>
-                                            <p class="text-sm">Anda belum memiliki laporan bahaya yang tercatat. Mari mulai menjaga keselamatan!</p>
-                                            <a href="{{ route('karyawan.hazards.create') }}" class="mt-3 inline-block text-red-600 hover:underline font-bold">
-                                                Buat laporan pertama Anda sekarang.
-                                            </a>
+                                        <td colspan="6" class="px-6 py-4 text-center text-lg text-gray-500">
+                                            Tidak ada laporan bahaya ditemukan.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -212,4 +213,5 @@
             </div>
         </div>
     </div>
+
 </x-app-layout>

@@ -9,6 +9,7 @@ use App\Models\Hazard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; // Import Cell Model
+use Illuminate\Support\Facades\Log; // Import Log Facade
 use Illuminate\Support\Facades\Storage; // Import DB Facade
 
 use function App\Helpers\getRiskColor;
@@ -95,6 +96,7 @@ class HazardController extends Controller
             'NPK' => ['required', 'string', 'max:255'],
             'dept' => ['required', 'string'],
             'tgl_observasi' => ['required', 'date'],
+            'map_id' => ['required', 'exists:maps,id'], // Added map_id validation
             'area_gedung' => ['required', 'string'],
             'area_type' => ['required', 'string'],
             'area_name' => ['required', 'string'],
@@ -121,6 +123,8 @@ class HazardController extends Controller
             $hazard->nama = Auth::user()->name;
             $hazard->NPK = $validatedData['NPK'];
             $hazard->dept = $validatedData['dept'];
+            Log::info('Hazard store: Validated map_id before assignment', ['map_id_validated' => $validatedData['map_id']]);
+            $hazard->map_id = $validatedData['map_id']; // Save map_id
             $hazard->area_gedung = $validatedData['area_gedung'];
             $hazard->aktivitas_kerja = $validatedData['aktivitas_kerja'];
             $hazard->severity = $validatedData['severity'];
@@ -158,7 +162,15 @@ class HazardController extends Controller
     // DETAIL
     public function show(Hazard $hazard)
     {
-        $hazard->load(['pelapor', 'ditanganiOleh']);
+        $hazard->load(['pelapor', 'ditanganiOleh', 'map']);
+        Log::info('Hazard show: ', [
+            'hazard_id' => $hazard->id,
+            'hazard_map_id' => $hazard->map_id,
+            'hazard_map_relation_loaded' => $hazard->relationLoaded('map'),
+            'hazard_map_object' => $hazard->map ? $hazard->map->toArray() : null,
+            'hazard_map_name' => $hazard->map->name ?? null,
+            'hazard_area_gedung' => $hazard->area_gedung,
+        ]);
 
         return view('she.hazards.show', compact('hazard'));
     }

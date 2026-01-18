@@ -18,13 +18,12 @@ class DashboardController extends Controller
         $validatedReports = Hazard::where('status', 'selesai')->count();
         $latestReports = Hazard::latest()->take(20)->get(); // Get the 20 latest reports for scrolling
 
-        // Logic for "Grafik tingkat risiko (high, medium, low)"
-        // MASIH BELOM DI COCOKKAN DENGAN KARYAWAN
-        $riskCounts = [
-            'low' => Hazard::where('risk_score', '<', 4)->count(),
-            'medium' => Hazard::whereBetween('risk_score', [4, 7])->count(),
-            'high' => Hazard::where('risk_score', '>=', 8)->count(),
-        ];
+        // Logic for "Grafik tingkat risiko (high, medium, low)" - Grouping by stored category for accuracy
+        $riskCounts = Hazard::select('kategori_resiko', DB::raw('count(*) as count'))
+            ->whereNotNull('kategori_resiko') // Exclude hazards with no risk category
+            ->groupBy('kategori_resiko')
+            ->pluck('count', 'kategori_resiko');
+
 
         // Logic for "Top lokasi dengan risiko tertinggi"
         $topRiskLocations = Hazard::select('area_gedung', DB::raw('SUM(risk_score) as total_risk_score'))

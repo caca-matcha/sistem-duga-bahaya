@@ -71,6 +71,7 @@
                     filteredLocations: [],
                     selectedLocationId: '{{ old('location_id') }}',
                     selectedMapImage: '',
+                    selectedMapName: '{{ old('area_gedung') }}', // New property for map name
                     maps: [],
 
                     init() {
@@ -131,6 +132,7 @@
                     updateMapImage(mapId) {
                         const map = this.maps.find(m => m.id == mapId);
                         this.selectedMapImage = map ? `{{ asset('storage') }}/${map.background_image}` : '';
+                        this.selectedMapName = map ? map.name : ''; // Set map name
                     }
                 }" 
                 class="bg-white overflow-hidden shadow-sm sm:rounded-xl mb-6 border border-gray-100">
@@ -155,6 +157,7 @@
                                     <option :value="map.id" x-text="map.name"></option>
                                 </template>
                             </select>
+                            <input type="hidden" name="area_gedung" x-model="selectedMapName">
                         </div>
 
                         <div>

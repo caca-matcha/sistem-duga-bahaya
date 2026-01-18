@@ -3,11 +3,7 @@
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <nav class="flex text-sm text-gray-500 mb-1">
-                    <a href="{{ route('she.hazards.index') }}" class="hover:text-indigo-600 transition">Hazards</a>
-                    <span class="mx-2">/</span>
-                    <span class="text-gray-800 font-medium">Detail</span>
-                </nav>
+
                 <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center gap-3">
                     <span>Laporan Bahaya</span>
                     <span class="bg-indigo-100 text-indigo-700 text-lg px-3 py-0.5 rounded-lg border border-indigo-200">#{{ $hazard->id }}</span>
@@ -93,22 +89,18 @@
                                 {{-- Kolom Kanan: Lokasi --}}
                                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 space-y-3">
                                     <div>
-                                        <label class="text-xs text-gray-500 block">Area Gedung</label>
-                                        <span class="font-semibold text-gray-900">{{ $hazard->area_gedung }}</span>
+                                        <label class="text-xs text-gray-500 block">Lokasi Lengkap</label>
+                                        <span class="font-semibold text-gray-900">{{ collect([$hazard->area_gedung, $hazard->area_name])->filter()->join(' -> ') }}</span>
                                     </div>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label class="text-xs text-gray-500 block">Area Type</label>
+                                            <label class="text-xs text-gray-500 block">Tipe Area</label>
                                             <span class="text-sm font-medium text-gray-800">{{ $hazard->area_type }}</span>
                                         </div>
                                         <div>
                                             <label class="text-xs text-gray-500 block">Kode Line</label>
                                             <span class="text-sm font-medium text-gray-800">{{ $hazard->area_id }}</span>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <label class="text-xs text-gray-500 block">Area Name</label>
-                                        <span class="text-sm font-medium text-gray-800">{{ $hazard->area_name }}</span>
                                     </div>
                                     @if($hazard->lokasi_detail_manual)
                                         <div class="pt-2 mt-2 border-t border-gray-200">
@@ -237,6 +229,34 @@
                 {{-- RIGHT COLUMN: SIDEBAR (4/12) --}}
                 <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
                     
+                    {{-- Foto Bukti --}}
+                    <div class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100">
+                        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                            <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                Bukti Foto
+                            </h3>
+                        </div>
+                        <div class="p-4">
+                            @if ($hazard->foto_bukti)
+                                <div class="group relative rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+                                    <img src="{{ url('storage/' . $hazard->foto_bukti) }}" 
+                                            class="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105 cursor-zoom-in"
+                                            onclick="window.open(this.src, '_blank')"
+                                            onerror="this.onerror=null; this.src='https://placehold.co/600x400/CCCCCC/666666?text=Foto+Bukti+Tidak+Ditemukan';"
+                                            alt="Bukti Hazard">
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none"></div>
+                                </div>
+                                <p class="text-xs text-center text-gray-400 mt-2">Klik foto untuk melihat ukuran penuh</p>
+                            @else
+                                <div class="h-48 flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl text-gray-400">
+                                    <svg class="w-12 h-12 mb-2 opacity-50 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <span class="text-sm font-medium">Tidak ada foto dilampirkan</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     {{-- CARD STATUS & RISK --}}
                     <div class="bg-white rounded-xl shadow-lg border border-indigo-50 overflow-hidden">
                         {{-- Status Header --}}
