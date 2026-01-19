@@ -17,6 +17,7 @@ class MapController extends Controller
      */
     public function index()
     {
+        Log::info('Test log entry from MapController@index'); // ADD THIS LINE
         $pabrikMap = Map::where('type', 'Pabrik')->with('parent')->first();
         $gedungMaps = Map::where('type', 'Gedung')->with('parent')->get();
         $existingPabrikMap = (bool) $pabrikMap;
@@ -237,5 +238,15 @@ class MapController extends Controller
         $gedung = Map::where('type', 'Gedung')->get(['id', 'name']);
 
         return response()->json($gedung);
+    }
+
+    /**
+     * Display the specified map in employee viewing mode.
+     */
+    public function viewEmployeeMode(Map $map)
+    {
+        $map->load(['cells.riskParameters.location']); // Eager load relations including location
+
+        return view('she.maps.view-employee-mode', compact('map'));
     }
 }

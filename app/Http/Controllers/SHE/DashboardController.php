@@ -16,7 +16,10 @@ class DashboardController extends Controller
     {
         $totalReports = Hazard::count();
         $validatedReports = Hazard::where('status', 'selesai')->count();
-        $latestReports = Hazard::latest()->take(20)->get(); // Get the 20 latest reports for scrolling
+        $latestReports = Hazard::where('created_at', '>=', Carbon::now()->subDays(7))
+            ->latest()
+            ->take(20)
+            ->get();
 
         // Logic for "Grafik tingkat risiko (high, medium, low)" - Grouping by stored category for accuracy
         $riskCounts = Hazard::select('kategori_resiko', DB::raw('count(*) as count'))
@@ -39,6 +42,22 @@ class DashboardController extends Controller
             ->with('pelapor')
             ->get();
 
-        return view('she.dashboard', compact('totalReports', 'validatedReports', 'latestReports', 'riskCounts', 'topRiskLocations', 'hazardsPerluPerhatian'));
+        // Logic for Overdue and Due Soon Hazards
+        $allPendingActionHazards = Hazard::where('status', 'diproses')
+                                        ->whereNotNull('target_penyelesaian')
+                                        ->with('pelapor')
+                                        ->get();
+
+        $overdueHazards = $allPendingActionHazards->filter(function ($hazard) {
+            return Carbon::parse($hazard->target_penyelesaian)->isPast();
+        });
+
+        $dueSoonHazards = $allPendingActionHazards->filter(function ($hazard) {
+            return Carbon::parse($hazard->target_penyelesaian)->isFuture() &&
+                   Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
+        });
+
+
+        return view('she.dashboard', compact('totalReports', 'validatedReports', 'latestReports', 'riskCounts', 'topRiskLocations', 'hazardsPerluPerhatian', 'overdueHazards', 'dueSoonHazards'));
     }
 }

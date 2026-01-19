@@ -16,6 +16,7 @@ class Location extends Model
         'parent_id',
         'map_id',
         'created_by',
+        'display_order',
     ];
 
     /**

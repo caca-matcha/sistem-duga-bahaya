@@ -157,4 +157,27 @@ class LocationController extends Controller
         $locations = Location::where('map_id', $map->id)->get();
         return response()->json($locations);
     }
+
+    /**
+     * Update the display order of locations.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'locations' => 'required|array',
+            'locations.*.id' => 'required|exists:locations,id',
+            'locations.*.display_order' => 'required|integer',
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            foreach ($validated['locations'] as $locationData) {
+                Location::where('id', $locationData['id'])->update(['display_order' => $locationData['display_order']]);
+            }
+        });
+
+        return response()->json(['message' => 'Location order updated successfully.']);
+    }
 }

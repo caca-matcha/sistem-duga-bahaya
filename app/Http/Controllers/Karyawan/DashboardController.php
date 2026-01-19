@@ -39,11 +39,11 @@ class DashboardController extends Controller
             $searchTerm = strtolower($request->search);
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('id', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(area_gedung)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(area_name)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(status)'), 'LIKE', "%{$searchTerm}%");
+                  ->orWhereRaw('LOWER(tgl_observasi) LIKE ?', ["%{$searchTerm}%"])
+                  ->orWhereRaw('LOWER(deskripsi_bahaya) LIKE ?', ["%{$searchTerm}%"])
+                  ->orWhereRaw('LOWER(area_gedung) LIKE ?', ["%{$searchTerm}%"])
+                  ->orWhereRaw('LOWER(area_name) LIKE ?', ["%{$searchTerm}%"])
+                  ->orWhereRaw('LOWER(status) LIKE ?', ["%{$searchTerm}%"]);
             });
         }
 

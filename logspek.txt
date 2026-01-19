@@ -382,3 +382,72 @@ Auto-fill: Begitu karyawan pilih lokasi tersebut, sistem langsung tahu bahwa itu
   Fase 4: Pengujian & Penyempurnaan
    * Tugas 11: Menulis tes baru untuk logika backend yang disempurnakan.
    * Tugas 12: Menguji frontend secara manual (tampilan SHE dan Karyawan).
+
+
+
+   **Perbaikan yang dilakukan:**
+1.  **Handle Selector**: Menambahkan `handle: '.drag-handle'` agar baris tabel tidak tidak sengaja tergeser saat pengguna ingin menekan tombol "Edit" atau "Delete".
+2.  **Visual Feedback**: Menambahkan animasi transparansi (`opacity`) dan *Toast Notification* yang lebih modern saat proses penyimpanan berhasil/gagal.
+3.  **Data Integrity**: Memastikan `mapIds` hanya mengambil elemen `<tr>` yang memiliki atribut `data-id`.
+4.  **UX**: Meningkatkan durasi animasi menjadi `200ms` agar pergerakan baris terlihat lebih halus.
+
+
+
+
+
+
+
+Saat karyawan login, sistem memuat semua notifikasi miliknya dari tabel notifications berdasarkan user_id.
+
+• Sistem hanya menampilkan notifikasi yang memang relevan untuk karyawan (bukan notifikasi internal SHE).
+
+• Jenis notifikasi yang diterima karyawan:
+
+– Laporan berhasil dikirim
+→ Dibuat saat karyawan submit laporan bahaya.
+→ Isi: “Laporan kamu berhasil dikirim dan sedang menunggu review SHE.”
+
+– Laporan mulai diproses
+→ Dibuat saat SHE mengubah status menjadi “Diproses”.
+→ Isi: “Laporan kamu sedang ditindaklanjuti oleh tim SHE.”
+
+– Laporan mendekati jatuh tempo
+→ Dibuat saat sisa waktu tindak lanjut ≤ 2 hari.
+→ Isi: “Laporan kamu hampir melewati batas waktu tindak lanjut.”
+
+– Laporan melewati batas tempo
+→ Dibuat saat due date terlewati.
+→ Isi: “Laporan kamu sudah melewati batas waktu penyelesaian.”
+
+– Laporan selesai
+→ Dibuat saat status diubah menjadi “Selesai”.
+→ Isi: “Laporan kamu sudah diselesaikan. Terima kasih atas partisipasimu.”
+
+– Laporan dikembalikan / ditolak
+→ Dibuat saat SHE memberi status “Dikembalikan”.
+→ Isi: “Laporan kamu dikembalikan. Silakan perbaiki dan kirim ulang.”
+
+• Semua notifikasi karyawan disimpan di tabel notifications dengan atribut utama:
+
+– id
+– user_id (karyawan)
+– title
+– message
+– type (info / warning / success / overdue)
+– report_id
+– is_read (0 = belum dibaca, 1 = dibaca)
+– created_at
+
+• Di dashboard karyawan:
+
+– Sistem menampilkan ikon lonceng + jumlah notifikasi belum dibaca.
+– Klik ikon lonceng → tampil dropdown daftar notifikasi.
+– Klik satu notifikasi → buka halaman detail laporan terkait.
+– Saat diklik → is_read diubah jadi 1.
+
+• Jika karyawan tidak login beberapa hari:
+
+– Notifikasi tetap tersimpan.
+– Saat login lagi, semua notifikasi lama yang belum dibaca tetap muncul.
+
+
