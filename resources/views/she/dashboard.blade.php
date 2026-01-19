@@ -76,12 +76,14 @@
             </div>
 
             {{-- SECTION 3: LISTS (NOTIFICATIONS & LATEST) --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
                 
                 {{-- HIGH-RISK HAZARDS (Col Span 1) --}}
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden h-full">
-                        <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
+                    <div class="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden h-full flex flex-col">
+                        <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between flex-shrink-0">
                             <h3 class="text-red-800 font-bold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 Laporan Berisiko Tinggi Aktif
@@ -90,18 +92,17 @@
                                 <span class="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded-full">{{ $hazardsPerluPerhatian->count() }}</span>
                             @endif
                         </div>
-                        <div class="p-4">
+                        <div class="p-0 flex-grow overflow-y-auto max-h-[26rem]">
                             @if ($hazardsPerluPerhatian->isEmpty())
-                                <div class="text-center py-6">
+                                <div class="p-4 text-center py-6 text-gray-500">
                                     <svg class="mx-auto h-10 w-10 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <p class="text-sm text-gray-500 mt-2">Tidak ada laporan berisiko tinggi yang aktif.</p>
                                 </div>
                             @else
-                                <div class="max-h-72 overflow-y-auto pr-2">
-                                    <ul class="space-y-3">
+                                <ul class="divide-y divide-gray-50">
                                         @foreach ($hazardsPerluPerhatian as $hazard)
-                                            <li class="p-3 bg-red-50 rounded-lg border border-red-100 hover:bg-red-100 transition-colors">
-                                                <a href="{{ route('she.hazards.show', $hazard) }}" class="flex justify-between items-center">
+                                            <li>
+                                                <a href="{{ route('she.hazards.show', $hazard) }}" class="p-4 hover:bg-red-50 transition-colors flex justify-between items-center">
                                                     <div>
                                                         <p class="text-sm font-bold text-gray-800 line-clamp-1">{{ $hazard->deskripsi_bahaya }}</p>
                                                         <p class="text-xs text-red-600 mt-0.5">
@@ -113,14 +114,13 @@
                                             </li>
                                         @endforeach
                                     </ul>
-                                </div>
                             @endif
                         </div>
                     </div>
                 </div>
 
                 {{-- LATEST REPORTS (Col Span 2) --}}
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-1"> <!-- Changed to col-span-1 to fit 3 columns -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col">
                         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
                             <h3 class="font-bold text-gray-800">Laporan Masuk Terbaru</h3>

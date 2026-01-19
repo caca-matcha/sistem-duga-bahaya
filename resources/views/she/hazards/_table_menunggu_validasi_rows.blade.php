@@ -1,8 +1,10 @@
 @forelse ($hazardsMenungguValidasi as $hazard)
     <tr class="hover:bg-gray-50 transition-colors" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-        <td class="p-4">
-            <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-        </td>
+        <template x-if="selectionMode">
+            <td class="p-4">
+                <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </td>
+        </template>
         <td class="px-6 py-4 whitespace-nowrap">
             <div class="text-sm font-bold text-indigo-600">#{{ $hazard->id }}</div>
             <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->format('d M Y') }}</div>
@@ -32,7 +34,7 @@
     </tr>
 @empty
     <tr>
-        <td colspan="6" class="p-4 text-center text-sm text-gray-500 italic">
+        <td colspan="6" class="p-4 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 7 : 6">
             Tidak ada laporan baru yang menunggu validasi.
         </td>
     </tr>

@@ -1,8 +1,10 @@
 @forelse ($hazardsDiproses as $hazard)
     <tr class="hover:bg-gray-50" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-        <td class="p-4">
-            <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-        </td>
+        <template x-if="selectionMode">
+            <td class="p-4">
+                <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </td>
+        </template>
         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-500">#{{ $hazard->id }}</td>
         <td class="px-6 py-4 whitespace-nowrap">
             <div class="text-sm font-medium text-gray-900">{{ $hazard->nama }}</div>
@@ -35,7 +37,7 @@
     </tr>
 @empty
     <tr>
-        <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 italic">
+        <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 8 : 7">
             Tidak ada laporan yang sedang diproses.
         </td>
     </tr>

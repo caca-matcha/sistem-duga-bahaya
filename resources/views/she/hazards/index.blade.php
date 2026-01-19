@@ -10,13 +10,7 @@
                                                 {{ __('SHE Hazard Report') }}
                                             </h2>                                <p class="text-sm text-gray-500 mt-1">Monitoring keselamatan kerja & mitigasi risiko area</p>                </div>
                 
-                <!-- Quick Stats/Actions -->
-            <div class="flex items-center gap-2">
-                <button class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
-                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Download Summary
-                </button>
-            </div>
+
         </div>
     </x-slot>
     
@@ -24,6 +18,7 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" 
                  x-data="{ 
                     activeTab: new URLSearchParams(window.location.search).get('tab') || (window.location.hash ? window.location.hash.replace('#', '') : 'baru'),
+                    selectionMode: false, // New state for selection mode
                     selectedHazards: [],
 
                     init() {
@@ -72,6 +67,7 @@
                             document.getElementById('pagination-selesai').innerHTML = response.data.selesai_pagination;
 
                             window.history.pushState({}, '', fetchUrl);
+                            this.selectedHazards = []; // Clear selection on new data load
                         })
                         .catch(error => {
                             console.error('Error fetching filtered results:', error);
@@ -80,22 +76,37 @@
 
                     setTab(tab) {
                         this.activeTab = tab;
-                        // We need to update the hidden input manually before fetching
                         document.getElementById('activeTabInput').value = tab;
+                        this.selectionMode = false; // Reset selection mode on tab change
+                        this.selectedHazards = []; // Clear selection when changing tabs
                         this.fetchResults();
                     },
 
                     toggleSelectAll(ids) {
-                        const allSelected = ids.every(id => this.selectedHazards.includes(id));
-                        if (allSelected) {
+                        const allSelectedOnPage = ids.every(id => this.selectedHazards.includes(id));
+                        if (allSelectedOnPage) {
+                            // Deselect all on current page
                             this.selectedHazards = this.selectedHazards.filter(id => !ids.includes(id));
                         } else {
+                            // Select all on current page
                             ids.forEach(id => {
                                 if (!this.selectedHazards.includes(id)) {
                                     this.selectedHazards.push(id);
                                 }
                             });
                         }
+                    },
+
+                    // Method to enter selection mode
+                    enterSelectionMode() {
+                        this.selectionMode = true;
+                        this.selectedHazards = []; // Clear any previous selections
+                    },
+
+                    // Method to exit selection mode
+                    exitSelectionMode() {
+                        this.selectionMode = false;
+                        this.selectedHazards = []; // Clear selections
                     },
 
                     get exportUrl() {
@@ -144,6 +155,24 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </a>
                     @endif
+
+                    <!-- Tombol Ekspor Pilihan (hanya muncul saat ada item dipilih) -->
+                    <a :href="exportUrl" x-show="selectionMode && selectedHazards.length > 0" style="display: none;"
+                       class="inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-100 transition-all duration-200"
+                       :class="{'opacity-50 cursor-not-allowed': selectedHazards.length === 0}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Ekspor <span x-text="selectedHazards.length"></span> Laporan
+                    </a>
+
+                    <!-- Tombol Utama untuk Beralih Mode Seleksi -->
+                    <button type="button" @click="selectionMode ? exitSelectionMode() : enterSelectionMode()" 
+                            class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg transition-all duration-200"
+                            :class="selectionMode ? 'bg-gray-700 hover:bg-gray-800 focus:ring-gray-300' : 'bg-green-600 hover:bg-green-700 focus:ring-green-300'">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!selectionMode" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="selectionMode" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <span x-show="!selectionMode" style="display: none;">Ekspor Excel</span>
+                        <span x-show="selectionMode" style="display: none;">Batal</span>
+                    </button>
                 </div>
             </div>
         </form>
@@ -174,24 +203,7 @@
             </div>
         @endif
 
-        {{-- Floating Export Button --}}
-        <div x-show="selectedHazards.length > 0" 
-             x-transition:enter="transition ease-out duration-300" 
-             x-transition:enter-start="opacity-0 transform translate-y-4" 
-             x-transition:enter-end="opacity-100 transform translate-y-0"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 transform translate-y-0"
-             x-transition:leave-end="opacity-0 transform translate-y-4"
-             class="fixed bottom-10 right-10 z-20"
-             x-cloak>
-            <a :href="exportUrl"
-               class="flex items-center justify-center px-6 py-4 bg-green-600 text-white font-bold rounded-full shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all">
-                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Ekspor <span x-text="selectedHazards.length"></span> Laporan
-            </a>
-        </div>
+        
 
         <div id="hazard-content-area" class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
 
@@ -262,19 +274,18 @@
                         <span class="text-xs text-gray-500">Perlu tindakan segera</span>
                     </div>
 
-                    @if($hazardsMenungguValidasi->isEmpty())
-                        <div class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <p class="mt-2 text-sm text-gray-500 font-medium">Bagus! Tidak ada laporan baru yang menunggu validasi.</p>
-                        </div>
-                    @else
+
                         <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-                            <table class="min-w-full divide-y divide-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200 table-auto">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col" class="p-4">
-                                            <input type="checkbox" @click="toggleSelectAll({{ $hazardsMenungguValidasi->pluck('id') }})" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                        </th>
+                                        <template x-if="selectionMode">
+                                            <th scope="col" class="p-4">
+                                                <input type="checkbox" @click="toggleSelectAll({{ $hazardsMenungguValidasi->pluck('id') }})" 
+                                                       :checked="selectedHazards.length === {{ $hazardsMenungguValidasi->pluck('id')->count() }} && {{ $hazardsMenungguValidasi->pluck('id')->count() }} > 0"
+                                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                            </th>
+                                        </template>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID & Tanggal</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelapor</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi Singkat</th>
@@ -283,11 +294,13 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tbody-baru" class="bg-white divide-y divide-gray-200">
-                                    @foreach ($hazardsMenungguValidasi as $hazard)
+                                    @forelse ($hazardsMenungguValidasi as $hazard)
                                         <tr class="hover:bg-gray-50 transition-colors" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-                                            <td class="p-4">
-                                                <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                            </td>
+                                            <template x-if="selectionMode">
+                                                <td class="p-4">
+                                                    <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                </td>
+                                            </template>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-bold text-indigo-600">#{{ $hazard->id }}</div>
                                                 <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->format('d M Y') }}</div>
@@ -315,11 +328,16 @@
                                                 </a>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 7 : 6">
+                                                Tidak ada laporan baru yang menunggu validasi.
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
-                    @endif
                     <div id="pagination-baru" class="mt-4">
                         {{ $hazardsMenungguValidasi->links() }}
                     </div>
@@ -339,12 +357,16 @@
                     </div>
 
                     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 table-auto">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="p-4">
-                                        <input type="checkbox" @click="toggleSelectAll({{ $hazardsDiproses->pluck('id') }})" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                    </th>
+                                    <template x-if="selectionMode">
+                                        <th scope="col" class="p-4">
+                                            <input type="checkbox" @click="toggleSelectAll({{ $hazardsDiproses->pluck('id') }})" 
+                                                    :checked="selectedHazards.length === {{ $hazardsDiproses->pluck('id')->count() }} && {{ $hazardsDiproses->pluck('id')->count() }} > 0"
+                                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </th>
+                                    </template>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID & Tanggal</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelapor</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC / Penanggung Jawab</th>
@@ -356,9 +378,11 @@
                             <tbody id="tbody-diproses" class="bg-white divide-y divide-gray-200">
                                 @forelse ($hazardsDiproses as $hazard)
                                     <tr class="hover:bg-gray-50" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-                                        <td class="p-4">
-                                            <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                        </td>
+                                        <template x-if="selectionMode">
+                                            <td class="p-4">
+                                                <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                            </td>
+                                        </template>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-bold text-gray-500">#{{ $hazard->id }}</div>
                                             <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->format('d M Y') }}</div>
@@ -394,7 +418,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 italic">
+                                        <td class="px-6 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 7 : 6">
                                             Tidak ada laporan yang sedang diproses.
                                         </td>
                                     </tr>
@@ -421,12 +445,16 @@
                     </div>
 
                     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 table-auto">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="p-4">
-                                        <input type="checkbox" @click="toggleSelectAll({{ $hazardsSelesai->pluck('id') }})" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                    </th>
+                                    <template x-if="selectionMode">
+                                        <th scope="col" class="p-4">
+                                            <input type="checkbox" @click="toggleSelectAll({{ $hazardsSelesai->pluck('id') }})" 
+                                                    :checked="selectedHazards.length === {{ $hazardsSelesai->pluck('id')->count() }} && {{ $hazardsSelesai->pluck('id')->count() }} > 0"
+                                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </th>
+                                    </template>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID & Tanggal</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelapor</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Akhir</th>
@@ -437,9 +465,11 @@
                             <tbody id="tbody-selesai" class="bg-white divide-y divide-gray-200">
                                 @forelse ($hazardsSelesai as $hazard)
                                     <tr class="hover:bg-gray-50" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-                                        <td class="p-4">
-                                            <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                        </td>
+                                        <template x-if="selectionMode">
+                                            <td class="p-4">
+                                                <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                            </td>
+                                        </template>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-bold text-gray-500">#{{ $hazard->id }}</div>
                                             <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->format('d M Y') }}</div>
@@ -485,7 +515,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 italic">
+                                        <td class="px-6 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 6 : 5">
                                             Belum ada riwayat laporan selesai.
                                         </td>
                                     </tr>
