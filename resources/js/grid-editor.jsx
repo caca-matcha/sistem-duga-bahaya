@@ -378,9 +378,9 @@ const GridEditor = () => {
                         width={cellWidth}
                         height={cellHeight}
                         fill={fillColor}
-                        stroke={null}
-                        strokeWidth={0}
-                        opacity={cellData ? (isSelected ? 0.9 : 0.7) : 0.3}
+                        stroke={'#CCC'} 
+                        strokeWidth={0.5} 
+                        opacity={cellData ? (isSelected ? 0.9 : 0.7) : 0.5}
                         onClick={() => {
                             if (mapType === 'Pabrik' && cellData?.metadata?.gedung_map_id) {
                                 const targetUrl = `/she/maps/${cellData.metadata.gedung_map_id}/view`;

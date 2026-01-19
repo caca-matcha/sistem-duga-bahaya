@@ -83,6 +83,19 @@ const MapViewer = () => {
         fetchCells(1);
     }, [mapId]);
 
+    // Polling mechanism for periodic updates
+    useEffect(() => {
+        const pollingInterval = setInterval(() => {
+            console.log("MapViewer: Polling for updated cells..."); // Debug log
+            fetchCells(1); // Fetch the first page of cells to refresh
+        }, 30000); // Poll every 30 seconds
+
+        return () => {
+            console.log("MapViewer: Clearing polling interval."); // Debug log
+            clearInterval(pollingInterval);
+        };
+    }, [fetchCells]);
+
     // Calculate stage and cell dimensions
     let stageWidth = containerWidth > 0 ? containerWidth * 0.75 : 0; // Main stage takes 75%
     let minimapWidth = containerWidth > 0 ? containerWidth * 0.20 : 0; // Minimap takes 20%
@@ -220,7 +233,7 @@ const MapViewer = () => {
                         fill={fillColor}
                         stroke={'black'}
                         strokeWidth={0.5 / stageScale}
-                        opacity={cellData ? 0.7 : 0.3}
+                        opacity={cellData ? 0.7 : 0.5}
                     />
                 );
             }
