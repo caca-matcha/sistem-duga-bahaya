@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreHazardRequest;
 use App\Models\Hazard; // Import Location Model
 use App\Models\Location;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
@@ -87,7 +88,7 @@ class HazardController extends Controller
         // Ambil data Location Master
         $location = Location::with('map')->find($validated['location_id']);
 
-        Hazard::create([
+        $hazard = Hazard::create([
             'user_id' => Auth::id(),
             'nama' => Auth::user()->name,
             'NPK' => $validated['NPK'],
@@ -112,6 +113,15 @@ class HazardController extends Controller
             'risk_score' => $riskScore,
             'ide_penanggulangan' => $validated['ide_penanggulangan'],
             'status' => 'menunggu validasi', // Status awal saat dikirim
+        ]);
+
+        // Create notification for the user
+        Notification::create([
+            'user_id' => Auth::id(),
+            'report_id' => $hazard->id,
+            'title' => 'Laporan Diterima',
+            'message' => 'Laporan bahaya #' . $hazard->id . ' berhasil dikirim dan sedang menunggu review SHE.',
+            'type' => 'success',
         ]);
 
         // Redirect ke index/dashboard setelah berhasil

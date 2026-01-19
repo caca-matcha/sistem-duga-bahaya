@@ -1,4 +1,6 @@
 <x-app-layout>
+    @section('page-title', '')
+    
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -57,25 +59,29 @@
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Pelapor</dt>
-                                            <dd class="text-sm font-semibold text-gray-800 mt-0.5">{{ $hazard->pelapor->name ?? 'N/A' }}</dd>
+                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ $hazard->pelapor->name ?? 'N/A' }}</dd>
                                         </div>
                                         <div>
                                             <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Tanggal Observasi</dt>
-                                            <dd class="text-sm font-semibold text-gray-800 mt-0.5">{{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}</dd>
+                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}</dd>
                                         </div>
                                     </div>
                                     <div class="pt-3 border-t border-gray-200">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Lokasi Lengkap</dt>
+                                        <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ collect([$hazard->area_gedung, $hazard->area_name])->filter()->join(' -> ') }}</dd>
+                                    </div>
+                                    <div class="pt-3 border-t border-gray-200">
                                         <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">Deskripsi Bahaya</dt>
-                                        <dd class="text-sm text-gray-700 leading-relaxed italic">"{{ $hazard->deskripsi_bahaya }}"</dd>
+                                        <dd class="text-base text-gray-700 leading-relaxed italic">"{{ $hazard->deskripsi_bahaya }}"</dd>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-gray-200">
                                         <div>
                                             <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Faktor Penyebab</dt>
-                                            <dd class="text-sm font-semibold text-gray-800 mt-0.5">{{ $faktor_penyebab ?? 'N/A' }}</dd>
+                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ $faktor_penyebab ?? 'N/A' }}</dd>
                                         </div>
                                         <div>
                                             <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Kategori STOP6</dt>
-                                            <dd class="text-sm font-semibold text-gray-800 mt-0.5">{{ $final_kategori_stop6 ?? 'N/A' }}</dd>
+                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ $final_kategori_stop6 ?? 'N/A' }}</dd>
                                         </div>
                                     </div>
                                 </div>
@@ -95,14 +101,14 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <dt class="text-[10px] font-bold text-indigo-400 uppercase">Tingkat Keparahan</dt>
-                                            <dd class="mt-1 text-sm font-bold text-gray-900 flex items-center">
+                                            <dd class="mt-1 text-base font-bold text-gray-900 flex items-center">
                                                 <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>
                                                 {{ $tingkatKeparahanMap[$final_tingkat_keparahan ?? ''] ?? 'N/A' }}
                                             </dd>
                                         </div>
                                         <div>
                                             <dt class="text-[10px] font-bold text-indigo-400 uppercase">Kemungkinan Terjadi</dt>
-                                            <dd class="mt-1 text-sm font-bold text-gray-900 flex items-center">
+                                            <dd class="mt-1 text-base font-bold text-gray-900 flex items-center">
                                                 <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>
                                                 {{ $kemungkinanTerjadiMap[$final_kemungkinan_terjadi ?? ''] ?? 'N/A' }}
                                             </dd>

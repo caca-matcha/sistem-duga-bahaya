@@ -59,11 +59,7 @@
                 Kelola User
             </a>
             
-            <a href="{{ route('karyawan.maps.index') }}" 
-               class="group flex items-center px-3 py-2 rounded-lg text-sm mb-1 {{ request()->routeIs('karyawan.maps.*') ? $activeClass : $inactiveClass }}">
-                <svg class="h-5 w-5 mr-3 {{ request()->routeIs('karyawan.maps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                View Employee Mode
-            </a>
+
 
         {{-- ================= ROLE: SUPERVISOR ================= --}}
         @elseif(strtolower(Auth::user()->role) == 'supervisor')
@@ -97,11 +93,7 @@
                 Buat Laporan Baru
             </a>
             
-            <a href="{{ route('karyawan.maps.index') }}" 
-               class="group flex items-center px-3 py-2 rounded-lg text-sm mb-1 {{ request()->routeIs('karyawan.maps.*') ? $activeClass : $inactiveClass }}">
-                <svg class="h-5 w-5 mr-3 {{ request()->routeIs('karyawan.maps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" /></svg>
-                Lihat Peta Risiko
-            </a>
+
         @endif
     </div>
 

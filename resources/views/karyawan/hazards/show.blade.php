@@ -1,4 +1,6 @@
 <x-app-layout>
+    @section('page-title', '')
+
     <x-slot name="header">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
             <div>

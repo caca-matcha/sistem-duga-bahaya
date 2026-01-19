@@ -1,4 +1,5 @@
 <x-app-layout>
+    @section('page-title', '')
 
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
@@ -234,7 +235,7 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti</span></label>
                                 <p class="text-xs text-gray-500 mb-1 italic">Ambil foto secara jelas agar potensi bahaya dapat terlihat dengan baik.</p>
                                 <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition">
                                     <div class="space-y-1 text-center">

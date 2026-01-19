@@ -58,6 +58,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki banyak notifikasi.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
      * Check if the user has a specific role.
      *
      * @param string $role

@@ -1,4 +1,6 @@
 <x-app-layout>
+    @section('page-title', '')
+    
     <x-slot name="header">
         <div class="flex items-center gap-3">
              <a href="{{ route('she.hazards.show', $hazard) }}" class="inline-flex items-center justify-center p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition" title="Kembali ke Detail">

@@ -1,4 +1,6 @@
 <x-app-layout>
+    @section('page-title', '')
+    
     <x-slot name="header">
         <div>
             <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center gap-2">
