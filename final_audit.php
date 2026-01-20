@@ -1,4 +1,5 @@
 <?php
+
 define('LARAVEL_START', microtime(true));
 require __DIR__.'/vendor/autoload.php';
 $app = require_once __DIR__.'/bootstrap/app.php';
@@ -7,13 +8,13 @@ $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
 
-use App\Models\Hazard;
 use App\Models\Cell;
+use App\Models\Hazard;
 
 echo "--- Auditing Hazards for Map 17 ---\n";
 $hazards = Hazard::where('map_id', 17)->get();
 foreach ($hazards as $h) {
-    echo "Hazard #{$h->id}: Status={$h->status}, RiskScore={$h->risk_score}, CellID=" . ($h->cell_id ?? 'NULL') . "\n";
+    echo "Hazard #{$h->id}: Status={$h->status}, RiskScore={$h->risk_score}, CellID=".($h->cell_id ?? 'NULL')."\n";
 }
 
 echo "\n--- Auditing Cells for Map 17 ---\n";

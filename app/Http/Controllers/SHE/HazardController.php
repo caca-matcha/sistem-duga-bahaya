@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\DB; // Import Cell Model
 use Illuminate\Support\Facades\Log; // Import Log Facade
 use Illuminate\Support\Facades\Storage; // Import DB Facade
 
-use function App\Helpers\getRiskColor;
-
 class HazardController extends Controller
 {
     // DASHBOARD: tampilkan semua laporan
@@ -304,17 +302,17 @@ class HazardController extends Controller
             switch ($validated['status']) {
                 case 'diproses':
                     $notificationTitle = 'Laporan Anda Diproses';
-                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' sedang ditindaklanjuti oleh tim SHE.';
+                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' sedang ditindaklanjuti oleh tim SHE.';
                     $notificationType = 'info';
                     break;
                 case 'selesai':
                     $notificationTitle = 'Laporan Anda Selesai';
-                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' telah diselesaikan. Terima kasih atas partisipasi Anda.';
+                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' telah diselesaikan. Terima kasih atas partisipasi Anda.';
                     $notificationType = 'success';
                     break;
                 case 'ditolak':
                     $notificationTitle = 'Laporan Anda Ditolak';
-                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' ditolak. Silakan periksa detailnya.';
+                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' ditolak. Silakan periksa detailnya.';
                     $notificationType = 'warning';
                     break;
             }
@@ -576,7 +574,6 @@ class HazardController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Hazard  $hazard
      * @return \Illuminate\Http\Response
      */
     public function destroy(Hazard $hazard)
@@ -600,9 +597,9 @@ class HazardController extends Controller
     public function needsFollowUpReports()
     {
         $allPendingActionHazards = Hazard::where('status', 'diproses')
-                                        ->whereNotNull('target_penyelesaian')
-                                        ->with('pelapor') // Eager load pelapor for display
-                                        ->get();
+            ->whereNotNull('target_penyelesaian')
+            ->with('pelapor') // Eager load pelapor for display
+            ->get();
 
         $overdueHazards = $allPendingActionHazards->filter(function ($hazard) {
             return Carbon::parse($hazard->target_penyelesaian)->isPast();
@@ -624,9 +621,9 @@ class HazardController extends Controller
     public function getNotificationsApi()
     {
         $allPendingActionHazards = Hazard::where('status', 'diproses')
-                                        ->whereNotNull('target_penyelesaian')
-                                        ->with('pelapor')
-                                        ->get();
+            ->whereNotNull('target_penyelesaian')
+            ->with('pelapor')
+            ->get();
 
         $notifications = collect();
 

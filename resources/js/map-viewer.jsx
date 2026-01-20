@@ -235,8 +235,8 @@ const MapViewer = () => {
                         width={cellWidth}
                         height={cellHeight}
                         fill={fillColor}
-                        stroke={cellData?.metadata?.gedung_map_id ? '#dc2626' : 'black'}
-                        strokeWidth={cellData?.metadata?.gedung_map_id ? 1.5 / stageScale : 0.5 / stageScale}
+                        stroke={cellData?.metadata?.gedung_map_id ? '#dc2626' : 'transparent'}
+                        strokeWidth={cellData?.metadata?.gedung_map_id ? 1.5 / stageScale : 0}
                         opacity={cellData ? 0.7 : 0.5}
                         onClick={() => handleCellClick(i, j)}
                         onMouseEnter={(e) => {

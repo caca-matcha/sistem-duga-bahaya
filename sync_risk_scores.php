@@ -1,4 +1,5 @@
 <?php
+
 define('LARAVEL_START', microtime(true));
 require __DIR__.'/vendor/autoload.php';
 $app = require_once __DIR__.'/bootstrap/app.php';
@@ -7,8 +8,8 @@ $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
 
-use App\Models\Hazard;
 use App\Models\Cell;
+use App\Models\Hazard;
 
 echo "--- Synchronizing Hazard Risk Scores ---\n";
 $hazards = Hazard::whereNotNull('final_tingkat_keparahan')
