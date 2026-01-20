@@ -1,17 +1,15 @@
 <?php
 
 namespace App\Http\Requests;
+
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 class StoreHazardRequest extends FormRequest
 {
-    
     /**
      * Tentukan apakah pengguna diizinkan untuk membuat permintaan ini.
      * Dalam kasus ini, hanya pengguna yang terautentikasi (Auth::check()) yang diizinkan.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -27,13 +25,13 @@ class StoreHazardRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'NPK' => 'required|string|max:20', 
-            'dept' => 'required|string|max:100',     
+            'NPK' => 'required|string|max:20',
+            'dept' => 'required|string|max:100',
             'tgl_observasi' => 'required|date|before_or_equal:today',
             'location_id' => 'required|integer|exists:locations,id',
             'lokasi_detail_manual' => 'nullable|string',
             'deskripsi_bahaya' => 'required|string',
-            'foto_bukti' => ['nullable','image','mimes:jpg,jpeg,png','max:5120'],
+            'foto_bukti' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
             'tingkat_keparahan' => 'required|integer|in:1,3,5',
             'kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'kategori_stop6' => 'required|string|max:50',
@@ -41,11 +39,9 @@ class StoreHazardRequest extends FormRequest
             'cell_id' => 'nullable|integer|exists:cells,id',
         ];
     }
-    
+
     /**
      * Dapatkan pesan kesalahan yang disesuaikan untuk aturan validasi tertentu.
-     *
-     * @return array
      */
     public function messages(): array
     {
@@ -65,11 +61,9 @@ class StoreHazardRequest extends FormRequest
             'location_id.exists' => 'Lokasi yang dipilih tidak valid atau tidak ada dalam sistem.',
         ];
     }
-    
+
     /**
      * Dapatkan nama atribut yang disesuaikan untuk memberikan pesan yang lebih mudah dibaca.
-     *
-     * @return array
      */
     public function attributes(): array
     {

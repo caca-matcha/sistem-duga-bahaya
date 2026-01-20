@@ -7,9 +7,8 @@ use App\Http\Requests\StoreHazardRequest;
 use App\Models\Hazard; // Import Location Model
 use App\Models\Location;
 use App\Models\Notification;
-use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class HazardController extends Controller
@@ -40,11 +39,11 @@ class HazardController extends Controller
             $searchTerm = strtolower($request->search);
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('id', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(area_gedung)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(area_name)'), 'LIKE', "%{$searchTerm}%")
-                  ->orWhere(DB::raw('LOWER(status)'), 'LIKE', "%{$searchTerm}%");
+                    ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', "%{$searchTerm}%")
+                    ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', "%{$searchTerm}%")
+                    ->orWhere(DB::raw('LOWER(area_gedung)'), 'LIKE', "%{$searchTerm}%")
+                    ->orWhere(DB::raw('LOWER(area_name)'), 'LIKE', "%{$searchTerm}%")
+                    ->orWhere(DB::raw('LOWER(status)'), 'LIKE', "%{$searchTerm}%");
             });
         }
 
@@ -121,7 +120,7 @@ class HazardController extends Controller
             'user_id' => Auth::id(),
             'report_id' => $hazard->id,
             'title' => 'Laporan Diterima',
-            'message' => 'Laporan bahaya #' . $hazard->id . ' berhasil dikirim dan sedang menunggu review SHE.',
+            'message' => 'Laporan bahaya #'.$hazard->id.' berhasil dikirim dan sedang menunggu review SHE.',
             'type' => 'success',
         ]);
 

@@ -91,12 +91,19 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4">
                         <h2 class="text-2xl font-bold text-gray-800">Riwayat Laporan Anda</h2>
 
-                        {{-- Link Tambah Laporan Dibuat Lebih Menonjol --}}
-                        <a href="{{ route('karyawan.hazards.create') }}" 
-                           class="mt-4 md:mt-0 inline-flex items-center px-6 py-3 bg-red-600 border border-transparent rounded-xl font-bold text-sm text-white uppercase tracking-wider shadow-lg hover:bg-red-700 active:bg-red-900 focus:outline-none focus:ring ring-red-300 transition ease-in-out duration-150 transform hover:scale-[1.03]">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            Buat Laporan Bahaya Baru
-                        </a>
+                        <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+                            <a href="{{ route('karyawan.maps.index') }}" 
+                               class="inline-flex items-center px-6 py-3 bg-white border-2 border-red-600 rounded-xl font-bold text-sm text-red-600 uppercase tracking-wider shadow-md hover:bg-red-50 focus:outline-none focus:ring ring-red-300 transition ease-in-out duration-150 transform hover:scale-[1.03]">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                                Lihat Peta Risiko
+                            </a>
+
+                            <a href="{{ route('karyawan.hazards.create') }}" 
+                               class="inline-flex items-center px-6 py-3 bg-red-600 border border-transparent rounded-xl font-bold text-sm text-white uppercase tracking-wider shadow-lg hover:bg-red-700 active:bg-red-900 focus:outline-none focus:ring ring-red-300 transition ease-in-out duration-150 transform hover:scale-[1.03]">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Buat Laporan Bahaya Baru
+                            </a>
+                        </div>
                     </div>
 
                     {{-- Search and Filter --}}
