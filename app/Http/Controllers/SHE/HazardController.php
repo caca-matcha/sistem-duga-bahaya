@@ -222,16 +222,12 @@ class HazardController extends Controller
         $validated['ditangani_oleh'] = Auth::id(); // ID User SHE yang memproses
         $validated['ditangani_pada'] = now();
 
-        /* ----------------------------------------------------------
-         * 2. HANDLE LOGIKA VALIDASI (Status = diproses)
-         * - Hitung Final Risk Score
-         * - Gunakan final_tingkat_keparahan & final_kemungkinan_terjadi
-         *   jika ada, jika tidak gunakan nilai awal.
-         * ---------------------------------------------------------- */
-        if ($validated['status'] === 'diproses') {
-            $finalSeverity = $validated['final_tingkat_keparahan'] ?? $hazard->tingkat_keparahan;
-            $finalProbability = $validated['final_kemungkinan_terjadi'] ?? $hazard->kemungkinan_terjadi;
-            $finalKategoriStop6 = $validated['final_kategori_stop6'] ?? $hazard->kategori_stop6;
+        // --- 2. LOGIKA VALIDASI (Hitung Final Risk Score) ---
+        $finalSeverity = $validated['final_tingkat_keparahan'] ?? $hazard->final_tingkat_keparahan ?? $hazard->tingkat_keparahan;
+        $finalProbability = $validated['final_kemungkinan_terjadi'] ?? $hazard->final_kemungkinan_terjadi ?? $hazard->kemungkinan_terjadi;
+        $finalKategoriStop6 = $validated['final_kategori_stop6'] ?? $hazard->final_kategori_stop6 ?? $hazard->kategori_stop6;
+
+        if ($finalSeverity && $finalProbability) {
             $validated['risk_score'] = $finalSeverity * $finalProbability;
 
             // Tentukan kategori risiko berdasarkan risk_score
@@ -247,15 +243,21 @@ class HazardController extends Controller
             } else {
                 $validated['kategori_resiko'] = 'Extreme';
             }
-
-            // Simpan final values ke DB jika kolom ada
-            $hazard->final_tingkat_keparahan = $validated['final_tingkat_keparahan'] ?? null;
-            $hazard->final_kemungkinan_terjadi = $validated['final_kemungkinan_terjadi'] ?? null;
-            $hazard->final_kategori_stop6 = $validated['final_kategori_stop6'] ?? null;
-
-            unset($validated['final_tingkat_keparahan'], $validated['final_kemungkinan_terjadi']);
-            unset($validated['pic_penanggung_jawab']); // hapus jika ada
         }
+
+        // Simpan final values ke DB jika kolom ada
+        if (isset($validated['final_tingkat_keparahan'])) {
+            $hazard->final_tingkat_keparahan = $validated['final_tingkat_keparahan'];
+        }
+        if (isset($validated['final_kemungkinan_terjadi'])) {
+            $hazard->final_kemungkinan_terjadi = $validated['final_kemungkinan_terjadi'];
+        }
+        if (isset($validated['final_kategori_stop6'])) {
+            $hazard->final_kategori_stop6 = $validated['final_kategori_stop6'];
+        }
+
+        unset($validated['final_tingkat_keparahan'], $validated['final_kemungkinan_terjadi'], $validated['final_kategori_stop6']);
+        unset($validated['pic_penanggung_jawab']); // hapus jika ada
 
         /* ----------------------------------------------------------
          * 3. HANDLE LOGIKA PENOLAKAN (Status = ditolak)
@@ -339,26 +341,12 @@ class HazardController extends Controller
                     ->get();
 
                 if ($activeHazards->count() > 0) {
-                    // Calculate average risk score for the cell
-                    // We will use the final_tingkat_keparahan and final_kemungkinan_terjadi
-                    // of each hazard if available, otherwise fall back to initial.
-                    $totalRiskScore = 0;
-                    foreach ($activeHazards as $ah) {
-                        $sev = $ah->final_tingkat_keparahan ?? $ah->tingkat_keparahan;
-                        $prob = $ah->final_kemungkinan_terjadi ?? $ah->kemungkinan_terjadi;
-                        $totalRiskScore += ($sev * $prob);
-                    }
-                    $averageRiskScore = round($totalRiskScore / $activeHazards->count());
-                    $cell->risk_score = $averageRiskScore;
-
-                    $cell->zone_color = getRiskColor($averageRiskScore);
+                    $cell->recalculateRiskScore();
                 } else {
-                    // If no active hazards, reset cell risk
                     $cell->risk_score = 0;
-                    $cell->zone_color = '#ffffff'; // White or default for no risk
+                    $cell->zone_color = '#ffffff';
+                    $cell->save();
                 }
-
-                $cell->save(); // Save the updated cell
             }
         }
         // Custom redirect for 'diproses' status
