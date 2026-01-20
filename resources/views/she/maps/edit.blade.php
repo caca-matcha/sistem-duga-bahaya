@@ -38,7 +38,7 @@
                             @if ($map->background_image)
                                 <div class="mt-4">
                                     <p class="font-medium text-sm text-gray-700">Current Image:</p>
-                                    <img src="{{ Storage::url($map->background_image) }}" alt="Current background image" class="mt-2 h-48 w-auto">
+                                    <img src="{{ route('files.public', ['path' => $map->background_image]) }}" alt="Current background image" class="mt-2 h-48 w-auto">
                                 </div>
                             @endif
                         </div>

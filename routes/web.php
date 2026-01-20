@@ -104,6 +104,9 @@ Route::middleware(['auth', 'role:she'])
         Route::get('maps/{map}/export-risk-excel', [MapController::class, 'exportRiskDataExcel'])->name('maps.export-risk-excel');
     });
 
+// Route untuk serve file dari public storage via controller
+Route::get('/public-files/{path}', [\App\Http\Controllers\FileController::class, 'showPublicFile'])->where('path', '.*')->name('files.public');
+
 // =========================================================================
 // API ROUTES
 // =========================================================================

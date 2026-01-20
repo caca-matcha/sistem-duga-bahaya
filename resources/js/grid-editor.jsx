@@ -50,14 +50,17 @@ const GridEditor = () => {
     useEffect(() => {
         if (background_image) {
             const img = new window.Image();
-            img.src = background_image.startsWith('http') ? background_image : `/storage/${background_image}`;
+            img.src = background_image.startsWith('http') ? background_image : `/public-files/${background_image}`;
             img.onload = () => {
                 setBackgroundImage(img);
             };
             img.onerror = () => {
                 console.error("Failed to load background image:", img.src);
                 setError("Failed to load background image.");
+                setBackgroundImage(null); // Fallback on error
             }
+        } else {
+            setBackgroundImage(null); // Fallback if no image is provided
         }
     }, [background_image]);
 
@@ -456,11 +459,17 @@ const GridEditor = () => {
                     className="bg-gray-50 border border-gray-300 rounded-lg shadow-inner"
                 >
                     <Layer>
-                        {backgroundImage && (
+                        {backgroundImage ? (
                             <Image
                                 image={backgroundImage}
                                 width={stageWidth}
                                 height={stageHeight}
+                            />
+                        ) : (
+                            <Rect
+                                width={stageWidth}
+                                height={stageHeight}
+                                fill="#f0f0f0" // Light gray fallback background
                             />
                         )}
                     </Layer>
@@ -548,7 +557,7 @@ const GridEditor = () => {
 
             {/* Modal remains largely the same */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                <div className="fixed inset-0 bg-black bg-opacity-25 z-50 flex justify-center items-center p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
                         <div className="p-6 border-b">
                             <h3 className="text-2xl font-bold text-gray-800">Edit {selectedCells.length} cell(s)</h3>
