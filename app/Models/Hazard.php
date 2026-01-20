@@ -36,8 +36,7 @@ class Hazard extends Model
         'tingkat_keparahan',
         'kemungkinan_terjadi',
         'risk_score',
-        // 'risk_score', (dihitung di Controller)
-        // 'kategori_resiko', (dihitung di Controller)
+        'kategori_resiko',
         'ide_penanggulangan',
         'status', // Status awal
         'alasan_penolakan', // Untuk penolakan
@@ -110,13 +109,5 @@ class Hazard extends Model
         return $this->belongsTo(Map::class);
     }
 
-    public function getKategoriResikoAttribute()
-    {
-        $score = $this->risk_score;
-
-        if ($score <= 5) return 'Low';
-        if ($score <= 12) return 'Medium';
-        return 'High';
-    }
 
 }

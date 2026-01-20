@@ -111,6 +111,7 @@ class HazardController extends Controller
             'tingkat_keparahan' => $validated['tingkat_keparahan'],
             'kemungkinan_terjadi' => $validated['kemungkinan_terjadi'],
             'risk_score' => $riskScore,
+            'kategori_resiko' => ($riskScore <= 4) ? 'Low' : (($riskScore <= 9) ? 'Medium' : (($riskScore <= 15) ? 'Medium-High' : (($riskScore <= 20) ? 'High' : 'Extreme'))),
             'ide_penanggulangan' => $validated['ide_penanggulangan'],
             'status' => 'menunggu validasi', // Status awal saat dikirim
         ]);
