@@ -56,15 +56,33 @@ class Cell extends Model
     }
 
     /**
-     * Recalculates the cell's risk score based on associated hazards.
+     * Recalculates the cell's risk score based on associated hazards OR linked building risks.
      */
     public function recalculateRiskScore(): void
     {
-        // Get hazards that are 'diproses' or 'selesai' and have a risk_score
+        // 1. Handling for Factory Cells linked to Buildings
+        $gedungMapId = $this->metadata['gedung_map_id'] ?? null;
+        if ($gedungMapId) {
+            $targetMap = Map::find($gedungMapId);
+            if ($targetMap) {
+                $cells = $targetMap->cells()->where('risk_score', '>', 0)->get();
+                if ($cells->count() > 0) {
+                    $this->risk_score = round($cells->avg('risk_score'));
+                } else {
+                    $this->risk_score = 0;
+                }
+                $this->zone_color = $this->getZoneColorByRiskScore($this->risk_score);
+                $this->save();
+
+                return; // Done for factory cell
+            }
+        }
+
+        // 2. Standard Hazard-based Recalculation (for Building/Area cells)
         $relevantHazards = $this->hazards()
-                                ->whereIn('status', ['diproses', 'selesai'])
-                                ->whereNotNull('risk_score')
-                                ->get();
+            ->whereIn('status', ['diproses', 'selesai'])
+            ->whereNotNull('risk_score')
+            ->get();
 
         $totalScore = $relevantHazards->sum('risk_score');
         $count = $relevantHazards->count();
@@ -74,18 +92,29 @@ class Cell extends Model
         $this->risk_score = $count > 0 ? round($totalScore / $count) : 0;
         $this->zone_color = $this->getZoneColorByRiskScore($this->risk_score);
         $this->save();
+
+        // 3. Trigger parent factory cell recalculation if this results in a change
+        $this->triggerParentRecalculation();
     }
 
     /**
-     * Determine the zone color based on the risk score.
-     * This logic can be refined based on specific business rules.
+     * Find any cell in a Pabrik map that links to this map and recalculate it.
+     */
+    public function triggerParentRecalculation(): void
+    {
+        // Find cells in other maps that link to THIS map via metadata
+        $parentCells = Cell::whereJsonContains('metadata->gedung_map_id', (string) $this->map_id)->get();
+
+        foreach ($parentCells as $parentCell) {
+            $parentCell->recalculateRiskScore();
+        }
+    }
+
+    /**
+     * Determine the zone color based on the risk score using centralized helper.
      */
     private function getZoneColorByRiskScore(int $score): string
     {
-        if ($score <= 5) return '#10b981'; // Green for Low Risk
-        if ($score <= 10) return '#f59e0b'; // Yellow for Medium Risk
-        if ($score <= 15) return '#ef4444'; // Red for Medium-High Risk
-        if ($score <= 20) return '#f43f5e'; // Rose for High Risk
-        return '#ff1a1a'; // Darker Red for Extreme Risk
+        return getRiskColor($score);
     }
 }

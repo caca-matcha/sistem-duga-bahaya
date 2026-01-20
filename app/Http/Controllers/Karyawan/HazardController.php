@@ -102,6 +102,7 @@ class HazardController extends Controller
             'area_id' => $location->location_id_string,
             'area_type' => $location->type,
             'map_id' => $location->map_id, // Simpan map_id yang benar
+            'cell_id' => $validated['cell_id'] ?? null,
             // ----------------------------------------------------
 
             'lokasi_detail_manual' => $validated['lokasi_detail_manual'],

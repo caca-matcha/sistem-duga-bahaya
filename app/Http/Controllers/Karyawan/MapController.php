@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Map;
-use Illuminate\Http\Request;
 
 class MapController extends Controller
 {
@@ -13,8 +12,10 @@ class MapController extends Controller
      */
     public function index()
     {
-        $maps = Map::all();
-        return view('karyawan.maps.index', compact('maps'));
+        $pabrikMap = Map::where('type', 'Pabrik')->first();
+        $gedungMaps = Map::where('type', 'Gedung')->get();
+
+        return view('karyawan.maps.index', compact('pabrikMap', 'gedungMaps'));
     }
 
     /**

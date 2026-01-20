@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const GridEditor = () => {
     const { id: mapId, rows, cols, background_image, type: mapType } = window.mapData;
-    
+
     const containerRef = useRef(null);
     const stageRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(0);
@@ -15,7 +15,7 @@ const GridEditor = () => {
     const [selectedCells, setSelectedCells] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: '' });
-    
+
     const [selectionRect, setSelectionRect] = useState({ x: 0, y: 0, width: 0, height: 0, visible: false });
     const selectionStarted = useRef(false);
     const isSelecting = useRef(false);
@@ -65,7 +65,7 @@ const GridEditor = () => {
         if (mapType === 'Pabrik' || !mapId) return; // Only fetch if it's NOT a Pabrik map and mapId is available
 
         // Fetch locations that are specifically mapped to this map
-        axios.get(`/api/maps/${mapId}/locations`) 
+        axios.get(`/api/maps/${mapId}/locations`)
             .then(response => {
                 setMasterLocations(response.data);
             })
@@ -81,7 +81,9 @@ const GridEditor = () => {
 
         axios.get(`/api/maps`) // Use the API endpoint to get all Gedung maps (now filtered by API)
             .then(response => {
-                setGedungMaps(response.data);
+                // Filter out the current map to prevent self-linking
+                const filteredMaps = response.data.filter(m => m.id !== mapId);
+                setGedungMaps(filteredMaps);
             })
             .catch(err => {
                 console.error("Error fetching Gedung maps:", err);
@@ -100,7 +102,7 @@ const GridEditor = () => {
         axios.get(`/api/maps/${mapId}/cells?page=${page}`)
             .then(response => {
                 const { data, current_page, last_page, per_page, total } = response.data;
-                
+
                 // Convert array to object for efficient lookup
                 const newCells = data.reduce((acc, cell) => {
                     acc[`${cell.row_index}_${cell.col_index}`] = cell;
@@ -128,8 +130,17 @@ const GridEditor = () => {
     // Initial fetch
     useEffect(() => {
         fetchCells(1);
-    }, [mapId]); // We removed fetchCells from deps to prevent re-fetching on every render.
-                 // This effect should only run when mapId changes.
+    }, [mapId]);
+
+    // Polling mechanism for periodic updates
+    useEffect(() => {
+        const pollingInterval = setInterval(() => {
+            console.log("GridEditor: Polling for updated cells...");
+            fetchCells(1); // Fetch the first page of cells to refresh
+        }, 30000); // Poll every 30 seconds
+
+        return () => clearInterval(pollingInterval);
+    }, [fetchCells]);
 
     // Calculate stage and cell dimensions
     let stageWidth = containerWidth;
@@ -152,7 +163,7 @@ const GridEditor = () => {
         const scale = stageScale;
         const visibleWidth = stageWidth / scale;
         const visibleHeight = stageHeight / scale;
-        
+
         const startX = -stagePos.x / scale;
         const startY = -stagePos.y / scale;
 
@@ -160,11 +171,11 @@ const GridEditor = () => {
         const endCol = Math.min(cols - 1, Math.ceil((startX + visibleWidth) / cellWidth));
         const startRow = Math.max(0, Math.floor(startY / cellHeight));
         const endRow = Math.min(rows - 1, Math.ceil((startY + visibleHeight) / cellHeight));
-        
+
         setVisibleCellRange({ startRow, endRow, startCol, endCol });
 
     }, [stagePos, stageScale, stageWidth, stageHeight, rows, cols, cellWidth, cellHeight]);
-    
+
     // Infinite scroll
     useEffect(() => {
         const { endRow, endCol } = visibleCellRange;
@@ -172,10 +183,10 @@ const GridEditor = () => {
         // A simple heuristic to check if we need more data: if the user can see the last loaded cells.
         // This can be improved.
         if (pagination.hasMore && !pagination.isLoading) {
-             const isAtEdge = endRow >= Math.floor(totalCellsLoaded / cols);
-             if(isAtEdge){
+            const isAtEdge = endRow >= Math.floor(totalCellsLoaded / cols);
+            if (isAtEdge) {
                 fetchCells(pagination.currentPage + 1);
-             }
+            }
         }
     }, [visibleCellRange, cells, pagination, fetchCells, cols]);
 
@@ -183,12 +194,12 @@ const GridEditor = () => {
     const getCellData = (rowIndex, colIndex) => {
         return cells[`${rowIndex}_${colIndex}`];
     };
-    
+
     const handleCellClick = (rowIndex, colIndex) => {
         setError(null);
-        
+
         setSelectedCells([{ row_index: rowIndex, col_index: colIndex }]);
-        
+
         const currentCell = getCellData(rowIndex, colIndex);
         if (mapType === 'Pabrik') {
             const gedungMapIdFromMetadata = currentCell?.metadata?.gedung_map_id || '';
@@ -209,12 +220,12 @@ const GridEditor = () => {
         };
 
         if (mapType === 'Pabrik') {
-            payload = { 
+            payload = {
                 ...payload,
                 gedung_map_id: formData.gedung_map_id === '' ? null : formData.gedung_map_id,
             };
         } else {
-            payload = { 
+            payload = {
                 ...payload,
                 location_id: formData.location_id === '' ? null : formData.location_id,
             };
@@ -233,11 +244,11 @@ const GridEditor = () => {
                         ...cell, // Update with fresh data from server (including risk_score, zone_color, metadata)
                         location: cell.location || null, // Ensure location object is updated if present
                         // If mapType is Pabrik, location_id should be null
-                        location_id: mapType === 'Pabrik' ? null : cell.location_id, 
+                        location_id: mapType === 'Pabrik' ? null : cell.location_id,
                     };
                 });
                 setCells(updatedCellsState);
-                
+
                 setIsModalOpen(false);
                 setSelectedCells([]);
             })
@@ -260,7 +271,7 @@ const GridEditor = () => {
         selectionStarted.current = true;
         isSelecting.current = false;
         const pos = e.target.getStage().getPointerPosition();
-        
+
         // Transform pointer position by inverse of stage transform
         const transform = e.target.getStage().getAbsoluteTransform().copy().invert();
         const transformedPos = transform.point(pos);
@@ -286,7 +297,7 @@ const GridEditor = () => {
 
     const handleMouseUp = (e) => {
         selectionStarted.current = false;
-        setSelectionRect(prev => ({...prev, visible: false}));
+        setSelectionRect(prev => ({ ...prev, visible: false }));
 
         const stage = e.target.getStage();
         const transform = stage.getAbsoluteTransform().copy().invert();
@@ -296,13 +307,13 @@ const GridEditor = () => {
         if (!isSelecting.current) {
             const row = Math.floor(transformedPos.y / cellHeight);
             const col = Math.floor(transformedPos.x / cellWidth);
-            if(row >= 0 && row < rows && col >= 0 && col < cols) {
+            if (row >= 0 && row < rows && col >= 0 && col < cols) {
                 handleCellClick(row, col);
             }
             return;
         }
         isSelecting.current = false;
-        
+
         const newSelectedCells = [];
         const { x, y, width, height } = selectionRect;
         const sx = width > 0 ? x : x + width;
@@ -329,7 +340,7 @@ const GridEditor = () => {
             setIsModalOpen(true);
         }
     };
-    
+
     const handleWheel = (e) => {
         e.evt.preventDefault();
         const scaleBy = 1.1;
@@ -343,7 +354,7 @@ const GridEditor = () => {
         };
 
         const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
-        
+
         setStageScale(newScale);
         setStagePos({
             x: pointer.x - mousePointTo.x * newScale,
@@ -369,7 +380,7 @@ const GridEditor = () => {
                 const cellData = getCellData(i, j);
                 const isSelected = selectedCells.some(c => c.row_index === i && c.col_index === j);
                 const fillColor = cellData?.zone_color || 'white';
-                
+
                 gridElements.push(
                     <Rect
                         key={`rect-${i}-${j}`}
@@ -378,15 +389,9 @@ const GridEditor = () => {
                         width={cellWidth}
                         height={cellHeight}
                         fill={fillColor}
-                        stroke={'#CCC'} 
-                        strokeWidth={0.5} 
+                        stroke={'#CCC'}
+                        strokeWidth={0.5}
                         opacity={cellData ? (isSelected ? 0.9 : 0.7) : 0.5}
-                        onClick={() => {
-                            if (mapType === 'Pabrik' && cellData?.metadata?.gedung_map_id) {
-                                const targetUrl = `/she/maps/${cellData.metadata.gedung_map_id}/view`;
-                                window.location.href = targetUrl;
-                            }
-                        }}
                         onMouseEnter={(e) => {
                             if (mapType === 'Pabrik' && cellData?.metadata?.gedung_map_id) {
                                 const hoveredGedung = gedungMaps.find(g => g.id === cellData.metadata.gedung_map_id);
@@ -430,24 +435,24 @@ const GridEditor = () => {
         <div ref={containerRef}>
             {/* Error Display */}
             {error && !isModalOpen && (
-                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <strong className="font-bold">Error!</strong>
                     <span className="block sm:inline ml-2">{error}</span>
-                 </div>
+                </div>
             )}
             {stageWidth > 0 && (
-                 <Stage
+                <Stage
                     ref={stageRef}
-                                         width={stageWidth}
-                                        height={stageHeight}
-                                        onMouseDown={handleMouseDown}
-                                        onMouseMove={handleMouseMove}
-                                        onMouseUp={handleMouseUp}
-                                        onWheel={handleWheel}
-                                        draggable={isStageDragging}
-                                        x={stagePos.x}
-                                        y={stagePos.y}
-                                        scaleX={stageScale}                    scaleY={stageScale}
+                    width={stageWidth}
+                    height={stageHeight}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onWheel={handleWheel}
+                    draggable={isStageDragging}
+                    x={stagePos.x}
+                    y={stagePos.y}
+                    scaleX={stageScale} scaleY={stageScale}
                     className="bg-gray-50 border border-gray-300 rounded-lg shadow-inner"
                 >
                     <Layer>
@@ -494,51 +499,51 @@ const GridEditor = () => {
                     </Layer>
                 </Stage>
             )}
-            
+
             {/* Legend and other UI elements... */}
-                <div className="mt-4 p-4 bg-white rounded-lg shadow">
+            <div className="mt-4 p-4 bg-white rounded-lg shadow">
                 <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
 
                 <div className="flex items-center mb-1">
                     <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#10b981" }}
+                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                        style={{ backgroundColor: "#10b981" }}
                     />
                     <span className="text-sm text-gray-700">1–5 (Low Risk)</span>
                 </div>
 
                 <div className="flex items-center mb-1">
                     <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#f59e0b" }}
+                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                        style={{ backgroundColor: "#f59e0b" }}
                     />
                     <span className="text-sm text-gray-700">6–10 (Medium Risk)</span>
                 </div>
 
                 <div className="flex items-center mb-1">
                     <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#ef4444" }}
+                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                        style={{ backgroundColor: "#ef4444" }}
                     />
                     <span className="text-sm text-gray-700">11–15 (Medium-High Risk)</span>
                 </div>
 
                 <div className="flex items-center mb-1">
                     <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#f43f5e" }}
+                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                        style={{ backgroundColor: "#f43f5e" }}
                     />
                     <span className="text-sm text-gray-700">16–20 (High Risk)</span>
                 </div>
 
                 <div className="flex items-center">
                     <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#ff1a1a" }}
+                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                        style={{ backgroundColor: "#ff1a1a" }}
                     />
                     <span className="text-sm text-gray-700">21–25 (Extreme Risk)</span>
                 </div>
-                </div>
+            </div>
 
 
             {/* Modal remains largely the same */}
@@ -562,7 +567,7 @@ const GridEditor = () => {
                                     {mapType === 'Pabrik' ? (
                                         <div className="md:col-span-2">
                                             <label htmlFor="gedung_map_id" className="block text-sm font-medium text-gray-600">Pilih Gedung</label>
-                                            <select name="gedung_map_id" id="gedung_map_id" value={formData.gedung_map_id} onChange={(e) => setFormData({...formData, gedung_map_id: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                            <select name="gedung_map_id" id="gedung_map_id" value={formData.gedung_map_id} onChange={(e) => setFormData({ ...formData, gedung_map_id: e.target.value })} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
                                                 <option value="">-- Pilih Gedung --</option>
                                                 {gedungMaps.map(gedung => (
                                                     <option key={gedung.id} value={gedung.id}>
@@ -574,7 +579,7 @@ const GridEditor = () => {
                                     ) : (
                                         <div className="md:col-span-2">
                                             <label htmlFor="location_id" className="block text-sm font-medium text-gray-600">Master Lokasi</label>
-                                            <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({...formData, location_id: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                            <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({ ...formData, location_id: e.target.value })} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
                                                 <option value="">-- Pilih Lokasi --</option>
                                                 {masterLocations.map(loc => (
                                                     <option key={loc.id} value={loc.id}>

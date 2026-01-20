@@ -6,14 +6,14 @@
             <div>
                 <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center gap-2">
                     {{ __('Detail Laporan Bahaya') }}
-                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full font-mono font-medium border border-indigo-200">
+                    <span class="px-3 py-1 bg-red-100 text-red-700 text-sm rounded-full font-mono font-medium border border-red-200">
                         #{{ $hazard->id }}
                     </span>
                 </h2>
                 <p class="text-sm text-gray-500 mt-1">Lihat detail kronologi dan analisis bahaya.</p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="{{ url()->previous() }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                <a href="{{ url()->previous() }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     Kembali
                 </a>
@@ -24,9 +24,9 @@
     <!-- Style Kustom untuk Animasi Status (Ring Berkedip) -->
     <style>
         @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
         .ring-animate {
             animation: pulse-ring 2.5s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
@@ -43,7 +43,7 @@
                 <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <span class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </span>
                             Status Progres
@@ -69,7 +69,7 @@
                                 if ($isCompleted) {
                                     $colorClass = ($item['status'] == 'Ditolak') ? 'bg-red-500 border-red-500 text-white shadow-md shadow-red-200' : 'bg-green-500 border-green-500 text-white shadow-md shadow-green-200';
                                 } elseif ($isCurrent) {
-                                    $colorClass = 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200';
+                                    $colorClass = 'bg-red-600 border-red-600 text-white shadow-lg shadow-red-200';
                                 }
 
                                 // Ring animation logic
@@ -78,7 +78,7 @@
                                 // Text coloring
                                 $textClass = 'text-gray-400 font-medium';
                                 if($isCurrent) {
-                                    $textClass = 'text-indigo-700 font-bold';
+                                    $textClass = 'text-red-700 font-bold';
                                 } elseif ($isCompleted) {
                                     $textClass = ($item['status'] == 'Ditolak') ? 'text-red-700 font-semibold' : 'text-gray-900 font-semibold';
                                 }
@@ -87,11 +87,11 @@
                                 $lineClass = 'bg-gray-100';
                                 if ($index > 0 && ($timelineData[$index - 1]['is_active'] || $item['is_current'])) {
                                     $lineClass = ($item['status'] == 'Ditolak') ? 'bg-red-500' : 'bg-green-500';
-                                    if ($isCurrent) $lineClass = 'bg-indigo-500'; 
+                                    if ($isCurrent) $lineClass = 'bg-red-500'; 
                                 }
 
                                 // Mobile vertical line
-                                $mobileLineClass = ($item['is_active']) ? 'bg-indigo-400' : 'bg-gray-200';
+                                $mobileLineClass = ($item['is_active']) ? 'bg-red-400' : 'bg-gray-200';
                             @endphp
 
                             <div class="relative flex-1 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-3 mb-8 md:mb-0 group last:mb-0">
@@ -177,9 +177,9 @@
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {{-- Data Pelapor --}}
-                                <div class="bg-white p-5 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all duration-300 group">
+                                <div class="bg-white p-5 rounded-xl border border-gray-200 hover:border-red-300 hover:shadow-md transition-all duration-300 group">
                                     <div class="flex items-center gap-2 mb-4">
-                                        <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                        <div class="p-2 bg-red-50 rounded-lg text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                         </div>
                                         <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Data Pelapor</h4>
@@ -289,7 +289,7 @@
                                     $dueDate = \Carbon\Carbon::parse($hazard->target_penyelesaian);
                                     $daysRemaining = now()->diffInDays($dueDate, false);
                                     
-                                    $alertColor = 'bg-blue-50 border-blue-200 text-blue-800';
+                                    $alertColor = 'bg-red-50 border-red-200 text-red-800';
                                     if ($daysRemaining < 0) $alertColor = 'bg-red-50 border-red-200 text-red-800';
                                     elseif ($daysRemaining <= 3) $alertColor = 'bg-orange-50 border-orange-200 text-orange-800';
                                 @endphp
@@ -350,15 +350,15 @@
                     {{-- Informasi Penyelesaian (Status Logs) --}}
                     @if (isset($hazard) && ($hazard->ditangani_oleh || $hazard->ditangani_pada || $hazard->report_selesai))
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="px-5 py-3 border-b border-gray-100 bg-indigo-50/30">
-                            <h3 class="font-bold text-indigo-900 text-sm">Log Penyelesaian</h3>
+                        <div class="px-5 py-3 border-b border-gray-100 bg-red-50/30">
+                            <h3 class="font-bold text-red-900 text-sm">Log Penyelesaian</h3>
                         </div>
                         <div class="p-0">
                             <ul class="divide-y divide-gray-100">
                                 @if ($hazard->ditangani_oleh)
                                 <li class="p-4 hover:bg-gray-50 transition-colors">
                                     <div class="flex items-start gap-3">
-                                        <div class="mt-0.5 p-1.5 bg-blue-100 text-blue-600 rounded-full shrink-0">
+                                        <div class="mt-0.5 p-1.5 bg-red-100 text-red-600 rounded-full shrink-0">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                         </div>
                                         <div>

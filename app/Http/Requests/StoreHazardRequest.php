@@ -38,6 +38,7 @@ class StoreHazardRequest extends FormRequest
             'kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'kategori_stop6' => 'required|string|max:50',
             'ide_penanggulangan' => 'nullable|string',
+            'cell_id' => 'nullable|integer|exists:cells,id',
         ];
     }
     

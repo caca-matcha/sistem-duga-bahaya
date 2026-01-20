@@ -92,6 +92,12 @@
                 <svg class="h-5 w-5 mr-3 {{ request()->routeIs('karyawan.hazards.create') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Buat Laporan Baru
             </a>
+
+            <a href="{{ route('karyawan.maps.index') }}" 
+               class="group flex items-center px-3 py-2 rounded-lg text-sm mb-1 {{ request()->routeIs('karyawan.maps.*') ? $activeClass : $inactiveClass }}">
+                <svg class="h-5 w-5 mr-3 {{ request()->routeIs('karyawan.maps.*') ? $iconActive : $iconInactive }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" /></svg>
+                Peta Risiko
+            </a>
             
 
         @endif

@@ -2,8 +2,8 @@
     @section('page-title', '')
 
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Map View: ') . $map->name }}
+        <h2 class="font-bold text-xl text-gray-800 leading-tight">
+            {{ __('Detail Peta: ') . $map->name }}
         </h2>
     </x-slot>
 

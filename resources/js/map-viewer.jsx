@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const MapViewer = () => {
     const { id: mapId, rows, cols, background_image } = window.mapData;
-    
+
     console.log("MapViewer: Initial window.mapData", window.mapData); // Debug log
 
     const containerRef = useRef(null);
@@ -16,7 +16,7 @@ const MapViewer = () => {
     const [pagination, setPagination] = useState({ currentPage: 1, hasMore: true, isLoading: false, perPage: 0, total: 0 });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCell, setSelectedCell] = useState(null);
-    
+
     const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
     const [stageScale, setStageScale] = useState(1);
     const [visibleCellRange, setVisibleCellRange] = useState({ startRow: 0, endRow: 0, startCol: 0, endCol: 0 });
@@ -54,7 +54,7 @@ const MapViewer = () => {
             .then(response => {
                 const { data, current_page, last_page, per_page, total } = response.data;
                 console.log("MapViewer: API Response for cells", response.data); // Debug log
-                
+
                 const newCells = data.reduce((acc, cell) => {
                     acc[`${cell.row_index}_${cell.col_index}`] = cell;
                     return acc;
@@ -122,7 +122,7 @@ const MapViewer = () => {
         const scale = stageScale;
         const visibleWidth = stageWidth / scale;
         const visibleHeight = stageHeight / scale;
-        
+
         const startX = -stagePos.x / scale;
         const startY = -stagePos.y / scale;
 
@@ -130,19 +130,19 @@ const MapViewer = () => {
         const endCol = Math.min(cols - 1, Math.ceil((startX + visibleWidth) / cellWidth));
         const startRow = Math.max(0, Math.floor(startY / cellHeight));
         const endRow = Math.min(rows - 1, Math.ceil((startY + visibleHeight) / cellHeight));
-        
+
         setVisibleCellRange({ startRow, endRow, startCol, endCol });
 
     }, [stagePos, stageScale, stageWidth, stageHeight, rows, cols, cellWidth, cellHeight]);
-    
+
     // Infinite scroll
     useEffect(() => {
         const { endRow } = visibleCellRange;
         if (pagination.hasMore && !pagination.isLoading) {
-             const totalRowsLoaded = Math.ceil(Object.keys(cells).length / cols);
-             if(endRow >= totalRowsLoaded - 5){ // Fetch when we are close to the edge
+            const totalRowsLoaded = Math.ceil(Object.keys(cells).length / cols);
+            if (endRow >= totalRowsLoaded - 5) { // Fetch when we are close to the edge
                 fetchCells(pagination.currentPage + 1);
-             }
+            }
         }
     }, [visibleCellRange, cells, pagination, fetchCells, cols]);
 
@@ -150,13 +150,16 @@ const MapViewer = () => {
     const getCellData = (rowIndex, colIndex) => {
         return cells[`${rowIndex}_${colIndex}`];
     };
-    
+
     const handleCellClick = (rowIndex, colIndex) => {
         const cellData = getCellData(rowIndex, colIndex);
         if (cellData) {
-            if (cellData.building_id) {
+            // Check for linked building map in metadata (for Pabrik maps)
+            const linkedBuildingId = cellData.metadata?.gedung_map_id || cellData.building_id;
+
+            if (linkedBuildingId) {
                 // Redirect to the detailed building map
-                window.location.href = `/karyawan/maps/${cellData.building_id}`;
+                window.location.href = `/karyawan/maps/${linkedBuildingId}`;
             } else {
                 setSelectedCell(cellData);
                 setIsModalOpen(true);
@@ -165,7 +168,7 @@ const MapViewer = () => {
     };
 
     const handleStageClick = (e) => {
-         if (e.target === e.target.getStage()) {
+        if (e.target === e.target.getStage()) {
             const stage = e.target.getStage();
             const transform = stage.getAbsoluteTransform().copy().invert();
             const pos = stage.getPointerPosition();
@@ -173,7 +176,7 @@ const MapViewer = () => {
 
             const row = Math.floor(transformedPos.y / cellHeight);
             const col = Math.floor(transformedPos.x / cellWidth);
-             if(row >= 0 && row < rows && col >= 0 && col < cols) {
+            if (row >= 0 && row < rows && col >= 0 && col < cols) {
                 handleCellClick(row, col);
             }
         }
@@ -192,19 +195,19 @@ const MapViewer = () => {
         };
 
         const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
-        
+
         setStageScale(newScale);
         setStagePos({
             x: pointer.x - mousePointTo.x * newScale,
             y: pointer.y - mousePointTo.y * newScale,
         });
     };
-    
+
     // Client-side search logic
     const filteredCells = useMemo(() => {
         if (!searchTerm) return cells;
         const lowercasedTerm = searchTerm.toLowerCase();
-        return Object.values(cells).filter(cell => 
+        return Object.values(cells).filter(cell =>
             (cell.location?.location_id_string && cell.location.location_id_string.toLowerCase().includes(lowercasedTerm)) ||
             (cell.location?.name && cell.location.name.toLowerCase().includes(lowercasedTerm))
         ).reduce((acc, cell) => {
@@ -222,7 +225,7 @@ const MapViewer = () => {
             for (let j = visibleCellRange.startCol; j <= visibleCellRange.endCol; j++) {
                 const cellData = sourceCells[`${i}_${j}`];
                 const fillColor = cellData?.zone_color || 'white';
-                
+
                 gridElements.push(
                     <Rect
                         key={`rect-${i}-${j}`}
@@ -282,54 +285,54 @@ const MapViewer = () => {
                     </Stage>
                 )}
 
-                
+
                 <div className="mt-4 p-4 bg-white rounded-lg shadow">
-                <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
+                    <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
 
-                <div className="flex items-center mb-1">
-                    <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#10b981" }}
-                    />
-                    <span className="text-sm text-gray-700">1–5 (Low Risk)</span>
-                </div>
+                    <div className="flex items-center mb-1">
+                        <span
+                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                            style={{ backgroundColor: "#10b981" }}
+                        />
+                        <span className="text-sm text-gray-700">1–5 (Low Risk)</span>
+                    </div>
 
-                <div className="flex items-center mb-1">
-                    <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#f59e0b" }}
-                    />
-                    <span className="text-sm text-gray-700">6–10 (Medium Risk)</span>
-                </div>
+                    <div className="flex items-center mb-1">
+                        <span
+                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                            style={{ backgroundColor: "#f59e0b" }}
+                        />
+                        <span className="text-sm text-gray-700">6–10 (Medium Risk)</span>
+                    </div>
 
-                <div className="flex items-center mb-1">
-                    <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#ef4444" }}
-                    />
-                    <span className="text-sm text-gray-700">11–15 (Medium-High Risk)</span>
-                </div>
+                    <div className="flex items-center mb-1">
+                        <span
+                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                            style={{ backgroundColor: "#ef4444" }}
+                        />
+                        <span className="text-sm text-gray-700">11–15 (Medium-High Risk)</span>
+                    </div>
 
-                <div className="flex items-center mb-1">
-                    <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#f43f5e" }}
-                    />
-                    <span className="text-sm text-gray-700">16–20 (High Risk)</span>
-                </div>
+                    <div className="flex items-center mb-1">
+                        <span
+                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                            style={{ backgroundColor: "#f43f5e" }}
+                        />
+                        <span className="text-sm text-gray-700">16–20 (High Risk)</span>
+                    </div>
 
-                <div className="flex items-center">
-                    <span
-                    className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                    style={{ backgroundColor: "#ff1a1a" }}
-                    />
-                    <span className="text-sm text-gray-700">21–25 (Extreme Risk)</span>
-                </div>
+                    <div className="flex items-center">
+                        <span
+                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
+                            style={{ backgroundColor: "#ff1a1a" }}
+                        />
+                        <span className="text-sm text-gray-700">21–25 (Extreme Risk)</span>
+                    </div>
                 </div>
             </div>
 
-            <div style={{width: minimapWidth}}>
-                 <div className="p-4 bg-white rounded-lg shadow mb-4">
+            <div style={{ width: minimapWidth }}>
+                <div className="p-4 bg-white rounded-lg shadow mb-4">
                     <h4 className="font-bold text-gray-800 mb-2">Mini Map</h4>
                     {stageWidth > 0 && <Stage
                         width={minimapWidth}
@@ -364,7 +367,7 @@ const MapViewer = () => {
 
             {isModalOpen && selectedCell && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-                     <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
                         <div className="p-6 border-b">
                             <h3 className="text-2xl font-bold text-gray-800">Cell Details ({selectedCell.row_index},{selectedCell.col_index})</h3>
                         </div>
@@ -375,11 +378,17 @@ const MapViewer = () => {
                             <p><strong>Risk Score:</strong> {selectedCell.risk_score}</p>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <strong>Zone Color:</strong>
-                                <span style={{display: 'inline-block', width: '20px', height: '20px', backgroundColor: selectedCell.zone_color, marginLeft: '10px', border: '1px solid black'}}></span>
+                                <span style={{ display: 'inline-block', width: '20px', height: '20px', backgroundColor: selectedCell.zone_color, marginLeft: '10px', border: '1px solid black' }}></span>
                             </div>
                         </div>
                         <div className="p-6 bg-gray-50 rounded-b-lg flex justify-end items-center gap-4 border-t">
                             <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">Close</button>
+                            <a
+                                href={`/karyawan/hazards/create?map_id=${mapId}&cell_id=${selectedCell.id}&location_id=${selectedCell.location_id || ''}`}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            >
+                                Laporkan Bahaya Di Sini
+                            </a>
                         </div>
                     </div>
                 </div>

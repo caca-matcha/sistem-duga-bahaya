@@ -38,8 +38,8 @@
                 {{-- SECTION 1: DATA PELAPOR --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl mb-6 border border-gray-100">
                     <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center">
-                        <div class="bg-indigo-100 rounded-full p-2 mr-3">
-                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <div class="bg-red-100 rounded-full p-2 mr-3">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         </div>
                         <h2 class="text-lg font-bold text-gray-800">1. Data Pelapor</h2>
                     </div>
@@ -51,11 +51,11 @@
                         <div>
                             <label for="NPK" class="block text-sm font-medium text-gray-700 mb-1">NPK <span class="text-red-500">*</span></label>
                             <input id="NPK" name="NPK" value="{{ old('NPK') }}" type="text" placeholder="Contoh: 12345" 
-                                class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
+                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">
                         </div>
                         <div>
                             <label for="dept" class="block text-sm font-medium text-gray-700 mb-1">Departemen <span class="text-red-500">*</span></label>
-                            <select id="dept" name="dept" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
+                            <select id="dept" name="dept" class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">
                                 <option value="">Pilih Departemen</option>
                                 @foreach (['Maintenance','Quality Assurance / Quality Control (QA/QC)','Engineering','Finance','Human Resource', 'Warehouse / Logistics','Planning & Control (PPC / PPIC)', 'Tooling', 'Utility / Facility'] as $d)
                                     <option value="{{ $d }}" {{ old('dept') == $d ? 'selected' : '' }}>{{ $d }}</option>
@@ -67,10 +67,11 @@
 
                 {{-- SECTION 2: LOKASI & WAKTU --}}
                 <div x-data="{
-                    selectedMapId: '{{ old('map_id') }}',
+                    selectedMapId: '{{ old('map_id', request('map_id')) }}',
                     allLocations: [],
                     filteredLocations: [],
-                    selectedLocationId: '{{ old('location_id') }}',
+                    selectedLocationId: '{{ old('location_id', request('location_id')) }}',
+                    selectedCellId: '{{ old('cell_id', request('cell_id')) }}',
                     selectedMapImage: '',
                     selectedMapName: '{{ old('area_gedung') }}', // New property for map name
                     maps: [],
@@ -96,7 +97,6 @@
                             }
                         } catch (error) {
                             console.error('Error fetching maps:', error);
-                            alert('Gagal memuat daftar gedung.');
                         }
                     },
 
@@ -114,7 +114,6 @@
                             }
                         } catch (error) {
                             console.error('Error fetching all locations:', error);
-                            alert('Gagal memuat daftar lokasi.');
                         }
                     },
 
@@ -125,8 +124,11 @@
                             this.filteredLocations = this.allLocations; // Show all if no map selected
                         }
                         // Reset selected location if the previously selected one is no longer in filtered list
-                        if (!this.filteredLocations.some(loc => loc.id == this.selectedLocationId)) {
-                             this.selectedLocationId = '';
+                        if (this.selectedLocationId && !this.filteredLocations.some(loc => loc.id == this.selectedLocationId)) {
+                             // Only reset if not explicitly passed via URL
+                             if (!new URLSearchParams(window.location.search).has('location_id')) {
+                                this.selectedLocationId = '';
+                             }
                         }
                     },
 
@@ -138,8 +140,8 @@
                 }" 
                 class="bg-white overflow-hidden shadow-sm sm:rounded-xl mb-6 border border-gray-100">
                     <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center">
-                        <div class="bg-blue-100 rounded-full p-2 mr-3">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <div class="bg-red-100 rounded-full p-2 mr-3">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                         <h2 class="text-lg font-bold text-gray-800">2. Lokasi & Waktu Observasi</h2>
                     </div>
@@ -147,23 +149,24 @@
                         <div>
                             <label for="tgl_observasi" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kejadian <span class="text-red-500">*</span></label>
                             <input id="tgl_observasi" name="tgl_observasi" type="date" value="{{ old('tgl_observasi', date('Y-m-d')) }}" 
-                                class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
+                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">
                         </div>
                         
                         <div>
                             <label for="map_id" class="block text-sm font-medium text-gray-700 mb-1">Pilih Gedung (Map) <span class="text-red-500">*</span></label>
-                            <select id="map_id" name="map_id" x-model="selectedMapId" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
+                            <select id="map_id" name="map_id" x-model="selectedMapId" class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">
                                 <option value="">-- Pilih Gedung --</option>
                                 <template x-for="map in maps" :key="map.id">
                                     <option :value="map.id" x-text="map.name"></option>
                                 </template>
                             </select>
                             <input type="hidden" name="area_gedung" x-model="selectedMapName">
+                            <input type="hidden" name="cell_id" x-model="selectedCellId">
                         </div>
 
                         <div>
                             <label for="location_id" class="block text-sm font-medium text-gray-700 mb-1">Lokasi Kejadian <span class="text-red-500">*</span></label>
-                            <select id="location_id" name="location_id" x-model="selectedLocationId" :disabled="!selectedMapId" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
+                            <select id="location_id" name="location_id" x-model="selectedLocationId" :disabled="!selectedMapId" class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">
                                 <option value="">-- Pilih Lokasi --</option>
                                 <template x-for="location in filteredLocations" :key="location.id">
                                     <option :value="location.id" x-text="`${location.name} (${location.location_id_string}) - ${location.type}`"></option>
@@ -174,7 +177,7 @@
                         <div class="md:col-span-2">
                             <label for="lokasi_detail_manual" class="block text-sm font-medium text-gray-700 mb-1">Detail Tambahan Lokasi</label>
                             <textarea id="lokasi_detail_manual" name="lokasi_detail_manual" rows="2" placeholder="Contoh: Di dekat mesin press No. 5, pilar C-12"
-                                class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">{{ old('lokasi_detail_manual') }}</textarea>
+                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">{{ old('lokasi_detail_manual') }}</textarea>
                             <p class="text-xs text-gray-500 mt-1 italic">Isi jika perlu memberikan detail yang lebih spesifik dari pilihan lokasi.</p>
                         </div>
                         

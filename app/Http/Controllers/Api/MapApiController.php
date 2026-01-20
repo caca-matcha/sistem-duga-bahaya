@@ -12,7 +12,7 @@ class MapApiController extends Controller
      */
     public function index()
     {
-        $maps = Map::select('id', 'name', 'background_image', 'type')
+        $maps = Map::select('id', 'name', 'background_image', 'type', 'parent_id')
             ->where('type', 'Gedung')
             ->get();
 
