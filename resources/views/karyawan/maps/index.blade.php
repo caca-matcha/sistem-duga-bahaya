@@ -43,6 +43,7 @@
 
                         <script>
                             window.mapData = @json($pabrikMap);
+                            window.gedungMaps = @json($gedungMaps);
                         </script>
                         @vite(['resources/js/map-viewer.jsx'])
                     @else

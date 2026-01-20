@@ -16,6 +16,7 @@ const MapViewer = () => {
     const [pagination, setPagination] = useState({ currentPage: 1, hasMore: true, isLoading: false, perPage: 0, total: 0 });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCell, setSelectedCell] = useState(null);
+    const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: '' });
 
     const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
     const [stageScale, setStageScale] = useState(1);
@@ -234,9 +235,37 @@ const MapViewer = () => {
                         width={cellWidth}
                         height={cellHeight}
                         fill={fillColor}
-                        stroke={'black'}
-                        strokeWidth={0.5 / stageScale}
+                        stroke={cellData?.metadata?.gedung_map_id ? '#dc2626' : 'black'}
+                        strokeWidth={cellData?.metadata?.gedung_map_id ? 1.5 / stageScale : 0.5 / stageScale}
                         opacity={cellData ? 0.7 : 0.5}
+                        onClick={() => handleCellClick(i, j)}
+                        onMouseEnter={(e) => {
+                            const stage = e.target.getStage();
+                            if (cellData?.metadata?.gedung_map_id) {
+                                stage.container().style.cursor = 'pointer';
+                                const gedungMaps = window.gedungMaps || [];
+                                const linkedGedung = gedungMaps.find(g => g.id == cellData.metadata.gedung_map_id);
+                                if (linkedGedung) {
+                                    const pointerPos = stage.getPointerPosition();
+                                    const tooltipX = (pointerPos.x / stage.scaleX()) - (stage.x() / stage.scaleX()) + 10;
+                                    const tooltipY = (pointerPos.y / stage.scaleY()) - (stage.y() / stage.scaleY()) + 10;
+
+                                    setTooltip({
+                                        visible: true,
+                                        x: tooltipX,
+                                        y: tooltipY,
+                                        text: `Gedung: ${linkedGedung.name}`
+                                    });
+                                }
+                            } else if (cellData) {
+                                stage.container().style.cursor = 'pointer';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            const stage = e.target.getStage();
+                            stage.container().style.cursor = 'default';
+                            setTooltip({ ...tooltip, visible: false });
+                        }}
                     />
                 );
             }
@@ -282,6 +311,28 @@ const MapViewer = () => {
                             {backgroundImage && <Image image={backgroundImage} width={stageWidth} height={stageHeight} />}
                         </Layer>
                         <Layer>{gridElements}</Layer>
+                        <Layer>
+                            {tooltip.visible && (
+                                <>
+                                    <Rect
+                                        x={tooltip.x}
+                                        y={tooltip.y}
+                                        width={tooltip.text.length * 8 + 20}
+                                        height={24}
+                                        fill="black"
+                                        opacity={0.75}
+                                        cornerRadius={5}
+                                    />
+                                    <Text
+                                        x={tooltip.x + 10}
+                                        y={tooltip.y + 5}
+                                        text={tooltip.text}
+                                        fontSize={12}
+                                        fill="white"
+                                    />
+                                </>
+                            )}
+                        </Layer>
                     </Stage>
                 )}
 
