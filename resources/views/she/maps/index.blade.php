@@ -72,13 +72,13 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-100">
-                                <tr class="hover:bg-blue-50/30 transition">
+                                <tr class="hover:bg-red-50/30 transition">
                                     <td class="px-6 py-4">
                                         <div class="text-sm font-bold text-gray-900">{{ $pabrikMap->name }}</div>
                                         <div class="text-xs text-gray-400">ID: #MAP-0{{ $pabrikMap->id }}</div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Pabrik</span>
+                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Pabrik</span>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <span class="px-2 py-1 bg-gray-100 rounded text-sm font-mono font-bold">{{ $pabrikMap->rows }} × {{ $pabrikMap->cols }}</span>

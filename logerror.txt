@@ -1,119 +1,23 @@
-# Illuminate\Database\Eloquent\MassAssignmentException - Internal Server Error
-
-Add [user_id] to fillable property to allow mass assignment on [App\Models\Notification].
-
-PHP 8.2.4
-Laravel 12.46.0
-127.0.0.1:8000
-
-## Stack Trace
-
-0 - vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:624
-1 - vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:713
-2 - vendor\laravel\framework\src\Illuminate\Database\Eloquent\Builder.php:1747
-3 - vendor\laravel\framework\src\Illuminate\Database\Eloquent\Builder.php:1218
-4 - vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:23
-5 - vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2540
-6 - vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2556
-7 - app\Http\Controllers\Karyawan\HazardController.php:119
-8 - vendor\laravel\framework\src\Illuminate\Routing\ControllerDispatcher.php:46
-9 - vendor\laravel\framework\src\Illuminate\Routing\Route.php:265
-10 - vendor\laravel\framework\src\Illuminate\Routing\Route.php:211
-11 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:822
-12 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
-13 - app\Http\Middleware\RoleMiddleware.php:33
-14 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-15 - vendor\laravel\boost\src\Middleware\InjectBoost.php:22
-16 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-17 - vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php:50
-18 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-19 - vendor\laravel\framework\src\Illuminate\Auth\Middleware\Authenticate.php:63
-20 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-21 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken.php:87
-22 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-23 - vendor\laravel\framework\src\Illuminate\View\Middleware\ShareErrorsFromSession.php:48
-24 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-25 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:120
-26 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:63
-27 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-28 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse.php:36
-29 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-30 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\EncryptCookies.php:74
-31 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-32 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
-33 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:821
-34 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:800
-35 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:764
-36 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:753
-37 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:200
-38 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
-39 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
-40 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php:31
-41 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-42 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
-43 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php:51
-44 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-45 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php:27
-46 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-47 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php:109
-48 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-49 - vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php:48
-50 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-51 - vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php:58
-52 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-53 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks.php:22
-54 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-55 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePathEncoding.php:26
-56 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-57 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
-58 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:175
-59 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:144
-60 - vendor\laravel\framework\src\Illuminate\Foundation\Application.php:1220
-61 - public\index.php:20
-62 - vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
-
-## Request
-
-POST /karyawan/hazards
-
-## Headers
-
-* **host**: 127.0.0.1:8000
-* **connection**: keep-alive
-* **content-length**: 1578
-* **cache-control**: max-age=0
-* **sec-ch-ua**: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"
-* **sec-ch-ua-mobile**: ?0
-* **sec-ch-ua-platform**: "Windows"
-* **origin**: http://127.0.0.1:8000
-* **content-type**: multipart/form-data; boundary=----WebKitFormBoundary2kBVjKhQx5R6MqKZ
-* **upgrade-insecure-requests**: 1
-* **user-agent**: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
-* **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-* **sec-fetch-site**: same-origin
-* **sec-fetch-mode**: navigate
-* **sec-fetch-user**: ?1
-* **sec-fetch-dest**: document
-* **referer**: http://127.0.0.1:8000/karyawan/hazards/create
-* **accept-encoding**: gzip, deflate, br, zstd
-* **accept-language**: en-US,en;q=0.9,id;q=0.8
-* **cookie**: XSRF-TOKEN=eyJpdiI6IkRWaG10eFArZTMrS2dETGtDRFJITVE9PSIsInZhbHVlIjoiN1kydEh4RzJOM1hSMkJ4enc3UE55dERESWlVeFYzd1JNWksvNVY3N1lMV3BnNG41TUxtV29aV0hYb2NsL2N5YlVHa1NqMVBUU20rTjNZd2NsU1dYc0ozOEg2eWFSV1hWR0FJdFB5NlBkUWVGMlZrRGo2cjBTTnBka1drK3cvM2giLCJtYWMiOiIxNjdhNzc4OWRmZTZmNWVhNzBjZTdkNDRjM2IxZTMwOGQzNzA0Y2Y2NjgzODgxYjNjNjEyZWUwYzZjMDRkZTZkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkFRUUVXYk9RV1VJSGxtcnpjNmphQkE9PSIsInZhbHVlIjoiNWFOSFZtNGsrNitHQ2VZaWVjQnZpeFZ4Ykh5VXRPZ1ovNjlPVUNrWDdpdStoY3F3d1ZLVlRINHZHQXRkMFdtL3FlVVhYaFA4UDF1Y0J1NXZQTW5SeGpqSDEyNldNYmN5Zm9xdWFVK3JueE03UHlFWEpNU2lvUi9uaS9ib2FzZmsiLCJtYWMiOiJkMzA1ZTRiY2MyMjA4ODYzZWQwNzBlNDY3YWQyOWNmZTM3Y2Y0OWFiNjQ1MGMwNTgzZjdkODE2MmFmOGZmMzM0IiwidGFnIjoiIn0%3D
-
-## Route Context
-
-controller: App\Http\Controllers\Karyawan\HazardController@store
-route name: karyawan.hazards.store
-middleware: web, auth, role:karyawan
-
-## Route Parameters
-
-No route parameter data available.
-
-## Database Queries
-
-* mysql - select * from `sessions` where `id` = 'UWKhppQgxmtGuT3CJj2RsaZ2FQPBDaYjeRR0xx5z' limit 1 (24.36 ms)
-* mysql - select * from `users` where `id` = 2 limit 1 (1.46 ms)
-* mysql - select count(*) as aggregate from `locations` where `id` = '6' (4.25 ms)
-* mysql - select * from `locations` where `locations`.`id` = '6' limit 1 (1.13 ms)
-* mysql - select * from `maps` where `maps`.`id` in (5) (0.75 ms)
-* mysql - insert into `hazards` (`user_id`, `nama`, `NPK`, `dept`, `tgl_observasi`, `location_id`, `area_gedung`, `area_name`, `area_id`, `area_type`, `map_id`, `lokasi_detail_manual`, `deskripsi_bahaya`, `foto_bukti`, `kategori_stop6`, `tingkat_keparahan`, `kemungkinan_terjadi`, `risk_score`, `ide_penanggulangan`, `status`, `updated_at`, `created_at`) values (2, 'Karyawan Satu', '3473', 'Human Resource', '2026-01-19 00:00:00', 6, 'Gedung E', 'Treatment', 'T_GE', 'Area', 5, NULL, 'vgrivbr', NULL, 'A', '3', '1', 3, 'rovrnvr', 'menunggu validasi', '2026-01-19 10:25:18', '2026-01-19 10:25:18') (8.29 ms)
+grid-editor.jsx:606 Uncaught Error: @vitejs/plugin-react can't detect preamble. Something is wrong.
+    at grid-editor.jsx:606:2
+(anonymous) @ grid-editor.jsx:606
+cXZkwrzTqGMaI7AotxKyQmSKbzNc8Ln1dcuMW7gc.png:1  GET http://127.0.0.1:8000/storage/map_backgrounds/cXZkwrzTqGMaI7AotxKyQmSKbzNc8Ln1dcuMW7gc.png 403 (Forbidden)
+Image
+(anonymous) @ grid-editor.jsx:53
+react_stack_bottom_frame @ react-dom_client.js?v=0d6ebf31:18299
+runWithFiberInDEV @ react-dom_client.js?v=0d6ebf31:729
+commitHookEffectListMount @ react-dom_client.js?v=0d6ebf31:9143
+commitHookPassiveMountEffects @ react-dom_client.js?v=0d6ebf31:9197
+commitPassiveMountOnFiber @ react-dom_client.js?v=0d6ebf31:10772
+recursivelyTraversePassiveMountEffects @ react-dom_client.js?v=0d6ebf31:10742
+commitPassiveMountOnFiber @ react-dom_client.js?v=0d6ebf31:10798
+flushPassiveEffects @ react-dom_client.js?v=0d6ebf31:12882
+(anonymous) @ react-dom_client.js?v=0d6ebf31:12508
+performWorkUntilDeadline @ chunk-GUQHL3N7.js?v=e30dda64:30
+<GridEditor>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=4c14ce44:247
+(anonymous) @ grid-editor.jsx:605
+installHook.js:1 Failed to load background image: http://127.0.0.1:8000/storage/map_backgrounds/cXZkwrzTqGMaI7AotxKyQmSKbzNc8Ln1dcuMW7gc.png
+overrideMethod @ installHook.js:1
+console.<computed> @ 14:80
+img.onerror @ grid-editor.jsx:58

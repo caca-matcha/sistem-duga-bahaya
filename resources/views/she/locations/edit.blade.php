@@ -2,7 +2,7 @@
     @section('page-title', '')
     <x-slot name="header">
         <div class="flex items-center space-x-3">
-            <a href="{{ route('she.locations.index') }}" class="inline-flex items-center justify-center p-2 rounded-full text-indigo-600 hover:bg-indigo-100 transition" title="Kembali">
+            <a href="{{ route('she.locations.index') }}" class="inline-flex items-center justify-center p-2 rounded-full text-red-600 hover:bg-red-100 transition" title="Kembali">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -21,7 +21,7 @@
                 <div class="p-12">
                     <div class="mb-8 border-b border-gray-100 pb-4">
                         <h3 class="text-lg font-bold text-gray-900">Informasi Lokasi</h3>
-                        <p class="text-sm text-gray-500">Perbarui detail lokasi: <span class="font-semibold text-indigo-600">{{ $location->name }}</span></p>
+                        <p class="text-sm text-gray-500">Perbarui detail lokasi: <span class="font-semibold text-red-600">{{ $location->name }}</span></p>
                     </div>
 
                     <form method="POST" action="{{ route('she.locations.update', $location) }}" class="space-y-6">
@@ -31,7 +31,7 @@
                         <div>
                             <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama Lokasi</label>
                             <input type="text" name="name" id="name" 
-                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150" 
+                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition duration-150" 
                                 value="{{ old('name', $location->name) }}" required autofocus
                                 placeholder="Masukkan nama lokasi">
                             @error('name')
@@ -59,7 +59,7 @@
                             <div>
                                 <label for="map_id" class="block text-sm font-semibold text-gray-700 mb-1">Induk Peta/Gedung</label>
                                 <select name="map_id" id="map_id" 
-                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150" 
+                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition duration-150" 
                                     required>
                                     <option value="">-- Pilih Peta/Gedung --</option>
                                     @foreach ($maps as $map)
@@ -77,13 +77,13 @@
                         <div>
                             <label for="location_id_string" class="block text-sm font-semibold text-gray-700 mb-1">ID Lokasi (Unik)</label>
                             <input type="text" name="location_id_string" id="location_id_string" 
-                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150" 
+                                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition duration-150" 
                                 value="{{ old('location_id_string', $location->location_id_string) }}" required>
                             
-                            <div class="mt-2 bg-blue-50 border-l-4 border-blue-400 p-3">
-                                <p class="text-xs text-blue-700 leading-relaxed">
-                                    <strong>Saran Format:</strong> <code class="bg-blue-100 px-1 rounded text-blue-800">NAMA_AREA_KODEGEDUNG</code> 
-                                    <br>Contoh: <span class="italic text-blue-600">KANTIN2_GE</span>. Kode gedung 'GE' otomatis menentukan nama gedung di laporan.
+                            <div class="mt-2 bg-red-50 border-l-4 border-red-400 p-3">
+                                <p class="text-xs text-red-700 leading-relaxed">
+                                    <strong>Saran Format:</strong> <code class="bg-red-100 px-1 rounded text-red-800">NAMA_AREA_KODEGEDUNG</code> 
+                                    <br>Contoh: <span class="italic text-red-600">KANTIN2_GE</span>. Kode gedung 'GE' otomatis menentukan nama gedung di laporan.
                                 </p>
                             </div>
                             
@@ -94,11 +94,11 @@
 
                         <div class="pt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
                             <a href="{{ route('she.locations.index') }}" 
-                                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
                                 Batal
                             </a>
                             <button type="submit" 
-                                class="px-5 py-2.5 bg-indigo-600 border border-transparent rounded-lg font-bold text-sm text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform active:scale-95">
+                                class="px-5 py-2.5 bg-red-600 border border-transparent rounded-lg font-bold text-sm text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all transform active:scale-95">
                                 Simpan Perubahan
                             </button>
                         </div>
