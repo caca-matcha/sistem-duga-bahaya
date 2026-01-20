@@ -30,7 +30,7 @@ class MapController extends Controller
      */
     public function create(Request $request)
     {
-        $maps = Map::all(); // Fetch all maps to populate parent_id dropdown
+        $maps = Map::where('type', 'Pabrik')->get(); // Only Pabrik maps can be parents
         $existingPabrikMap = Map::where('type', 'Pabrik')->exists(); // Check if Pabrik map exists
         $type = $request->query('type', 'Gedung'); // Default to 'Gedung' if not provided
 
@@ -107,7 +107,7 @@ class MapController extends Controller
      */
     public function edit(Map $map)
     {
-        $maps = Map::all(); // Fetch all maps to populate parent_id dropdown
+        $maps = Map::where('type', 'Pabrik')->get(); // Only Pabrik maps can be parents
 
         return view('she.maps.edit', compact('map', 'maps'));
     }
