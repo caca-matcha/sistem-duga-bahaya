@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/grid-editor.jsx', 'resources/js/map-viewer.jsx'],
+            input: ['resources/css/app.css', 'resources/js/app.jsx', 'resources/js/grid-editor.jsx', 'resources/js/map-viewer.jsx'],
             refresh: true,
         }),
         react(),

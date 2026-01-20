@@ -6,6 +6,8 @@ import axios from 'axios';
 const MapViewer = () => {
     const { id: mapId, rows, cols, background_image } = window.mapData;
     
+    console.log("MapViewer: Initial window.mapData", window.mapData); // Debug log
+
     const containerRef = useRef(null);
     const stageRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(0);
@@ -51,6 +53,7 @@ const MapViewer = () => {
         axios.get(`/api/maps/${mapId}/cells?page=${page}`)
             .then(response => {
                 const { data, current_page, last_page, per_page, total } = response.data;
+                console.log("MapViewer: API Response for cells", response.data); // Debug log
                 
                 const newCells = data.reduce((acc, cell) => {
                     acc[`${cell.row_index}_${cell.col_index}`] = cell;
@@ -69,7 +72,7 @@ const MapViewer = () => {
                 setError(null);
             })
             .catch(err => {
-                console.error("Error fetching cells:", err);
+                console.error("MapViewer: Error fetching cells:", err); // Debug log
                 setError("Failed to load map cells. " + (err.response?.data?.message || err.message));
                 setPagination(p => ({ ...p, isLoading: false }));
             });
@@ -79,6 +82,19 @@ const MapViewer = () => {
     useEffect(() => {
         fetchCells(1);
     }, [mapId]);
+
+    // Polling mechanism for periodic updates
+    useEffect(() => {
+        const pollingInterval = setInterval(() => {
+            console.log("MapViewer: Polling for updated cells..."); // Debug log
+            fetchCells(1); // Fetch the first page of cells to refresh
+        }, 30000); // Poll every 30 seconds
+
+        return () => {
+            console.log("MapViewer: Clearing polling interval."); // Debug log
+            clearInterval(pollingInterval);
+        };
+    }, [fetchCells]);
 
     // Calculate stage and cell dimensions
     let stageWidth = containerWidth > 0 ? containerWidth * 0.75 : 0; // Main stage takes 75%
@@ -95,6 +111,9 @@ const MapViewer = () => {
     const cellWidth = stageWidth > 0 ? stageWidth / cols : 0;
     const cellHeight = stageHeight > 0 ? stageHeight / rows : 0;
     const minimapScale = minimapWidth / stageWidth;
+
+    console.log("MapViewer: Dimensions - stageWidth:", stageWidth, "stageHeight:", stageHeight, "cellWidth:", cellWidth, "cellHeight:", cellHeight); // Debug log
+    console.log("MapViewer: Map Data - rows:", rows, "cols:", cols); // Debug log
 
     // Viewport culling effect
     useEffect(() => {
@@ -135,8 +154,13 @@ const MapViewer = () => {
     const handleCellClick = (rowIndex, colIndex) => {
         const cellData = getCellData(rowIndex, colIndex);
         if (cellData) {
-            setSelectedCell(cellData);
-            setIsModalOpen(true);
+            if (cellData.building_id) {
+                // Redirect to the detailed building map
+                window.location.href = `/karyawan/maps/${cellData.building_id}`;
+            } else {
+                setSelectedCell(cellData);
+                setIsModalOpen(true);
+            }
         }
     };
 
@@ -193,6 +217,7 @@ const MapViewer = () => {
     const gridElements = [];
     if (stageWidth > 0 && stageHeight > 0) {
         const sourceCells = searchTerm ? filteredCells : cells;
+        console.log("MapViewer: Generating grid elements. Number of source cells:", Object.keys(sourceCells).length); // Debug log
         for (let i = visibleCellRange.startRow; i <= visibleCellRange.endRow; i++) {
             for (let j = visibleCellRange.startCol; j <= visibleCellRange.endCol; j++) {
                 const cellData = sourceCells[`${i}_${j}`];
@@ -208,12 +233,13 @@ const MapViewer = () => {
                         fill={fillColor}
                         stroke={'black'}
                         strokeWidth={0.5 / stageScale}
-                        opacity={cellData ? 0.7 : 0.3}
+                        opacity={cellData ? 0.7 : 0.5}
                     />
                 );
             }
         }
     }
+    console.log("MapViewer: Total grid elements generated:", gridElements.length); // Debug log
 
 
     return (
@@ -362,8 +388,9 @@ const MapViewer = () => {
     );
 };
 
-const container = document.getElementById('map-viewer');
-if (container) {
-    const root = createRoot(container);
-    root.render(<MapViewer />);
+export default MapViewer;
+
+const element = document.getElementById('map-viewer');
+if (element) {
+    createRoot(element).render(<MapViewer />);
 }

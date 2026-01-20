@@ -342,3 +342,112 @@ Dropdown Lokasi: Di form karyawan, dropdown "Lokasi Kejadian" tidak lagi mengamb
 Hasil: Nama "Temporary Storage Rack" hanya akan muncul satu kali di dropdown, meskipun di peta aslinya lokasi tersebut mencakup 5 kotak grid.
 
 Auto-fill: Begitu karyawan pilih lokasi tersebut, sistem langsung tahu bahwa itu adalah GA-TSR-01 dan tipenya Storage karena datanya sudah terhubung di belakang layar.
+
+
+
+
+
+✦ Klarifikasi baru ini sangat membantu. Tujuan akhirnya adalah, dari "peta risiko pabrik" di tampilan karyawan, ketika sebuah area (sel)      
+  diklik, ia akan membuka halaman "peta risiko gedung" yang sesuai.
+
+  Ini menyiratkan bahwa satu sel di "peta risiko pabrik" merepresentasikan satu peta "gedung" yang diagregasi. Data gedung_map_id yang        
+  disimpan dalam metadata sel "pabrik" harus tunggal.
+
+  Berikut adalah revisi rencana berdasarkan pemahaman ini:
+
+  Fase 1: Backend - Model Data & Agregasi (Fokus pada Satu Gedung per Sel Pabrik)
+   * Tugas 1 & 2 (Selesai): Verifikasi tipe peta dan metode getGedung.
+   * Tugas 3 (Revisi): Mengimplementasikan logika backend baru di CellController@store dan CellController@update untuk sel "pabrik":
+       * Validasi untuk gedung_map_id (tunggal) untuk sel "pabrik".
+       * Logika Agregasi: Ketika sel "pabrik" disimpan, ia akan mengambil satu gedung_map_id. risk_score -nya akan menjadi rata-rata skor     
+         risiko dari sel-sel di dalam satu gedung_map_id yang ditentukan tersebut.
+       * Menyimpan satu gedung_map_id ini di kolom metadata sel "pabrik".
+       * Menghitung risk_score dan zone_color.
+
+  Fase 2: Frontend - Implementasi UI/UX untuk Grid Editor (Tampilan SHE)
+   * Tugas 4: Memodifikasi grid-editor.jsx untuk membedakan perilaku peta "pabrik" dari peta "gedung".
+   * Tugas 5: Di grid-editor.jsx, mengimplementasikan tampilan jumlah sel yang dipilih.
+   * Tugas 6: Di grid-editor.jsx, mengimplementasikan dropdown untuk memilih satu peta "gedung" yang sudah ada saat mengedit sel "pabrik",    
+     dengan mengambil data dari backend (getGedung API).
+   * Tugas 7: Di grid-editor.jsx, memodifikasi logika penyimpanan sel untuk menyertakan gedung_map_id yang dipilih dan mengirimkannya ke      
+     backend (CellController@store/@update).
+   * Tugas 8: Memastikan logika pewarnaan sel "peta risiko pabrik" tetap konsisten.
+
+  Fase 3: Frontend - Tampilan Karyawan (Persyaratan Baru)
+   * Tugas 9: Mengimplementasikan atau memodifikasi Tampilan Karyawan untuk menampilkan "peta risiko pabrik".
+   * Tugas 10: Mengimplementasikan penanganan klik pada sel peta "pabrik" di Tampilan Karyawan:
+       * Ketika sel "pabrik" diklik, mengambil gedung_map_id dari metadata nya.
+       * Navigasi ke halaman "show" dari peta "gedung" spesifik tersebut (misalnya, she.maps.show, dengan meneruskan gedung_map_id).
+
+  Fase 4: Pengujian & Penyempurnaan
+   * Tugas 11: Menulis tes baru untuk logika backend yang disempurnakan.
+   * Tugas 12: Menguji frontend secara manual (tampilan SHE dan Karyawan).
+
+
+
+   **Perbaikan yang dilakukan:**
+1.  **Handle Selector**: Menambahkan `handle: '.drag-handle'` agar baris tabel tidak tidak sengaja tergeser saat pengguna ingin menekan tombol "Edit" atau "Delete".
+2.  **Visual Feedback**: Menambahkan animasi transparansi (`opacity`) dan *Toast Notification* yang lebih modern saat proses penyimpanan berhasil/gagal.
+3.  **Data Integrity**: Memastikan `mapIds` hanya mengambil elemen `<tr>` yang memiliki atribut `data-id`.
+4.  **UX**: Meningkatkan durasi animasi menjadi `200ms` agar pergerakan baris terlihat lebih halus.
+
+
+
+
+
+
+
+Saat karyawan login, sistem memuat semua notifikasi miliknya dari tabel notifications berdasarkan user_id.
+
+• Sistem hanya menampilkan notifikasi yang memang relevan untuk karyawan (bukan notifikasi internal SHE).
+
+• Jenis notifikasi yang diterima karyawan:
+
+– Laporan berhasil dikirim
+→ Dibuat saat karyawan submit laporan bahaya.
+→ Isi: “Laporan kamu berhasil dikirim dan sedang menunggu review SHE.”
+
+– Laporan mulai diproses
+→ Dibuat saat SHE mengubah status menjadi “Diproses”.
+→ Isi: “Laporan kamu sedang ditindaklanjuti oleh tim SHE.”
+
+– Laporan mendekati jatuh tempo
+→ Dibuat saat sisa waktu tindak lanjut ≤ 2 hari.
+→ Isi: “Laporan kamu hampir melewati batas waktu tindak lanjut.”
+
+– Laporan melewati batas tempo
+→ Dibuat saat due date terlewati.
+→ Isi: “Laporan kamu sudah melewati batas waktu penyelesaian.”
+
+– Laporan selesai
+→ Dibuat saat status diubah menjadi “Selesai”.
+→ Isi: “Laporan kamu sudah diselesaikan. Terima kasih atas partisipasimu.”
+
+– Laporan dikembalikan / ditolak
+→ Dibuat saat SHE memberi status “Dikembalikan”.
+→ Isi: “Laporan kamu dikembalikan. Silakan perbaiki dan kirim ulang.”
+
+• Semua notifikasi karyawan disimpan di tabel notifications dengan atribut utama:
+
+– id
+– user_id (karyawan)
+– title
+– message
+– type (info / warning / success / overdue)
+– report_id
+– is_read (0 = belum dibaca, 1 = dibaca)
+– created_at
+
+• Di dashboard karyawan:
+
+– Sistem menampilkan ikon lonceng + jumlah notifikasi belum dibaca.
+– Klik ikon lonceng → tampil dropdown daftar notifikasi.
+– Klik satu notifikasi → buka halaman detail laporan terkait.
+– Saat diklik → is_read diubah jadi 1.
+
+• Jika karyawan tidak login beberapa hari:
+
+– Notifikasi tetap tersimpan.
+– Saat login lagi, semua notifikasi lama yang belum dibaca tetap muncul.
+
+

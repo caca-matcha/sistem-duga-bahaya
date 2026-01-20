@@ -17,19 +17,24 @@ class MapController extends Controller
      */
     public function index()
     {
-        $maps = Map::with('parent')->get();
+        Log::info('Test log entry from MapController@index'); // ADD THIS LINE
+        $pabrikMap = Map::where('type', 'Pabrik')->with('parent')->first();
+        $gedungMaps = Map::where('type', 'Gedung')->with('parent')->get();
+        $existingPabrikMap = (bool) $pabrikMap;
 
-        return view('she.maps.index', compact('maps'));
+        return view('she.maps.index', compact('pabrikMap', 'gedungMaps', 'existingPabrikMap'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $maps = Map::all(); // Fetch all maps to populate parent_id dropdown
+        $existingPabrikMap = Map::where('type', 'Pabrik')->exists(); // Check if Pabrik map exists
+        $type = $request->query('type', 'Gedung'); // Default to 'Gedung' if not provided
 
-        return view('she.maps.create', compact('maps'));
+        return view('she.maps.create', compact('maps', 'existingPabrikMap', 'type'));
     }
 
     /**
@@ -37,24 +42,43 @@ class MapController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:maps,id', // Added parent_id validation
+            'type' => 'required|string|in:Pabrik,Gedung', // Validate type input
             'rows' => 'required|integer|min:1',
             'cols' => 'required|integer|min:1',
-            'background_image' => 'nullable|image|max:2048', // Max 2MB
-        ]);
+            'background_image' => 'nullable|image|max:2048',
+        ];
+
+        // Conditional validation for parent_id based on map type
+        if ($request->input('type') === 'Gedung') {
+            $rules['parent_id'] = 'nullable|exists:maps,id';
+        }
+
+        $messages = [
+            'parent_id.exists' => 'Parent Map yang dipilih tidak valid.',
+            'type.in' => 'Tipe peta tidak valid.',
+        ];
+
+        $validatedData = $request->validate($rules, $messages);
+
+        // Custom validation for 'Pabrik' type uniqueness
+        if ($validatedData['type'] === 'Pabrik' && Map::where('type', 'Pabrik')->exists()) {
+            return back()->withInput()->withErrors(['type' => 'Peta dengan tipe Pabrik sudah ada. Anda hanya dapat membuat satu Peta Risiko Pabrik.']);
+        }
 
         $imagePath = null;
         if ($request->hasFile('background_image')) {
             $imagePath = $request->file('background_image')->store('map_backgrounds', 'public');
         }
 
+        // Set parent_id to null if type is Pabrik, otherwise use validated data
+        $parentId = ($validatedData['type'] === 'Pabrik') ? null : ($validatedData['parent_id'] ?? null);
+
         Map::create([
             'name' => $validatedData['name'],
             'type' => $validatedData['type'],
-            'parent_id' => $validatedData['parent_id'] ?? null, // Added parent_id
+            'parent_id' => $parentId,
             'rows' => $validatedData['rows'],
             'cols' => $validatedData['cols'],
             'background_image' => $imagePath,
@@ -67,12 +91,15 @@ class MapController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Map $map)
+    public function show(Map $map, Request $request)
     {
         $map->load(['cells.riskParameters']); // Eager load relations
+
+        $searchQuery = $request->query('search_query'); // Get search query from request
+
         Log::info('Map data for show view: '.json_encode($map->toArray())); // Log the map data
 
-        return view('she.maps.show', compact('map'));
+        return view('she.maps.show', compact('map', 'searchQuery')); // Pass searchQuery to view
     }
 
     /**
@@ -208,8 +235,18 @@ class MapController extends Controller
      */
     public function getGedung()
     {
-        $gedung = Map::where('type', 'Gedung')->orWhereNull('parent_id')->get(['id', 'name']);
+        $gedung = Map::where('type', 'Gedung')->get(['id', 'name']);
 
         return response()->json($gedung);
+    }
+
+    /**
+     * Display the specified map in employee viewing mode.
+     */
+    public function viewEmployeeMode(Map $map)
+    {
+        $map->load(['cells.riskParameters.location']); // Eager load relations including location
+
+        return view('she.maps.view-employee-mode', compact('map'));
     }
 }

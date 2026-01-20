@@ -1,11 +1,16 @@
 <x-app-layout>
+    @section('page-title', '')
+    
     <x-slot name="header">
-        <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center gap-2">
-            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-            </svg>
-            {{ __('SHE Dashboard') }}
-        </h2>
+        <div>
+            <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                </svg>
+                {{ __('SHE Dashboard') }}
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">Ringkasan cepat dan visualisasi data laporan bahaya.</p>
+        </div>
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
@@ -73,12 +78,14 @@
             </div>
 
             {{-- SECTION 3: LISTS (NOTIFICATIONS & LATEST) --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
                 
                 {{-- HIGH-RISK HAZARDS (Col Span 1) --}}
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden h-full">
-                        <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
+                    <div class="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden h-full flex flex-col">
+                        <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between flex-shrink-0">
                             <h3 class="text-red-800 font-bold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 Laporan Berisiko Tinggi Aktif
@@ -87,18 +94,17 @@
                                 <span class="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded-full">{{ $hazardsPerluPerhatian->count() }}</span>
                             @endif
                         </div>
-                        <div class="p-4">
+                        <div class="p-0 flex-grow overflow-y-auto max-h-[26rem]">
                             @if ($hazardsPerluPerhatian->isEmpty())
-                                <div class="text-center py-6">
+                                <div class="p-4 text-center py-6 text-gray-500">
                                     <svg class="mx-auto h-10 w-10 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <p class="text-sm text-gray-500 mt-2">Tidak ada laporan berisiko tinggi yang aktif.</p>
                                 </div>
                             @else
-                                <div class="max-h-72 overflow-y-auto pr-2">
-                                    <ul class="space-y-3">
+                                <ul class="divide-y divide-gray-50">
                                         @foreach ($hazardsPerluPerhatian as $hazard)
-                                            <li class="p-3 bg-red-50 rounded-lg border border-red-100 hover:bg-red-100 transition-colors">
-                                                <a href="{{ route('she.hazards.show', $hazard) }}" class="flex justify-between items-center">
+                                            <li>
+                                                <a href="{{ route('she.hazards.show', $hazard) }}" class="p-4 hover:bg-red-50 transition-colors flex justify-between items-center">
                                                     <div>
                                                         <p class="text-sm font-bold text-gray-800 line-clamp-1">{{ $hazard->deskripsi_bahaya }}</p>
                                                         <p class="text-xs text-red-600 mt-0.5">
@@ -110,14 +116,13 @@
                                             </li>
                                         @endforeach
                                     </ul>
-                                </div>
                             @endif
                         </div>
                     </div>
                 </div>
 
                 {{-- LATEST REPORTS (Col Span 2) --}}
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-1"> <!-- Changed to col-span-1 to fit 3 columns -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col">
                         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
                             <h3 class="font-bold text-gray-800">Laporan Masuk Terbaru</h3>
@@ -180,17 +185,57 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- CHART 1: RISK LEVEL ---
+            // --- CHART 1: RISK LEVEL (DYNAMIC) ---
             const riskCounts = @json($riskCounts);
+            
+            // Define all possible categories, their labels, and colors.
+            // This ensures a consistent order and color scheme.
+            const riskConfig = {
+                'Low': { label: 'Rendah', color: '#10B981' }, // Green-500
+                'Medium': { label: 'Sedang', color: '#3B82F6' }, // Blue-500 (will be merged)
+                'Medium-High': { label: 'Sedang & Menengah', color: '#F59E0B' }, // Amber-500
+                'High': { label: 'Tinggi', color: '#F97316' }, // Orange-500 (will be merged)
+                'Extreme': { label: 'Tinggi & Ekstrem', color: '#EF4444' }, // Red-500
+            };
+
+            // Aggregate data as requested
+            const aggregatedData = {
+                'Low': riskCounts['Low'] || 0,
+                'Medium-High': (riskCounts['Medium'] || 0) + (riskCounts['Medium-High'] || 0),
+                'Extreme': (riskCounts['High'] || 0) + (riskCounts['Extreme'] || 0)
+            };
+
+            const chartLabels = [];
+            const chartData = [];
+            const chartColors = [];
+
+            // Populate chart data based on the final aggregated data
+            // We use the config to ensure a consistent order and color
+            if (aggregatedData['Low'] > 0) {
+                chartLabels.push(riskConfig['Low'].label);
+                chartData.push(aggregatedData['Low']);
+                chartColors.push(riskConfig['Low'].color);
+            }
+            if (aggregatedData['Medium-High'] > 0) {
+                chartLabels.push(riskConfig['Medium-High'].label);
+                chartData.push(aggregatedData['Medium-High']);
+                chartColors.push(riskConfig['Medium-High'].color);
+            }
+            if (aggregatedData['Extreme'] > 0) {
+                chartLabels.push(riskConfig['Extreme'].label);
+                chartData.push(aggregatedData['Extreme']);
+                chartColors.push(riskConfig['Extreme'].color);
+            }
+
             const riskCtx = document.getElementById('riskLevelChart').getContext('2d');
             
             new Chart(riskCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Rendah', 'Sedang', 'Tinggi'],
+                    labels: chartLabels,
                     datasets: [{
-                        data: [riskCounts.low, riskCounts.medium, riskCounts.high],
-                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], // Green, Amber, Red
+                        data: chartData,
+                        backgroundColor: chartColors,
                         borderWidth: 0,
                         hoverOffset: 10
                     }]

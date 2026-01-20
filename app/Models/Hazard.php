@@ -102,6 +102,14 @@ class Hazard extends Model
         return $this->belongsTo(Location::class);
     }
 
+    /**
+     * Relasi ke Map.
+     */
+    public function map(): BelongsTo
+    {
+        return $this->belongsTo(Map::class);
+    }
+
     public function getKategoriResikoAttribute()
     {
         $score = $this->risk_score;

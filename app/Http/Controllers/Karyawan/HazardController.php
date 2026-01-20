@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreHazardRequest;
 use App\Models\Hazard; // Import Location Model
 use App\Models\Location;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HazardController extends Controller
 {
@@ -14,25 +18,42 @@ class HazardController extends Controller
      * Menampilkan daftar laporan bahaya yang dibuat oleh Karyawan ini,
      * sekaligus menghitung statistik untuk dashboard.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua laporan milik user yang sedang login
-        $allHazards = Hazard::where('user_id', Auth::id())->get();
+        // --- 1. STATISTIK (Dihitung dari semua data user tanpa filter) ---
+        $allUserHazards = Hazard::where('user_id', Auth::id())->get();
+        $totalLaporan = $allUserHazards->count();
+        $menungguValidasi = $allUserHazards->whereIn('status', ['menunggu validasi', 'diproses'])->count();
+        $sudahDivalidasi = $allUserHazards->whereIn('status', ['disetujui', 'selesai'])->count();
+        $ditolak = $allUserHazards->where('status', 'ditolak')->count();
 
-        // Hitung statistik
-        $totalLaporan = $allHazards->count();
-        // Laporan menunggu validasi/tinjauan awal
-        $menungguValidasi = $allHazards->whereIn('status', ['menunggu validasi', 'diproses'])->count();
+        // --- 2. QUERY UTAMA DENGAN FILTER ---
+        $query = Hazard::where('user_id', Auth::id());
 
-        // Laporan yang sudah ditindaklanjuti (Disetujui, Selesai)
-        $sudahDivalidasi = $allHazards->whereIn('status', ['disetujui', 'selesai'])->count();
+        // Filter by Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
-        // Laporan yang ditolak
-        $ditolak = $allHazards->where('status', 'ditolak')->count();
+        // Filter by Search Term
+        if ($request->filled('search')) {
+            $searchTerm = strtolower($request->search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('id', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(area_gedung)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(area_name)'), 'LIKE', "%{$searchTerm}%")
+                  ->orWhere(DB::raw('LOWER(status)'), 'LIKE', "%{$searchTerm}%");
+            });
+        }
 
-        // Kirim variabel yang dibutuhkan ke view
+        // Ambil hasil yang sudah difilter dan paginasi
+        $hazards = $query->latest()->paginate(10)->withQueryString();
+
+        // Kirim semua variabel yang dibutuhkan ke view
         return view('karyawan.dashboard', [
-            'hazards' => $allHazards,
+            'hazards' => $hazards,
             'totalLaporan' => $totalLaporan,
             'menungguValidasi' => $menungguValidasi,
             'sudahDivalidasi' => $sudahDivalidasi,
@@ -65,9 +86,9 @@ class HazardController extends Controller
         $riskScore = $validated['tingkat_keparahan'] * $validated['kemungkinan_terjadi'];
 
         // Ambil data Location Master
-        $location = Location::find($validated['location_id']);
+        $location = Location::with('map')->find($validated['location_id']);
 
-        Hazard::create([
+        $hazard = Hazard::create([
             'user_id' => Auth::id(),
             'nama' => Auth::user()->name,
             'NPK' => $validated['NPK'],
@@ -76,13 +97,11 @@ class HazardController extends Controller
 
             // --- Mengisi data lokasi dari Master Location ---
             'location_id' => $location->id, // Gunakan location_id
-            'area_gedung' => $location->parent ? $location->parent->name : $location->name, // Ambil nama gedung dari parent jika ada, atau nama lokasi itu sendiri
+            'area_gedung' => $location->map ? $location->map->name : null, // Ambil nama gedung dari relasi map
             'area_name' => $location->name,
             'area_id' => $location->location_id_string,
             'area_type' => $location->type,
-            // --- Kolom cell_id dan map_id bisa dikosongkan/null jika tidak relevan lagi ---
-            'cell_id' => null, // Set null karena sekarang menggunakan location_id
-            'map_id' => null, // Set null karena sekarang menggunakan location_id
+            'map_id' => $location->map_id, // Simpan map_id yang benar
             // ----------------------------------------------------
 
             'lokasi_detail_manual' => $validated['lokasi_detail_manual'],
@@ -94,6 +113,15 @@ class HazardController extends Controller
             'risk_score' => $riskScore,
             'ide_penanggulangan' => $validated['ide_penanggulangan'],
             'status' => 'menunggu validasi', // Status awal saat dikirim
+        ]);
+
+        // Create notification for the user
+        Notification::create([
+            'user_id' => Auth::id(),
+            'report_id' => $hazard->id,
+            'title' => 'Laporan Diterima',
+            'message' => 'Laporan bahaya #' . $hazard->id . ' berhasil dikirim dan sedang menunggu review SHE.',
+            'type' => 'success',
         ]);
 
         // Redirect ke index/dashboard setelah berhasil

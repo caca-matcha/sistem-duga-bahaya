@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
 use App\Http\Controllers\Karyawan\HazardController as KaryawanHazardController;
 use App\Http\Controllers\Karyawan\MapController as KaryawanMapController;
+use App\Http\Controllers\Karyawan\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,11 @@ Route::middleware(['auth', 'role:karyawan']) // Middleware diubah menjadi hanya 
         // 3. MAP/PETA BAHAYA ROUTES (Melihat Peta Bahaya)
         Route::get('maps', [KaryawanMapController::class, 'index'])->name('maps.index');
         Route::get('maps/{map}', [KaryawanMapController::class, 'show'])->name('maps.show');
+
+        // 4. NOTIFICATION ROUTES
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
         
         // Tambahkan rute lain untuk Karyawan di sini.
     });

@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SheUpdateHazardRequest;
 use App\Models\Cell;
 use App\Models\Hazard;
+use App\Models\Notification;
+use Carbon\Carbon; // Import Carbon for date manipulation
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; // Import Cell Model
+use Illuminate\Support\Facades\DB; // Import Cell Model
+use Illuminate\Support\Facades\Log; // Import Log Facade
+use Illuminate\Support\Facades\Storage; // Import DB Facade
 
 use function App\Helpers\getRiskColor;
 
@@ -17,21 +21,65 @@ class HazardController extends Controller
     // DASHBOARD: tampilkan semua laporan
     public function index(Request $request)
     {
-        // ... (Logika index tetap sama)
-        $hazardsMenungguValidasi = Hazard::where('status', 'menunggu validasi')
-            ->latest()
-            ->with('pelapor', 'ditanganiOleh')
-            ->get();
+        $baseQuery = Hazard::query()->with('pelapor', 'ditanganiOleh', 'location');
 
-        $hazardsDiproses = Hazard::where('status', 'diproses')
-            ->latest()
-            ->with('pelapor', 'ditanganiOleh')
-            ->paginate(10, ['*'], 'diproses_page');
+        // Apply Month and Year Filters
+        $month = $request->input('month');
+        $year = $request->input('year');
 
-        $hazardsSelesai = Hazard::whereIn('status', ['selesai', 'ditolak'])
-            ->orderBy('ditangani_pada', 'desc')
-            ->with('pelapor', 'ditanganiOleh')
-            ->paginate(10, ['*'], 'selesai_page');
+        if (! empty($month)) {
+            $baseQuery->whereMonth('tgl_observasi', $month);
+        }
+        if (! empty($year)) {
+            $baseQuery->whereYear('tgl_observasi', $year);
+        }
+
+        // Apply Search Filter
+        if ($request->has('search') && ! empty($request->search)) {
+            $searchTerm = strtolower($request->search);
+            $baseQuery->where(function ($q) use ($searchTerm) {
+                $q->where('hazards.id', 'LIKE', '%'.$searchTerm.'%') // Search ID
+                    ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', '%'.$searchTerm.'%') // Search Date
+                    ->orWhereHas('pelapor', function ($userQuery) use ($searchTerm) { // Search Reporter Name
+                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
+                    })
+                    ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', '%'.$searchTerm.'%'); // Search Short Description
+
+                // Risk Level (Low, Medium, High, Medium-High, Extreme) - Case-insensitive
+                if (strtolower($searchTerm) === 'low') {
+                    $q->orWhere('risk_score', '<=', 4);
+                } elseif (strtolower($searchTerm) === 'medium') {
+                    $q->orWhereBetween('risk_score', [5, 9]);
+                } elseif (strtolower($searchTerm) === 'medium-high') {
+                    $q->orWhereBetween('risk_score', [10, 15]);
+                } elseif (strtolower($searchTerm) === 'high') {
+                    $q->orWhereBetween('risk_score', [16, 20]);
+                } elseif (strtolower($searchTerm) === 'extreme') {
+                    $q->orWhere('risk_score', '>', 20);
+                }
+                // Also allow direct search on 'kategori_resiko' string itself
+                $q->orWhere(DB::raw('LOWER(kategori_resiko)'), 'LIKE', '%'.$searchTerm.'%');
+            });
+        }
+
+        // Split by status after applying global filters
+        $hazardsMenungguValidasi = (clone $baseQuery)->where('status', 'menunggu validasi')->latest()->paginate(10, ['*'], 'baru_page')->withQueryString();
+        $hazardsDiproses = (clone $baseQuery)->where('status', 'diproses')->latest()->paginate(10, ['*'], 'diproses_page')->withQueryString();
+        $hazardsSelesai = (clone $baseQuery)->whereIn('status', ['selesai', 'ditolak'])->orderBy('ditangani_pada', 'desc')->paginate(10, ['*'], 'selesai_page')->withQueryString();
+
+        // If it's an AJAX request, return JSON with rendered partials
+        if ($request->ajax()) {
+            return response()->json([
+                'menunggu_validasi_html' => view('she.hazards._table_menunggu_validasi_rows', compact('hazardsMenungguValidasi'))->render(),
+                'menunggu_validasi_pagination' => $hazardsMenungguValidasi->links()->toHtml(),
+
+                'diproses_html' => view('she.hazards._table_diproses_rows', compact('hazardsDiproses'))->render(),
+                'diproses_pagination' => $hazardsDiproses->links()->toHtml(),
+
+                'selesai_html' => view('she.hazards._table_selesai_rows', compact('hazardsSelesai'))->render(),
+                'selesai_pagination' => $hazardsSelesai->links()->toHtml(),
+            ]);
+        }
 
         return view('she.hazards.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai'));
     }
@@ -50,6 +98,7 @@ class HazardController extends Controller
             'NPK' => ['required', 'string', 'max:255'],
             'dept' => ['required', 'string'],
             'tgl_observasi' => ['required', 'date'],
+            'map_id' => ['required', 'exists:maps,id'], // Added map_id validation
             'area_gedung' => ['required', 'string'],
             'area_type' => ['required', 'string'],
             'area_name' => ['required', 'string'],
@@ -76,6 +125,8 @@ class HazardController extends Controller
             $hazard->nama = Auth::user()->name;
             $hazard->NPK = $validatedData['NPK'];
             $hazard->dept = $validatedData['dept'];
+            Log::info('Hazard store: Validated map_id before assignment', ['map_id_validated' => $validatedData['map_id']]);
+            $hazard->map_id = $validatedData['map_id']; // Save map_id
             $hazard->area_gedung = $validatedData['area_gedung'];
             $hazard->aktivitas_kerja = $validatedData['aktivitas_kerja'];
             $hazard->severity = $validatedData['severity'];
@@ -113,7 +164,15 @@ class HazardController extends Controller
     // DETAIL
     public function show(Hazard $hazard)
     {
-        $hazard->load(['pelapor', 'ditanganiOleh']);
+        $hazard->load(['pelapor', 'ditanganiOleh', 'map']);
+        Log::info('Hazard show: ', [
+            'hazard_id' => $hazard->id,
+            'hazard_map_id' => $hazard->map_id,
+            'hazard_map_relation_loaded' => $hazard->relationLoaded('map'),
+            'hazard_map_object' => $hazard->map ? $hazard->map->toArray() : null,
+            'hazard_map_name' => $hazard->map->name ?? null,
+            'hazard_area_gedung' => $hazard->area_gedung,
+        ]);
 
         return view('she.hazards.show', compact('hazard'));
     }
@@ -233,6 +292,41 @@ class HazardController extends Controller
          * ---------------------------------------------------------- */
         $hazard->update($validated);
         $hazard->save(); // pastikan final values ikut tersimpan
+
+        // --- CREATE NOTIFICATION FOR THE ORIGINAL REPORTER ---
+        if (isset($validated['status'])) {
+            $notificationTitle = '';
+            $notificationMessage = '';
+            $notificationType = 'info';
+
+            switch ($validated['status']) {
+                case 'diproses':
+                    $notificationTitle = 'Laporan Anda Diproses';
+                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' sedang ditindaklanjuti oleh tim SHE.';
+                    $notificationType = 'info';
+                    break;
+                case 'selesai':
+                    $notificationTitle = 'Laporan Anda Selesai';
+                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' telah diselesaikan. Terima kasih atas partisipasi Anda.';
+                    $notificationType = 'success';
+                    break;
+                case 'ditolak':
+                    $notificationTitle = 'Laporan Anda Ditolak';
+                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' ditolak. Silakan periksa detailnya.';
+                    $notificationType = 'warning';
+                    break;
+            }
+
+            if ($notificationTitle && $hazard->user_id) {
+                Notification::create([
+                    'user_id' => $hazard->user_id,
+                    'report_id' => $hazard->id,
+                    'title' => $notificationTitle,
+                    'message' => $notificationMessage,
+                    'type' => $notificationType,
+                ]);
+            }
+        }
 
         // --- RECALCULATE AND UPDATE CELL RISK SCORE & ZONE COLOR ---
         if ($hazard->cell_id) { // Only proceed if the hazard is linked to a cell
@@ -489,5 +583,107 @@ class HazardController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Hazard  $hazard
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Hazard $hazard)
+    {
+        // Delete associated files from storage
+        if ($hazard->foto_bukti) {
+            Storage::disk('public')->delete($hazard->foto_bukti);
+        }
+        if ($hazard->foto_bukti_penyelesaian) {
+            Storage::disk('public')->delete($hazard->foto_bukti_penyelesaian);
+        }
+
+        $hazard->delete();
+
+        return redirect()->route('she.hazards.index')->with('success', 'Laporan berhasil dihapus.');
+    }
+
+    /**
+     * Display a listing of hazards that are overdue or due soon for follow-up.
+     */
+    public function needsFollowUpReports()
+    {
+        $allPendingActionHazards = Hazard::where('status', 'diproses')
+                                        ->whereNotNull('target_penyelesaian')
+                                        ->with('pelapor') // Eager load pelapor for display
+                                        ->get();
+
+        $overdueHazards = $allPendingActionHazards->filter(function ($hazard) {
+            return Carbon::parse($hazard->target_penyelesaian)->isPast();
+        });
+
+        $dueSoonHazards = $allPendingActionHazards->filter(function ($hazard) {
+            return Carbon::parse($hazard->target_penyelesaian)->isFuture() &&
+                   Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
+        });
+
+        return view('she.hazards.needs-follow-up', compact('overdueHazards', 'dueSoonHazards'));
+    }
+
+    /**
+     * Get hazard-related notifications (overdue and due soon) as an API endpoint.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getNotificationsApi()
+    {
+        $allPendingActionHazards = Hazard::where('status', 'diproses')
+                                        ->whereNotNull('target_penyelesaian')
+                                        ->with('pelapor')
+                                        ->get();
+
+        $notifications = collect();
+
+        // Add overdue hazards to notifications
+        $overdueHazards = $allPendingActionHazards->filter(function ($hazard) {
+            return Carbon::parse($hazard->target_penyelesaian)->isPast();
+        });
+
+        foreach ($overdueHazards as $hazard) {
+            $notifications->push([
+                'id' => $hazard->id,
+                'title' => 'Laporan Overdue: #'.$hazard->id,
+                'description' => $hazard->deskripsi_bahaya.' (Terlambat '.Carbon::parse($hazard->target_penyelesaian)->diffForHumans(null, true).')',
+                'time_ago' => $hazard->created_at->diffForHumans(),
+                'link' => route('she.hazards.show', $hazard),
+                'type' => 'overdue',
+                'is_read' => false, // For now, assume all these are "unread" as they are critical
+            ]);
+        }
+
+        // Add due soon hazards to notifications
+        $dueSoonHazards = $allPendingActionHazards->filter(function ($hazard) {
+            return Carbon::parse($hazard->target_penyelesaian)->isFuture() &&
+                   Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
+        });
+
+        foreach ($dueSoonHazards as $hazard) {
+            $notifications->push([
+                'id' => $hazard->id,
+                'title' => 'Laporan Jatuh Tempo: #'.$hazard->id,
+                'description' => $hazard->deskripsi_bahaya.' (Jatuh tempo '.Carbon::parse($hazard->target_penyelesaian)->diffForHumans().')',
+                'time_ago' => $hazard->created_at->diffForHumans(),
+                'link' => route('she.hazards.show', $hazard),
+                'type' => 'due_soon',
+                'is_read' => false, // For now, assume all these are "unread" as they are critical
+            ]);
+        }
+
+        // We don't have a persistent 'read' status for these specific notifications yet,
+        // so for simplicity, the 'unread count' will be the total count of these critical hazards.
+        $unreadCount = $notifications->count();
+
+        return response()->json([
+            'notifications' => $notifications->sortByDesc('id')->values()->all(), // Sort by ID descending for newest first
+            'unread_count' => $unreadCount,
+        ]);
     }
 }

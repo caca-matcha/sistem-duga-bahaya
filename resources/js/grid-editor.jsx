@@ -4,7 +4,7 @@ import { Stage, Layer, Rect, Text, Image } from 'react-konva';
 import axios from 'axios';
 
 const GridEditor = () => {
-    const { id: mapId, rows, cols, background_image } = window.mapData;
+    const { id: mapId, rows, cols, background_image, type: mapType } = window.mapData;
     
     const containerRef = useRef(null);
     const stageRef = useRef(null);
@@ -14,6 +14,7 @@ const GridEditor = () => {
     const [pagination, setPagination] = useState({ currentPage: 1, hasMore: true, isLoading: false, perPage: 0, total: 0 });
     const [selectedCells, setSelectedCells] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: '' });
     
     const [selectionRect, setSelectionRect] = useState({ x: 0, y: 0, width: 0, height: 0, visible: false });
     const selectionStarted = useRef(false);
@@ -25,69 +26,68 @@ const GridEditor = () => {
 
     const [formData, setFormData] = useState({
         location_id: '',
+        gedung_map_id: '', // New state for gedung map ID
     });
     const [error, setError] = useState(null);
     const [backgroundImage, setBackgroundImage] = useState(null);
-    const [masterLocations, setMasterLocations] = useState([]); // State baru untuk lokasi master
+    const [masterLocations, setMasterLocations] = useState([]); // State untuk lokasi master (non-Pabrik map)
+    const [gedungMaps, setGedungMaps] = useState([]); // New state for Gedung maps (Pabrik map)
 
     const [isStageDragging, setIsStageDragging] = useState(false);
 
-
-    // Effect for measuring container width
     useEffect(() => {
-        const checkSize = () => {
-            if (containerRef.current && containerRef.current.offsetWidth !== containerWidth) {
+        const handleResize = () => {
+            if (containerRef.current) {
                 setContainerWidth(containerRef.current.offsetWidth);
             }
         };
-        checkSize();
-        window.addEventListener('resize', checkSize);
-        return () => window.removeEventListener('resize', checkSize);
-    }, [containerWidth]);
-        
-    // Effect to handle spacebar for panning
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === ' ') {
-                e.preventDefault(); // Prevent page from scrolling
-                setIsStageDragging(true);
-            }
-        };
-        const handleKeyUp = (e) => {
-            if (e.key === ' ') {
-                setIsStageDragging(false);
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Effect to load background image
     useEffect(() => {
         if (background_image) {
             const img = new window.Image();
-            img.src = `/storage/${background_image}`;
-            img.onload = () => setBackgroundImage(img);
+            img.src = background_image.startsWith('http') ? background_image : `/storage/${background_image}`;
+            img.onload = () => {
+                setBackgroundImage(img);
+            };
+            img.onerror = () => {
+                console.error("Failed to load background image:", img.src);
+                setError("Failed to load background image.");
+            }
         }
     }, [background_image]);
 
-    // Effect to fetch master locations
     useEffect(() => {
-        if (!mapId) return; // Don't fetch if mapId isn't available yet
+        if (mapType === 'Pabrik' || !mapId) return; // Only fetch if it's NOT a Pabrik map and mapId is available
 
-        axios.get(`/api/locations?map_id=${mapId}`)
+        // Fetch locations that are specifically mapped to this map
+        axios.get(`/api/maps/${mapId}/locations`) 
             .then(response => {
                 setMasterLocations(response.data);
             })
             .catch(err => {
-                console.error("Error fetching master locations:", err);
-                setError("Failed to load master locations for the current map.");
+                console.error("Error fetching mapped locations:", err);
+                setError("Failed to load mapped locations.");
             });
-    }, [mapId]); // Re-run if mapId changes
+    }, [mapId, mapType]);
+
+    // Effect to fetch Gedung maps (for Pabrik maps)
+    useEffect(() => {
+        if (mapType !== 'Pabrik' || !mapId) return; // Only fetch if it's a Pabrik map and mapId is available
+
+        axios.get(`/api/maps`) // Use the API endpoint to get all Gedung maps (now filtered by API)
+            .then(response => {
+                setGedungMaps(response.data);
+            })
+            .catch(err => {
+                console.error("Error fetching Gedung maps:", err);
+                setError("Failed to load Gedung maps.");
+            });
+    }, [mapId, mapType]);
 
     useEffect(() => {
         if (!isModalOpen) setError(null);
@@ -188,9 +188,14 @@ const GridEditor = () => {
         setError(null);
         
         setSelectedCells([{ row_index: rowIndex, col_index: colIndex }]);
-        setFormData({
-            location_id: '', // Reset form data to clear dropdown
-        });
+        
+        const currentCell = getCellData(rowIndex, colIndex);
+        if (mapType === 'Pabrik') {
+            const gedungMapIdFromMetadata = currentCell?.metadata?.gedung_map_id || '';
+            setFormData({ gedung_map_id: gedungMapIdFromMetadata });
+        } else {
+            setFormData({ location_id: currentCell?.location_id || '' });
+        }
         setIsModalOpen(true);
     };
 
@@ -198,35 +203,40 @@ const GridEditor = () => {
         if (selectedCells.length === 0) return;
         setError(null);
 
-        const payload = {
+        let payload = {
             map_id: mapId,
             cells: selectedCells,
-            location_id: formData.location_id === '' ? null : formData.location_id,
         };
+
+        if (mapType === 'Pabrik') {
+            payload = { 
+                ...payload,
+                gedung_map_id: formData.gedung_map_id === '' ? null : formData.gedung_map_id,
+            };
+        } else {
+            payload = { 
+                ...payload,
+                location_id: formData.location_id === '' ? null : formData.location_id,
+            };
+        }
 
         axios.post(`/she/api/cells/batch-update`, payload)
             .then(response => {
-                const newLocationId = formData.location_id === '' ? null : Number(formData.location_id);
-                const newLocation = newLocationId ? masterLocations.find(loc => loc.id === newLocationId) : null;
+                const updatedCellsFromServer = response.data; // Server now returns updated cells
 
-                // Instead of re-fetching everything, we can just update the affected cells in state
-                const updatedCells = selectedCells.reduce((acc, cell) => {
+                // Update the cells state with the fresh data from the server
+                const updatedCellsState = { ...cells };
+                updatedCellsFromServer.forEach(cell => {
                     const key = `${cell.row_index}_${cell.col_index}`;
-                    const existing = acc[key] || { row_index: cell.row_index, col_index: cell.col_index };
-                    
-                    // The risk_score and zone_color will be updated by a separate process based on backend calculations.
-                    // Here, we just reflect the location change. The color will update on the next full data fetch or via a websocket push.
-                    acc[key] = {
-                        ...existing,
-                        location_id: newLocationId,
-                        location: newLocation,
-                        area_id: null,
-                        area_name: null,
-                        area_type: null,
+                    updatedCellsState[key] = {
+                        ...updatedCellsState[key], // Keep existing data if not overridden
+                        ...cell, // Update with fresh data from server (including risk_score, zone_color, metadata)
+                        location: cell.location || null, // Ensure location object is updated if present
+                        // If mapType is Pabrik, location_id should be null
+                        location_id: mapType === 'Pabrik' ? null : cell.location_id, 
                     };
-                    return acc;
-                }, {...cells});
-                setCells(updatedCells);
+                });
+                setCells(updatedCellsState);
                 
                 setIsModalOpen(false);
                 setSelectedCells([]);
@@ -241,6 +251,7 @@ const GridEditor = () => {
     // ... (mouse handlers need to be updated to account for stage position/scale)
 
     const handleMouseDown = (e) => {
+        console.log('Stage: Mouse Down event triggered.', e.evt); // Debugging
         // If spacebar is pressed, do nothing and let the stage drag
         if (isStageDragging) return;
 
@@ -312,7 +323,8 @@ const GridEditor = () => {
         if (newSelectedCells.length > 0) {
             setSelectedCells(newSelectedCells);
             setFormData({
-                location_id: '', // Reset form data to clear dropdown
+                location_id: '',
+                gedung_map_id: '',
             });
             setIsModalOpen(true);
         }
@@ -366,11 +378,37 @@ const GridEditor = () => {
                         width={cellWidth}
                         height={cellHeight}
                         fill={fillColor}
-                        stroke={isSelected ? 'blue' : 'black'}
-                        strokeWidth={isSelected ? 2 / stageScale : 0.5 / stageScale}
-                        opacity={cellData ? (isSelected ? 0.9 : 0.7) : 0.3}
-                        // onClick={() => handleCellClick(i, j)} // Clicks are now handled by mouse up
-                        // onTap={() => handleCellClick(i, j)}
+                        stroke={'#CCC'} 
+                        strokeWidth={0.5} 
+                        opacity={cellData ? (isSelected ? 0.9 : 0.7) : 0.5}
+                        onClick={() => {
+                            if (mapType === 'Pabrik' && cellData?.metadata?.gedung_map_id) {
+                                const targetUrl = `/she/maps/${cellData.metadata.gedung_map_id}/view`;
+                                window.location.href = targetUrl;
+                            }
+                        }}
+                        onMouseEnter={(e) => {
+                            if (mapType === 'Pabrik' && cellData?.metadata?.gedung_map_id) {
+                                const hoveredGedung = gedungMaps.find(g => g.id === cellData.metadata.gedung_map_id);
+                                if (hoveredGedung) {
+                                    const stage = e.target.getStage();
+                                    const pointerPos = stage.getPointerPosition();
+                                    // Adjust for stage position and scale for accurate tooltip placement relative to the viewport
+                                    const tooltipX = (pointerPos.x / stage.scaleX()) - (stage.x() / stage.scaleX()) + 10;
+                                    const tooltipY = (pointerPos.y / stage.scaleY()) - (stage.y() / stage.scaleY()) + 10;
+
+                                    setTooltip({
+                                        visible: true,
+                                        x: tooltipX,
+                                        y: tooltipY,
+                                        text: hoveredGedung.name
+                                    });
+                                }
+                            }
+                        }}
+                        onMouseLeave={() => {
+                            setTooltip({ ...tooltip, visible: false });
+                        }}
                     />,
                     <Text
                         key={`text-${i}-${j}`}
@@ -431,6 +469,28 @@ const GridEditor = () => {
                             fill="rgba(0,0,255,0.3)"
                             visible={selectionRect.visible}
                         />
+                    </Layer>
+                    <Layer>
+                        {tooltip.visible && (
+                            <>
+                                <Rect
+                                    x={tooltip.x}
+                                    y={tooltip.y}
+                                    width={tooltip.text.length * 8 + 20} // Estimate width based on text length
+                                    height={24} // Height of the tooltip background
+                                    fill="black"
+                                    opacity={0.75}
+                                    cornerRadius={5}
+                                />
+                                <Text
+                                    x={tooltip.x + 10} // Padding for text
+                                    y={tooltip.y + 5} // Padding for text
+                                    text={tooltip.text}
+                                    fontSize={12}
+                                    fill="white"
+                                />
+                            </>
+                        )}
                     </Layer>
                 </Stage>
             )}
@@ -499,18 +559,31 @@ const GridEditor = () => {
                             <div className="mb-6">
                                 <h4 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Informasi Lokasi</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="md:col-span-2">
-                                        <label htmlFor="location_id" className="block text-sm font-medium text-gray-600">Master Lokasi</label>
-                                        <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({...formData, location_id: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                                            <option value="">-- Pilih Lokasi --</option>
-                                            {masterLocations.map(loc => (
-                                                <option key={loc.id} value={loc.id}>
-                                                    {loc.name} ({loc.location_id_string})
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
+                                    {mapType === 'Pabrik' ? (
+                                        <div className="md:col-span-2">
+                                            <label htmlFor="gedung_map_id" className="block text-sm font-medium text-gray-600">Pilih Gedung</label>
+                                            <select name="gedung_map_id" id="gedung_map_id" value={formData.gedung_map_id} onChange={(e) => setFormData({...formData, gedung_map_id: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                                <option value="">-- Pilih Gedung --</option>
+                                                {gedungMaps.map(gedung => (
+                                                    <option key={gedung.id} value={gedung.id}>
+                                                        {gedung.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    ) : (
+                                        <div className="md:col-span-2">
+                                            <label htmlFor="location_id" className="block text-sm font-medium text-gray-600">Master Lokasi</label>
+                                            <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({...formData, location_id: e.target.value})} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                                <option value="">-- Pilih Lokasi --</option>
+                                                {masterLocations.map(loc => (
+                                                    <option key={loc.id} value={loc.id}>
+                                                        {loc.name} ({loc.location_id_string})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -525,8 +598,9 @@ const GridEditor = () => {
     );
 };
 
-const container = document.getElementById('grid-editor');
-if (container) {
-    const root = createRoot(container);
-    root.render(<GridEditor />);
+export default GridEditor;
+
+const element = document.getElementById('grid-editor');
+if (element) {
+    createRoot(element).render(<GridEditor />);
 }

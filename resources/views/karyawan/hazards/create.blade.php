@@ -1,4 +1,5 @@
 <x-app-layout>
+    @section('page-title', '')
 
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
@@ -65,7 +66,77 @@
                 </div>
 
                 {{-- SECTION 2: LOKASI & WAKTU --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl mb-6 border border-gray-100">
+                <div x-data="{
+                    selectedMapId: '{{ old('map_id') }}',
+                    allLocations: [],
+                    filteredLocations: [],
+                    selectedLocationId: '{{ old('location_id') }}',
+                    selectedMapImage: '',
+                    selectedMapName: '{{ old('area_gedung') }}', // New property for map name
+                    maps: [],
+
+                    init() {
+                        this.fetchMaps();
+                        this.fetchAllLocations();
+
+                        // Watch for changes in selectedMapId and filter locations
+                        this.$watch('selectedMapId', (value) => {
+                            this.filterLocations(value);
+                            this.updateMapImage(value);
+                        });
+                    },
+
+                    async fetchMaps() {
+                        try {
+                            const response = await fetch('/api/maps');
+                            this.maps = await response.json();
+                            // If old map_id exists, ensure it's selected and image is shown
+                            if (this.selectedMapId) {
+                                this.updateMapImage(this.selectedMapId);
+                            }
+                        } catch (error) {
+                            console.error('Error fetching maps:', error);
+                            alert('Gagal memuat daftar gedung.');
+                        }
+                    },
+
+                    async fetchAllLocations() {
+                        try {
+                            const response = await fetch('/api/locations');
+                            const data = await response.json();
+                            this.allLocations = data;
+                            this.filterLocations(this.selectedMapId); // Initial filter based on old value
+                            // If old location_id exists, ensure it's selected
+                            if (this.selectedLocationId) {
+                                this.$nextTick(() => {
+                                    document.getElementById('location_id').value = this.selectedLocationId;
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error fetching all locations:', error);
+                            alert('Gagal memuat daftar lokasi.');
+                        }
+                    },
+
+                    filterLocations(mapId) {
+                        if (mapId) {
+                            this.filteredLocations = this.allLocations.filter(location => location.map_id == mapId);
+                        } else {
+                            this.filteredLocations = this.allLocations; // Show all if no map selected
+                        }
+                        // Reset selected location if the previously selected one is no longer in filtered list
+                        if (!this.filteredLocations.some(loc => loc.id == this.selectedLocationId)) {
+                             this.selectedLocationId = '';
+                        }
+                    },
+
+                    updateMapImage(mapId) {
+                        const map = this.maps.find(m => m.id == mapId);
+                        this.selectedMapImage = map ? `{{ asset('storage') }}/${map.background_image}` : '';
+                        this.selectedMapName = map ? map.name : ''; // Set map name
+                    }
+                }" 
+                class="bg-white overflow-hidden shadow-sm sm:rounded-xl mb-6 border border-gray-100">
                     <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center">
                         <div class="bg-blue-100 rounded-full p-2 mr-3">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -78,18 +149,41 @@
                             <input id="tgl_observasi" name="tgl_observasi" type="date" value="{{ old('tgl_observasi', date('Y-m-d')) }}" 
                                 class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
                         </div>
+                        
+                        <div>
+                            <label for="map_id" class="block text-sm font-medium text-gray-700 mb-1">Pilih Gedung (Map) <span class="text-red-500">*</span></label>
+                            <select id="map_id" name="map_id" x-model="selectedMapId" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
+                                <option value="">-- Pilih Gedung --</option>
+                                <template x-for="map in maps" :key="map.id">
+                                    <option :value="map.id" x-text="map.name"></option>
+                                </template>
+                            </select>
+                            <input type="hidden" name="area_gedung" x-model="selectedMapName">
+                        </div>
+
                         <div>
                             <label for="location_id" class="block text-sm font-medium text-gray-700 mb-1">Lokasi Kejadian <span class="text-red-500">*</span></label>
-                            <select id="location_id" name="location_id" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm"
-                                data-old-location="{{ old('location_id') }}">
-                                <option value="">Memuat lokasi...</option>
+                            <select id="location_id" name="location_id" x-model="selectedLocationId" :disabled="!selectedMapId" class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">
+                                <option value="">-- Pilih Lokasi --</option>
+                                <template x-for="location in filteredLocations" :key="location.id">
+                                    <option :value="location.id" x-text="`${location.name} (${location.location_id_string}) - ${location.type}`"></option>
+                                </template>
                             </select>
                         </div>
+
                         <div class="md:col-span-2">
                             <label for="lokasi_detail_manual" class="block text-sm font-medium text-gray-700 mb-1">Detail Tambahan Lokasi</label>
                             <textarea id="lokasi_detail_manual" name="lokasi_detail_manual" rows="2" placeholder="Contoh: Di dekat mesin press No. 5, pilar C-12"
                                 class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 transition duration-200 shadow-sm">{{ old('lokasi_detail_manual') }}</textarea>
                             <p class="text-xs text-gray-500 mt-1 italic">Isi jika perlu memberikan detail yang lebih spesifik dari pilihan lokasi.</p>
+                        </div>
+                        
+                        {{-- Image Display Area --}}
+                        <div x-show="selectedMapImage" class="md:col-span-2 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shadow-sm relative aspect-video flex items-center justify-center">
+                            <img :src="selectedMapImage" alt="Gambar Gedung" class="max-w-full max-h-full object-contain">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white font-bold text-lg opacity-0 hover:opacity-100 transition-opacity">
+                                Visualisasi Gedung
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -141,7 +235,7 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti</span></label>
                                 <p class="text-xs text-gray-500 mb-1 italic">Ambil foto secara jelas agar potensi bahaya dapat terlihat dengan baik.</p>
                                 <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition">
                                     <div class="space-y-1 text-center">
@@ -232,52 +326,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            const locationSelect = document.getElementById('location_id');
-            const oldLocationValue = locationSelect.getAttribute('data-old-location');
-
-            // --- 1. Ambil data lokasi dari API dan bangun dropdown ---
-            fetch('/api/locations')
-                .then(response => response.json())
-                .then(data => {
-                    locationSelect.innerHTML = '<option value="">-- Pilih Lokasi --</option>';
-
-                    // Kelompokkan lokasi berdasarkan map/gedung
-                    const groupedByMap = data.reduce((acc, location) => {
-                        const mapName = location.map ? location.map.name : 'Lainnya'; // Kelompokkan di 'Lainnya' jika tidak ada peta
-                        if (!acc[mapName]) {
-                            acc[mapName] = [];
-                        }
-                        acc[mapName].push(location);
-                        return acc;
-                    }, {});
-
-                    // Buat <optgroup> untuk setiap peta/gedung
-                    for (const mapName in groupedByMap) {
-                        const group = document.createElement('optgroup');
-                        group.label = mapName;
-                        
-                        groupedByMap[mapName].forEach(location => {
-                            const option = document.createElement('option');
-                            option.value = location.id;
-                            option.textContent = `${location.name} (${location.location_id_string}) - ${location.type}`;
-                            group.appendChild(option);
-                        });
-
-                        locationSelect.appendChild(group);
-                    }
-                    
-                    // Set nilai lama jika ada (untuk kasus validation error)
-                    if (oldLocationValue) {
-                        locationSelect.value = oldLocationValue;
-                    }
-
-                })
-                .catch(error => {
-                    console.error('Error fetching master locations:', error);
-                    locationSelect.innerHTML = '<option value="">Gagal memuat Master Lokasi</option>';
-                });
-
-
             // --- 2. FILE INPUT PREVIEW NAME ---
             const fileInput = document.getElementById('foto_bukti');
             const fileNameDisplay = document.getElementById('file-name-display');

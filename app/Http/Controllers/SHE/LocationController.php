@@ -6,15 +6,43 @@ use App\Http\Controllers\Controller;
 use App\Models\Location;
 use App\Models\Map;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+// <--- ADDED THIS LINE
 
 class LocationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $locations = Location::with(['parent', 'creator'])->get();
+        $query = Location::with(['creator', 'map']); // Eager load map relation
+
+        if ($request->has('search') && ! empty($request->search)) {
+            $searchTerm = strtolower($request->search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%')
+                    ->orWhere(DB::raw('LOWER(location_id_string)'), 'LIKE', '%'.$searchTerm.'%')
+                    ->orWhere(DB::raw('LOWER(type)'), 'LIKE', '%'.$searchTerm.'%') // Search by Type
+                    ->orWhereHas('map', function ($mapQuery) use ($searchTerm) {
+                        $mapQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
+                    })
+                    ->orWhereHas('creator', function ($userQuery) use ($searchTerm) { // Search by Creator
+                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
+                    });
+            });
+        }
+
+        $locations = $query->get();
+
+        // If it's an AJAX request, return only the table rows
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('she.locations._table_rows', compact('locations'))->render(),
+                'total' => $locations->count(), // Add total count
+            ]);
+        }
 
         return view('she.locations.index', compact('locations'));
     }
@@ -24,10 +52,9 @@ class LocationController extends Controller
      */
     public function create()
     {
-        $locations = Location::all();
-        $maps = Map::all();
+        $maps = Map::where('type', 'Gedung')->get();
 
-        return view('she.locations.create', compact('locations', 'maps'));
+        return view('she.locations.create', compact('maps'));
     }
 
     /**
@@ -38,16 +65,14 @@ class LocationController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'location_id_string' => 'required|string|max:255|unique:locations,location_id_string',
-            'type' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:locations,id',
-            'map_id' => 'nullable|exists:maps,id',
+            'type' => 'required|string|max:255|in:Area', // Type must be Area
+            'map_id' => 'required|exists:maps,id', // Map ID is now required
         ]);
 
         Location::create([
             'name' => $validatedData['name'],
             'location_id_string' => $validatedData['location_id_string'],
             'type' => $validatedData['type'],
-            'parent_id' => $validatedData['parent_id'],
             'map_id' => $validatedData['map_id'],
             'created_by' => auth()->id(),
         ]);
@@ -68,10 +93,9 @@ class LocationController extends Controller
      */
     public function edit(Location $location)
     {
-        $locations = Location::where('id', '!=', $location->id)->get();
-        $maps = Map::all();
+        $maps = Map::where('type', 'Gedung')->get();
 
-        return view('she.locations.edit', compact('location', 'locations', 'maps'));
+        return view('she.locations.edit', compact('location', 'maps'));
     }
 
     /**
@@ -82,16 +106,14 @@ class LocationController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'location_id_string' => 'required|string|max:255|unique:locations,location_id_string,'.$location->id,
-            'type' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:locations,id',
-            'map_id' => 'nullable|exists:maps,id',
+            'type' => 'required|string|max:255|in:Area', // Type must be Area
+            'map_id' => 'required|exists:maps,id', // Map ID is now required
         ]);
 
         $location->update([
             'name' => $validatedData['name'],
             'location_id_string' => $validatedData['location_id_string'],
             'type' => $validatedData['type'],
-            'parent_id' => $validatedData['parent_id'],
             'map_id' => $validatedData['map_id'],
         ]);
 
@@ -122,5 +144,40 @@ class LocationController extends Controller
         $locations = $query->get();
 
         return response()->json($locations);
+    }
+
+    /**
+     * Get all locations associated with a specific map.
+     *
+     * @param  \App\Models\Map  $map
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getLocationsForMap(Map $map)
+    {
+        $locations = Location::where('map_id', $map->id)->get();
+        return response()->json($locations);
+    }
+
+    /**
+     * Update the display order of locations.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'locations' => 'required|array',
+            'locations.*.id' => 'required|exists:locations,id',
+            'locations.*.display_order' => 'required|integer',
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            foreach ($validated['locations'] as $locationData) {
+                Location::where('id', $locationData['id'])->update(['display_order' => $locationData['display_order']]);
+            }
+        });
+
+        return response()->json(['message' => 'Location order updated successfully.']);
     }
 }

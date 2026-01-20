@@ -62,3 +62,29 @@ if (!function_exists('getTextColor')) {
         }
     }
 }
+
+if (!function_exists('highlight')) {
+    /**
+     * Highlights a search term in a string of text.
+     *
+     * @param string|null $text The text to search within.
+     * @param string|null $searchTerm The term to highlight.
+     * @return string The text with the search term highlighted, or the original text.
+     */
+    function highlight(?string $text, ?string $searchTerm): string
+    {
+        if (empty($searchTerm) || empty($text)) {
+            return $text ?? '';
+        }
+
+        // Escape special regex characters in the search term
+        $escapedTerm = preg_quote($searchTerm, '/');
+        
+        // Perform a case-insensitive replacement, wrapping the match in a <mark> tag
+        return preg_replace(
+            '/' . $escapedTerm . '/i',
+            '<mark class="bg-yellow-200 px-1 rounded-sm">$&</mark>',
+            $text
+        );
+    }
+}

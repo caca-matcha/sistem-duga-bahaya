@@ -1,4 +1,99 @@
-Illuminate\Database\Eloquent\Collection {#1072 ▼ // app\Http\Controllers\SHE\DashboardController.php:18
-  #items: array:166 [▶]
-  #escapeWhenCastingToString: false
-}
+# Error - Internal Server Error
+
+Class "App\Http\Middleware\Log" not found
+
+PHP 8.2.4
+Laravel 12.46.0
+127.0.0.1:8000
+
+## Stack Trace
+
+0 - app\Http\Middleware\RoleMiddleware.php:24
+1 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+2 - vendor\laravel\boost\src\Middleware\InjectBoost.php:22
+3 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+4 - vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php:50
+5 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+6 - vendor\laravel\framework\src\Illuminate\Auth\Middleware\Authenticate.php:63
+7 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+8 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken.php:87
+9 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+10 - vendor\laravel\framework\src\Illuminate\View\Middleware\ShareErrorsFromSession.php:48
+11 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+12 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:120
+13 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:63
+14 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+15 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse.php:36
+16 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+17 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\EncryptCookies.php:74
+18 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+19 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
+20 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:821
+21 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:800
+22 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:764
+23 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:753
+24 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:200
+25 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
+26 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+27 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php:31
+28 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+29 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+30 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php:51
+31 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+32 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php:27
+33 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+34 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php:109
+35 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+36 - vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php:48
+37 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+38 - vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php:58
+39 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+40 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks.php:22
+41 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+42 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePathEncoding.php:26
+43 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+44 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
+45 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:175
+46 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:144
+47 - vendor\laravel\framework\src\Illuminate\Foundation\Application.php:1220
+48 - public\index.php:20
+49 - vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+
+## Request
+
+GET /karyawan/maps
+
+## Headers
+
+* **host**: 127.0.0.1:8000
+* **connection**: keep-alive
+* **cache-control**: max-age=0
+* **sec-ch-ua**: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"
+* **sec-ch-ua-mobile**: ?0
+* **sec-ch-ua-platform**: "Windows"
+* **upgrade-insecure-requests**: 1
+* **user-agent**: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+* **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+* **sec-fetch-site**: same-origin
+* **sec-fetch-mode**: navigate
+* **sec-fetch-user**: ?1
+* **sec-fetch-dest**: document
+* **referer**: http://127.0.0.1:8000/karyawan/maps
+* **accept-encoding**: gzip, deflate, br, zstd
+* **accept-language**: id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7
+* **cookie**: XSRF-TOKEN=eyJpdiI6InlSK2VjOU0rblZ2a3ZsU2FBdTAvc3c9PSIsInZhbHVlIjoiREZnVSs4QitMUmpWRmo0bDUvdGdRSzVmVlE0WFN0ZE9RdTNIT1QvdEFMNmtnNFBpTmdZY3BXckRMb1RYZUxLRjRueDFzSmpCdmJxVC9tWEhYQm9rSTVHbFRoalNHQ054NWY3STNXMHBqbkRrVjlpQTVTS1VlenhhdjJwZU5IWVEiLCJtYWMiOiJmNTg0ZTM2OTlkZTkzYjBhMTAxMTYwZjExOWMwZGFhY2ZlNmI1OTYxMmQzNTBmNzFjNjQ4NDE4YTJiNGQxNjJiIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlRkczN4ZWExN1N4MTVwUzB3KzA0RWc9PSIsInZhbHVlIjoicFlBUkV1QStMaGtCZTBaTFM0OWtPL08wdGwrQkxOY1ZoNTZ2L3ZndEdWbG1nWnVtT1NKZXZycEpVVFZMYUVrUEhyMHIxSytJQ2ZqaEVNTTJPMmNVN1RCMEJUaUZaUlVTSjdYSWt1WjdFVnlSMVZGV3YxZjN0anBQcUNyaktMK1EiLCJtYWMiOiJhYzkyNjdjYjZlNjVjYjcwMjU4N2Q3YjkzYjM5NzM3Y2QyNWIxYTAwNGM0YjQ2NTQ5NmY2OGFkMDk2NzI3ZGYzIiwidGFnIjoiIn0%3D
+
+## Route Context
+
+controller: App\Http\Controllers\Karyawan\MapController@index
+route name: karyawan.maps.index
+middleware: web, auth, role:karyawan
+
+## Route Parameters
+
+No route parameter data available.
+
+## Database Queries
+
+* mysql - select * from `sessions` where `id` = '8qwC42i1JhFRPyLXKFRpHO3GeVDi5BqK3qHOfb9Y' limit 1 (20.02 ms)
+* mysql - select * from `users` where `id` = 1 limit 1 (3.65 ms)
