@@ -7,11 +7,18 @@
         <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <span>@yield('page-title', 'Dashboard')</span>
         </h1>
-        <!-- Tanggal dan Salam -->
-        <p class="text-sm text-gray-500 mt-1 font-semibold">
-            {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Monday, 02 March 2020) --}}
-            {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
-        </p>
+        <!-- Tanggal dan SIDUBA -->
+        <div class="flex items-center gap-3 mt-1">
+            <p class="text-sm text-gray-500 font-semibold">
+                {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Monday, 02 March 2020) --}}
+                {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+            </p>
+            <span class="text-gray-300">|</span>
+            <div class="flex items-center gap-1.5">
+                <span class="text-sm font-bold text-red-600">SIDUBA</span>
+                <span class="text-xs text-gray-400 italic">(Sistem Duga Bahaya)</span>
+            </div>
+        </div>
     </div>
 
     <!-- Right Section: User Profile & Actions -->
