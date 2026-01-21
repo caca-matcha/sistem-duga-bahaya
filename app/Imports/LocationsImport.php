@@ -21,13 +21,21 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
      */
     public function model(array $row)
     {
+        // Laravel Excel normalizes headers: lowercase, spaces to underscores, removes special chars
+        // "Nama Lokasi *" becomes "nama_lokasi"
+        // "Location ID String *" becomes "location_id_string"
+        // "Tipe *" becomes "tipe"
+        // "Parent ID (optional)" becomes "parent_id_optional"
+        // "Map ID *" becomes "map_id"
+        // "Display Order *" becomes "display_order"
+        
         return new Location([
-            'name' => $row['nama_lokasi'],
-            'location_id_string' => $row['location_id_string'],
-            'type' => $row['tipe'],
+            'name' => $row['nama_lokasi'] ?? $row['nama_lokasi_'] ?? null,
+            'location_id_string' => $row['location_id_string'] ?? $row['location_id_string_'] ?? null,
+            'type' => $row['tipe'] ?? $row['tipe_'] ?? null,
             'parent_id' => !empty($row['parent_id_optional']) ? $row['parent_id_optional'] : null,
-            'map_id' => $row['map_id'],
-            'display_order' => $row['display_order'],
+            'map_id' => $row['map_id'] ?? $row['map_id_'] ?? null,
+            'display_order' => $row['display_order'] ?? $row['display_order_'] ?? 0,
             'created_by' => Auth::id(),
         ]);
     }
@@ -38,12 +46,12 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function rules(): array
     {
         return [
-            'nama_lokasi' => 'required|string|max:255',
-            'location_id_string' => 'required|string|max:255|unique:locations,location_id_string',
-            'tipe' => 'required|in:room,warehouse,production,office,corridor,stairs,elevator,parking,outdoor,other',
-            'parent_id_optional' => 'nullable|exists:locations,id',
-            'map_id' => 'required|exists:maps,id',
-            'display_order' => 'required|integer|min:0',
+            '*.nama_lokasi' => 'required|string|max:255',
+            '*.location_id_string' => 'required|string|max:255|unique:locations,location_id_string',
+            '*.tipe' => 'required|in:room,warehouse,production,office,corridor,stairs,elevator,parking,outdoor,other',
+            '*.parent_id_optional' => 'nullable|exists:locations,id',
+            '*.map_id' => 'required|exists:maps,id',
+            '*.display_order' => 'required|integer|min:0',
         ];
     }
 
