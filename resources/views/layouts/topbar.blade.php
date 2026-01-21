@@ -1,31 +1,31 @@
 <!-- Top Bar / Header Container -->
-<header x-data="{ showSheChatModal: false }" class="sticky top-0 z-20 bg-white shadow-md border-b border-gray-100 px-6 py-4 flex items-center justify-between transition-all duration-300">
+<header x-data="{ showSheChatModal: false }" class="sticky top-0 z-20 bg-white shadow-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between transition-all duration-300">
     
-    <!-- Left Section: Page Title / Breadcrumbs -->
-    <div class="flex flex-col">
-        <!-- SIDUBA Title -->
-        <div class="flex items-center gap-2 mb-1">
-            <h1 class="text-3xl font-bold text-red-600 tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif; letter-spacing: 0.08em;">SIDUBA</h1>
-            <span class="text-sm text-gray-500 italic font-light tracking-wide" style="font-family: 'Georgia', serif;">(Sistem Duga Bahaya)</span>
-        </div>
-        <!-- Tanggal -->
-        <p class="text-sm text-gray-500 font-medium">
+    <!-- Left Section: SIDUBA Title -->
+    <div class="flex items-center gap-1.5 md:gap-2">
+        <h1 class="text-xl md:text-3xl font-bold text-red-600 tracking-wide" style="font-family: 'Inter', 'Helvetica Neue', 'Arial', sans-serif; letter-spacing: 0.05em;">SIDUBA</h1>
+        <span class="hidden sm:inline text-xs md:text-sm text-gray-500 italic font-light">(Sistem Duga Bahaya)</span>
+    </div>
+
+    <!-- Center/Right Section: Date & Actions -->
+    <div class="flex items-center gap-3 md:gap-6">
+        <!-- Tanggal - Hidden on mobile, visible on tablet+ -->
+        <p class="hidden md:block text-sm text-gray-600 font-medium">
             {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Monday, 02 March 2020) --}}
             {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
         </p>
-    </div>
-
-    <!-- Right Section: User Profile & Actions -->
-    <div class="flex items-center space-x-2">
+        
+        <!-- User Profile & Actions -->
+        <div class="flex items-center space-x-1 md:space-x-2">
         
 
 
         <!-- Notifikasi Icon: Bell (Trigger untuk Modal Notifikasi) -->
         <div class="relative">
             <button id="notification-bell" 
-                    class="p-2.5 rounded-full text-gray-400 hover:bg-gray-100 hover:text-purple-600 transition duration-150 relative" 
+                    class="p-2 md:p-2.5 rounded-full text-gray-400 hover:bg-gray-100 hover:text-purple-600 transition duration-150 relative" 
                     title="Notifikasi">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="h-5 w-5 md:h-6 md:w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 
@@ -35,9 +35,9 @@
                 </span>
             </button>
             
-            <!-- Notification Pop-up / Modal Content -->
+            <!-- Notification Pop-up / Modal Content - Responsive -->
             <div id="notification-modal" 
-                 class="absolute right-0 mt-3 w-80 bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 opacity-0 scale-95 pointer-events-none transition duration-200 origin-top-right">
+                 class="absolute right-0 mt-3 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 opacity-0 scale-95 pointer-events-none transition duration-200 origin-top-right">
                 
                 <div class="p-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-gray-800">Notifikasi Terbaru</h3>
@@ -58,6 +58,8 @@
                 @endif
             </div>
         </div>
+    </div>
+</div>
 
 </header>
 
