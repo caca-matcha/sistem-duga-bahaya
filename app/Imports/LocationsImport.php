@@ -8,9 +8,12 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
-class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError
+class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, WithBatchInserts, WithChunkReading
 {
     use SkipsErrors;
 
@@ -21,13 +24,13 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
      */
     public function model(array $row)
     {
-        // Laravel Excel normalizes headers: lowercase, spaces to underscores, removes special chars
-        // "Nama Lokasi *" becomes "nama_lokasi"
-        // "Location ID String *" becomes "location_id_string"
-        // "Tipe *" becomes "tipe"
-        // "Parent ID (optional)" becomes "parent_id_optional"
-        // "Map ID *" becomes "map_id"
-        // "Display Order *" becomes "display_order"
+        // Debug: Log the raw row data
+        Log::info('Import Row Data:', $row);
+        
+        // Skip empty rows
+        if (empty($row['nama_lokasi']) && empty($row['nama_lokasi_'])) {
+            return null;
+        }
         
         return new Location([
             'name' => $row['nama_lokasi'] ?? $row['nama_lokasi_'] ?? null,
@@ -46,12 +49,12 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function rules(): array
     {
         return [
-            '*.nama_lokasi' => 'required|string|max:255',
-            '*.location_id_string' => 'required|string|max:255|unique:locations,location_id_string',
-            '*.tipe' => 'required|in:room,warehouse,production,office,corridor,stairs,elevator,parking,outdoor,other',
-            '*.parent_id_optional' => 'nullable|exists:locations,id',
-            '*.map_id' => 'required|exists:maps,id',
-            '*.display_order' => 'required|integer|min:0',
+            '*.nama_lokasi' => 'nullable|string|max:255',
+            '*.location_id_string' => 'nullable|string|max:255',
+            '*.tipe' => 'nullable|string',
+            '*.parent_id_optional' => 'nullable',
+            '*.map_id' => 'nullable',
+            '*.display_order' => 'nullable',
         ];
     }
 
@@ -71,5 +74,15 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             'display_order.required' => 'Display order wajib diisi',
             'display_order.integer' => 'Display order harus berupa angka',
         ];
+    }
+
+    public function batchSize(): int
+    {
+        return 100;
+    }
+
+    public function chunkSize(): int
+    {
+        return 100;
     }
 }
