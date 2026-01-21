@@ -54,7 +54,7 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                     'type' => 'pabrik', // Default type
                     'rows' => 10,       // Default rows
                     'cols' => 10,       // Default cols
-                    'created_by' => Auth::id()
+                    'created_by' => Auth::id() ?? 1
                 ]
             );
             $mapId = $map->id;
@@ -68,15 +68,17 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             return null;
         }
 
-        return new Location([
-            'name' => $name,
-            'location_id_string' => $locId,
-            'type' => $type ? strtolower($type) : null,
-            'parent_id' => !empty($parentId) ? $parentId : null,
-            'map_id' => $mapId,
-            'display_order' => $order,
-            'created_by' => Auth::id(),
-        ]);
+        return Location::updateOrCreate(
+            ['location_id_string' => $locId],
+            [
+                'name' => $name,
+                'type' => $type ? strtolower($type) : null,
+                'parent_id' => !empty($parentId) ? $parentId : null,
+                'map_id' => $mapId,
+                'display_order' => $order,
+                'created_by' => Auth::id() ?? 1,
+            ]
+        );
     }
 
     /**
