@@ -218,6 +218,10 @@ class LocationController extends Controller
         ]);
 
         try {
+            // DEBUG: Check what Excel sees
+            $data = Excel::toArray(new LocationsImport, $request->file('file'));
+            \Illuminate\Support\Facades\Log::info('Excel Import Raw Data:', $data);
+
             $import = new LocationsImport();
             Excel::import($import, $request->file('file'));
 

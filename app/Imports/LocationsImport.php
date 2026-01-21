@@ -29,18 +29,26 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         // Debug: Log the raw row data
         Log::info('Import Row Data:', $row);
         
-        // Skip empty rows
-        if (empty($row['nama_lokasi']) && empty($row['nama_lokasi_'])) {
+        // Laravel Excel normalizes headers. We handle both underscore and dash variations.
+        $name = $row['nama_lokasi'] ?? $row['nama_lokasi_'] ?? $row['nama-lokasi'] ?? null;
+        $locId = $row['location_id_string'] ?? $row['location_id_string_'] ?? $row['location-id-string'] ?? null;
+        $type = $row['tipe'] ?? $row['tipe_'] ?? null;
+        $parentId = $row['parent_id_optional'] ?? $row['parent-id-optional'] ?? null;
+        $mapId = $row['map_id'] ?? $row['map_id_'] ?? $row['map-id'] ?? null;
+        $order = $row['display_order'] ?? $row['display_order_'] ?? $row['display-order'] ?? 0;
+
+        // Skip if mandatory fields are missing
+        if (!$name && !$locId && !$mapId) {
             return null;
         }
         
         return new Location([
-            'name' => $row['nama_lokasi'] ?? $row['nama_lokasi_'] ?? null,
-            'location_id_string' => $row['location_id_string'] ?? $row['location_id_string_'] ?? null,
-            'type' => $row['tipe'] ?? $row['tipe_'] ?? null,
-            'parent_id' => !empty($row['parent_id_optional']) ? $row['parent_id_optional'] : null,
-            'map_id' => $row['map_id'] ?? $row['map_id_'] ?? null,
-            'display_order' => $row['display_order'] ?? $row['display_order_'] ?? 0,
+            'name' => $name,
+            'location_id_string' => $locId,
+            'type' => $type,
+            'parent_id' => !empty($parentId) ? $parentId : null,
+            'map_id' => $mapId,
+            'display_order' => $order,
             'created_by' => Auth::id(),
         ]);
     }
@@ -51,12 +59,16 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function rules(): array
     {
         return [
-            '*.nama_lokasi' => 'nullable|string|max:255',
-            '*.location_id_string' => 'nullable|string|max:255',
-            '*.tipe' => 'nullable|string',
-            '*.parent_id_optional' => 'nullable',
+            '*.nama_lokasi' => 'nullable',
+            '*.location_id_string' => 'nullable',
+            '*.tipe' => 'nullable',
             '*.map_id' => 'nullable',
             '*.display_order' => 'nullable',
+            
+            // Allow dash variations to pass validation if they exist
+            '*.nama-lokasi' => 'nullable',
+            '*.location-id-string' => 'nullable',
+            '*.map-id' => 'nullable',
         ];
     }
 
