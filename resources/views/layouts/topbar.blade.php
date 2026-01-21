@@ -3,22 +3,16 @@
     
     <!-- Left Section: Page Title / Breadcrumbs -->
     <div class="flex flex-col">
-        <!-- Judul Halaman -->
-        <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <span>@yield('page-title', 'Dashboard')</span>
-        </h1>
-        <!-- Tanggal dan SIDUBA -->
-        <div class="flex items-center gap-3 mt-1">
-            <p class="text-sm text-gray-500 font-semibold">
-                {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Monday, 02 March 2020) --}}
-                {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
-            </p>
-            <span class="text-gray-300">|</span>
-            <div class="flex items-center gap-1.5">
-                <span class="text-sm font-bold text-red-600">SIDUBA</span>
-                <span class="text-xs text-gray-400 italic">(Sistem Duga Bahaya)</span>
-            </div>
+        <!-- SIDUBA Title -->
+        <div class="flex items-center gap-2 mb-1">
+            <h1 class="text-3xl font-bold text-red-600 tracking-wide" style="font-family: 'Georgia', 'Times New Roman', serif; letter-spacing: 0.08em;">SIDUBA</h1>
+            <span class="text-sm text-gray-500 italic font-light tracking-wide" style="font-family: 'Georgia', serif;">(Sistem Duga Bahaya)</span>
         </div>
+        <!-- Tanggal -->
+        <p class="text-sm text-gray-500 font-medium">
+            {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Monday, 02 March 2020) --}}
+            {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+        </p>
     </div>
 
     <!-- Right Section: User Profile & Actions -->
