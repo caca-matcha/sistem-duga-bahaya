@@ -7,6 +7,10 @@ use App\Models\Location;
 use App\Models\Map;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LocationsExport;
+use App\Exports\LocationsTemplateExport;
+use App\Imports\LocationsImport;
 
 // <--- ADDED THIS LINE
 
@@ -179,5 +183,66 @@ class LocationController extends Controller
         });
 
         return response()->json(['message' => 'Location order updated successfully.']);
+    }
+
+    /**
+     * Export locations to Excel.
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function export()
+    {
+        return Excel::download(new LocationsExport, 'locations_' . date('Y-m-d_His') . '.xlsx');
+    }
+
+    /**
+     * Download import template.
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new LocationsTemplateExport, 'template_import_locations.xlsx');
+    }
+
+    /**
+     * Import locations from Excel.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls|max:2048',
+        ]);
+
+        try {
+            $import = new LocationsImport();
+            Excel::import($import, $request->file('file'));
+
+            $errors = $import->errors();
+            
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    foreach ($error->errors() as $messages) {
+                        foreach ($messages as $message) {
+                            $errorMessages[] = $message;
+                        }
+                    }
+                }
+                
+                return redirect()->route('she.locations.index')
+                    ->with('warning', 'Import selesai dengan beberapa error: ' . implode(', ', $errorMessages));
+            }
+
+            return redirect()->route('she.locations.index')
+                ->with('success', 'Data lokasi berhasil diimport!');
+                
+        } catch (\Exception $e) {
+            return redirect()->route('she.locations.index')
+                ->with('error', 'Gagal mengimport data: ' . $e->getMessage());
+        }
     }
 }

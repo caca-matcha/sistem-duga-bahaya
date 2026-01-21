@@ -21,17 +21,31 @@
                     <span id="location-count" class="px-3 py-1 text-xs font-bold text-red-800 bg-red-100 rounded-full">{{ $locations->count() }}</span>
                 </div>
                 
-                <!-- Search Bar Proxy -->
-                <div class="flex items-center gap-4">
-                    <div class="relative w-full md:w-64">
+                <!-- Actions Container -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                    <!-- Search Bar -->
+                    <div class="relative flex-1 sm:flex-initial sm:w-64">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </span>
                         <input type="text" id="location-search-input" name="search" placeholder="Cari lokasi..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-red-500 transition-all">
                     </div>
-                    <a href="{{ route('she.locations.create') }}" class="inline-flex items-center px-4 py-2.5 bg-red-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-red-200 hover:bg-red-700 focus:ring-4 focus:ring-red-100 transition-all duration-200">
-                        Tambah Lokasi
-                    </a>
+                    
+                    <!-- Import/Export Buttons -->
+                    <div class="flex gap-2">
+                        <button onclick="document.getElementById('importModal').classList.remove('hidden')" class="inline-flex items-center px-3 md:px-4 py-2.5 bg-green-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-green-200 hover:bg-green-700 focus:ring-4 focus:ring-green-100 transition-all duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            <span class="hidden sm:inline">Import</span>
+                        </button>
+                        <a href="{{ route('she.locations.export') }}" class="inline-flex items-center px-3 md:px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-blue-200 hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+                            <span class="hidden sm:inline">Export</span>
+                        </a>
+                        <a href="{{ route('she.locations.create') }}" class="inline-flex items-center px-3 md:px-4 py-2.5 bg-red-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-red-200 hover:bg-red-700 focus:ring-4 focus:ring-red-100 transition-all duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            <span class="hidden sm:inline">Tambah</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -125,6 +139,68 @@
                 </div>
             @endif
         </div>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div id="importModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-gray-800">Import Data Lokasi</h3>
+            <button onclick="document.getElementById('importModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form action="{{ route('she.locations.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="p-6 space-y-4">
+                <!-- Download Template -->
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-blue-900 mb-2">Download Template Terlebih Dahulu</p>
+                            <p class="text-xs text-blue-700 mb-3">Template sudah dilengkapi dengan instruksi dan contoh data yang benar.</p>
+                            <a href="{{ route('she.locations.template') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Download Template
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Upload -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Pilih File Excel</label>
+                    <input type="file" name="file" accept=".xlsx,.xls" required class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 p-2.5">
+                    <p class="text-xs text-gray-500 mt-2">Format: .xlsx atau .xls (Maksimal 2MB)</p>
+                </div>
+
+                <!-- Warning -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <div>
+                            <p class="text-sm font-semibold text-yellow-900">Perhatian!</p>
+                            <p class="text-xs text-yellow-700 mt-1">Pastikan data sudah sesuai dengan template. Data yang tidak valid akan dilewati.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 rounded-b-2xl">
+                <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition">
+                    Batal
+                </button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition">
+                    Import Data
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
