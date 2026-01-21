@@ -50,17 +50,13 @@
                         </div>
                         <div>
                             <label for="NPK" class="block text-sm font-medium text-gray-700 mb-1">NPK <span class="text-red-500">*</span></label>
-                            <input id="NPK" name="NPK" value="{{ old('NPK') }}" type="text" placeholder="Contoh: 12345" 
-                                class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">
+                            <input type="text" disabled value="{{ auth()->user()->npk ?? 'N/A' }}" class="w-full rounded-lg border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed shadow-sm">
+                            <input type="hidden" name="NPK" value="{{ auth()->user()->npk }}">
                         </div>
                         <div>
                             <label for="dept" class="block text-sm font-medium text-gray-700 mb-1">Departemen <span class="text-red-500">*</span></label>
-                            <select id="dept" name="dept" class="w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition duration-200 shadow-sm">
-                                <option value="">Pilih Departemen</option>
-                                @foreach (['Maintenance','Quality Assurance / Quality Control (QA/QC)','Engineering','Finance','Human Resource', 'Warehouse / Logistics','Planning & Control (PPC / PPIC)', 'Tooling', 'Utility / Facility'] as $d)
-                                    <option value="{{ $d }}" {{ old('dept') == $d ? 'selected' : '' }}>{{ $d }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" disabled value="{{ auth()->user()->department ?? 'N/A' }}" class="w-full rounded-lg border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed shadow-sm">
+                            <input type="hidden" name="dept" value="{{ auth()->user()->department }}">
                         </div>
                     </div>
                 </div>
@@ -238,24 +234,39 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti</span></label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Foto Bukti</label>
                                 <p class="text-xs text-gray-500 mb-1 italic">Ambil foto secara jelas agar potensi bahaya dapat terlihat dengan baik.</p>
-                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition">
+                                
+                                <!-- Drop Zone -->
+                                <div id="drop-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition cursor-pointer">
                                     <div class="space-y-1 text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                        <svg id="upload-icon" class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                         <div class="flex text-sm text-gray-600 justify-center">
                                             <label for="foto_bukti" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none">
                                                 <span>Upload file</span>
-                                                <input id="foto_bukti" name="foto_bukti" type="file" class="sr-only" accept=".jpg,.jpeg,.png">
+                                                <input id="foto_bukti" name="foto_bukti" type="file" class="sr-only" accept="image/png,image/jpeg,image/jpg">
                                             </label>
                                             <p class="pl-1">atau drag and drop</p>
                                         </div>
                                         <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 5MB</p>
                                     </div>
                                 </div>
-                                <p id="file-name-display" class="text-xs text-gray-600 mt-2 italic"></p>
+
+                                <!-- Image Preview -->
+                                <div id="image-preview-container" class="mt-4 hidden">
+                                    <div class="relative">
+                                        <img id="image-preview" src="" alt="Preview" class="w-full h-64 object-cover rounded-lg border-2 border-gray-300">
+                                        <button type="button" id="remove-image" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition shadow-lg">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <p id="file-name-display" class="text-xs text-gray-600 mt-2 italic text-center"></p>
+                                </div>
+
                                 @error('foto_bukti')
                                     <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -328,17 +339,112 @@
     {{-- SCRIPTS --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
-            // --- 2. FILE INPUT PREVIEW NAME ---
+            const dropZone = document.getElementById('drop-zone');
             const fileInput = document.getElementById('foto_bukti');
+            const imagePreview = document.getElementById('image-preview');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
             const fileNameDisplay = document.getElementById('file-name-display');
+            const removeImageBtn = document.getElementById('remove-image');
+            const uploadIcon = document.getElementById('upload-icon');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop zone when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropZone.classList.add('border-red-500', 'bg-red-50');
+            }
+
+            function unhighlight(e) {
+                dropZone.classList.remove('border-red-500', 'bg-red-50');
+            }
+
+            // Handle dropped files
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFiles(files);
+                }
+            }
+
+            // Handle file input change
             fileInput.addEventListener('change', function() {
-                if(this.files && this.files.length > 0) {
-                    fileNameDisplay.textContent = "File dipilih: " + this.files[0].name;
-                } else {
-                    fileNameDisplay.textContent = "";
+                if (this.files && this.files.length > 0) {
+                    handleFiles(this.files);
                 }
             });
+
+            // Handle click on drop zone
+            dropZone.addEventListener('click', function(e) {
+                if (e.target !== fileInput && !e.target.closest('label[for="foto_bukti"]')) {
+                    fileInput.click();
+                }
+            });
+
+            function handleFiles(files) {
+                const file = files[0];
+                
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    alert('Hanya file gambar yang diperbolehkan!');
+                    return;
+                }
+
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Ukuran file maksimal 5MB!');
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.classList.remove('hidden');
+                    dropZone.classList.add('hidden');
+                    fileNameDisplay.textContent = `File: ${file.name} (${formatFileSize(file.size)})`;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Remove image
+            removeImageBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                imagePreview.src = '';
+                imagePreviewContainer.classList.add('hidden');
+                dropZone.classList.remove('hidden');
+                fileNameDisplay.textContent = '';
+            });
+
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+            }
         });
     </script>
 </x-app-layout>
