@@ -221,20 +221,30 @@ class LocationController extends Controller
             $import = new LocationsImport();
             Excel::import($import, $request->file('file'));
 
-            $errors = $import->errors();
+            $messages = [];
             
-            if (count($errors) > 0) {
-                $errorMessages = [];
-                foreach ($errors as $error) {
-                    foreach ($error->errors() as $messages) {
-                        foreach ($messages as $message) {
-                            $errorMessages[] = $message;
-                        }
-                    }
+            // Handle Validation Failures
+            if ($import->failures()->isNotEmpty()) {
+                foreach ($import->failures() as $failure) {
+                    $row = $failure->row();
+                    $attribute = $failure->attribute();
+                    $errors = implode(', ', $failure->errors());
+                    $messages[] = "Baris {$row} ({$attribute}): {$errors}";
                 }
-                
+            }
+
+            // Handle Exceptions (Database errors, etc)
+            if ($import->errors()->isNotEmpty()) {
+                foreach ($import->errors() as $error) {
+                    // Normalize error message
+                    $msg = $error->getMessage();
+                    $messages[] = "Error Sistem: {$msg}";
+                }
+            }
+
+            if (count($messages) > 0) {
                 return redirect()->route('she.locations.index')
-                    ->with('warning', 'Import selesai dengan beberapa error: ' . implode(', ', $errorMessages));
+                    ->with('warning', 'Import selesai dengan catatan: ' . implode(' | ', $messages));
             }
 
             return redirect()->route('she.locations.index')
