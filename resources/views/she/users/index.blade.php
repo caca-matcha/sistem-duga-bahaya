@@ -26,6 +26,64 @@
                             <h3 class="text-2xl font-bold text-gray-800">Users List</h3>
                             <p class="text-sm text-gray-500">A list of all the users in your account including their name, email and role.</p>
                         </div>
+                        <div x-data="{ open: false, loading: false }" class="inline-flex">
+                            <button @click="open = true" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ease-in-out duration-150 mr-2">
+                                <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                                Import Data Karyawan
+                            </button>
+
+                            <!-- Modal -->
+                            <div x-show="open" class="fixed z-10 inset-0 overflow-y-auto" style="display: none;">
+                                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="open = false">
+                                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                                    </div>
+
+                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full relative">
+                                        
+                                        <!-- Loading Overlay -->
+                                        <div x-show="loading" class="absolute inset-0 bg-white bg-opacity-90 z-50 flex flex-col justify-center items-center">
+                                            <svg class="animate-spin h-10 w-10 text-green-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <p class="text-green-600 font-semibold text-lg">Sinkronisasi Data...</p>
+                                            <p class="text-gray-500 text-sm">Mohon tunggu, proses ini mungkin memakan waktu.</p>
+                                        </div>
+
+                                        <form action="{{ route('she.users.import') }}" method="POST" enctype="multipart/form-data" @submit="loading = true">
+                                            @csrf
+                                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                                <div class="sm:flex sm:items-start">
+                                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                                            Import Data Karyawan (JSON)
+                                                        </h3>
+                                                        <div class="mt-2">
+                                                            <input type="file" name="file" accept=".json" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" required>
+                                                            <p class="mt-1 text-sm text-gray-500">
+                                                                Upload file format .json (e.g. datakaryawandharma.json)
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                                <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm" :disabled="loading">
+                                                    Import
+                                                </button>
+                                                <button type="button" @click="open = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" :disabled="loading">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <a href="{{ route('she.users.create') }}" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ease-in-out duration-150">
                             <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                             Create New User

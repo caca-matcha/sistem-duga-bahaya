@@ -97,6 +97,7 @@ Route::middleware(['auth', 'role:she'])
         Route::resource('maps', MapController::class);
         Route::get('maps/{map}/employee-view', [MapController::class, 'viewEmployeeMode'])->name('maps.employee-view');
 
+        Route::post('users/import', [UserController::class, 'import'])->name('users.import');
         Route::resource('users', UserController::class);
         Route::resource('locations', LocationController::class); // Tambahkan untuk Master Lokasi
         Route::get('maps/{map}/export', [MapController::class, 'export'])->name('maps.export');

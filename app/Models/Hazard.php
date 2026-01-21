@@ -44,25 +44,25 @@ class Hazard extends Model
         'ditangani_pada',
         'report_selesai',
         'target_penyelesaian',
-        
+
         // --- FIELDS BARU SHE ---
         'faktor_penyebab',
         'upaya_penanggulangan',
-        //'catatan_penanggulangan',
-        //'pic_penanggung_jawab', (disamakan dengan ditangani_oleh)
+        // 'catatan_penanggulangan',
+        // 'pic_penanggung_jawab', (disamakan dengan ditangani_oleh)
         'final_tingkat_keparahan',
         'final_kemungkinan_terjadi',
         'final_kategori_stop6',
         'tindakan_perbaikan',
-        'foto_bukti_penyelesaian'
-        ];
+        'foto_bukti_penyelesaian',
+    ];
 
     /**
      * Casts untuk field yang bertipe array/JSON.
      */
     protected $casts = [
         'upaya_penanggulangan' => 'json',
-    //  	'catatan_penanggulangan' => 'json',
+        //  	'catatan_penanggulangan' => 'json',
         'tgl_observasi' => 'date',
         'target_penyelesaian' => 'date',
     ];
@@ -108,6 +108,4 @@ class Hazard extends Model
     {
         return $this->belongsTo(Map::class);
     }
-
-
 }
