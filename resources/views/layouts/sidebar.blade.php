@@ -25,8 +25,9 @@
     </button>
 
     <!-- Sidebar -->
-    <aside x-bind:class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-           class="fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 flex flex-col w-64 bg-white border-r border-gray-200 h-screen lg:h-screen transition-transform duration-300 ease-in-out">
+     
+    <aside x-bind:class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 h-screen md:block hidden'"
+           class="fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 flex flex-col w-64 bg-white border-r border-gray-200 lg:h-screen transition-transform duration-300 ease-in-out">
         
         <!-- BRAND / LOGO SECTION -->
         <div class="flex flex-col items-center justify-center py-5 border-b border-gray-100 bg-white z-10">
