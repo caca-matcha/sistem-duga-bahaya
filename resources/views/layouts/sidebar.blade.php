@@ -143,7 +143,7 @@
         </div>
 
         <!-- USER PROFILE SECTION (Sticky Bottom) -->
-        <div class="border-t border-gray-200 p-3 bg-gray-50">
+        <div class="absolute bottom-0 left-0 w-full border-t border-gray-200 p-3 bg-gray-50">
             <div class="flex items-center justify-between">
                 <div class="flex items-center min-w-0">
                     <div class="flex-shrink-0">
