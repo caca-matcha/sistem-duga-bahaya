@@ -89,7 +89,7 @@ class Cell extends Model
 
         $this->total_hazard_risk_score = $totalScore;
         $this->hazard_count = $count;
-        $this->risk_score = $count > 0 ? $relevantHazards->max('risk_score') : 0;
+        $this->risk_score = $count > 0 ? round($relevantHazards->avg('risk_score')) : 0; // Changed from max to avg
         $this->zone_color = $this->getZoneColorByRiskScore($this->risk_score);
         $this->save();
 

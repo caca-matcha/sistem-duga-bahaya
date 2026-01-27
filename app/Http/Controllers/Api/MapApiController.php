@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Map;
+use App\Jobs\RecalculateMapCellsJob;
 
 class MapApiController extends Controller
 {
@@ -24,7 +25,12 @@ class MapApiController extends Controller
      */
     public function getCells(Map $map)
     {
-        $perPage = request()->get('per_page', 100); // Default to 100 cells per page
+        $perPage = request()->get('per_page', 100);
+
+        // Dispatch the job for background recalculation
+        RecalculateMapCellsJob::dispatch($map);
+
+        // Return the current state of cells immediately to avoid timeout
         $cells = $map->cells()->with('location')->paginate($perPage);
 
         return response()->json($cells);

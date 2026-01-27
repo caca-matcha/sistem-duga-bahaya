@@ -4,7 +4,7 @@ import { Stage, Layer, Rect, Text, Image } from 'react-konva';
 import axios from 'axios';
 
 const GridEditor = () => {
-    const { id: mapId, rows, cols, background_image, type: mapType } = window.mapData;
+    const { id: mapId, rows, cols, background_image, type: mapType, name: mapName } = window.mapData;
 
     const containerRef = useRef(null);
     const stageRef = useRef(null);
@@ -34,6 +34,8 @@ const GridEditor = () => {
     const [gedungMaps, setGedungMaps] = useState([]); // New state for Gedung maps (Pabrik map)
 
     const [isStageDragging, setIsStageDragging] = useState(false);
+    const [deleteConfirmModal, setDeleteConfirmModal] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
@@ -50,7 +52,7 @@ const GridEditor = () => {
     useEffect(() => {
         if (background_image) {
             const img = new window.Image();
-            img.src = background_image.startsWith('http') ? background_image : `/public-files/${background_image}`;
+            img.src = background_image.startsWith('http') ? background_image : `/storage/${background_image}`;
             img.onload = () => {
                 setBackgroundImage(img);
             };
@@ -101,6 +103,7 @@ const GridEditor = () => {
     const fetchCells = useCallback((page) => {
         if (pagination.isLoading) return;
 
+        setIsUpdating(true); // Set updating state to true
         setPagination(p => ({ ...p, isLoading: true }));
         axios.get(`/api/maps/${mapId}/cells?page=${page}`)
             .then(response => {
@@ -127,6 +130,9 @@ const GridEditor = () => {
                 console.error("Error fetching cells:", err);
                 setError("Failed to load map cells. " + (err.response?.data?.message || err.message));
                 setPagination(p => ({ ...p, isLoading: false }));
+            })
+            .finally(() => {
+                setIsUpdating(false); // Set updating state to false when fetch completes
             });
     }, [mapId, pagination.isLoading]);
 
@@ -140,9 +146,23 @@ const GridEditor = () => {
         const pollingInterval = setInterval(() => {
             console.log("GridEditor: Polling for updated cells...");
             fetchCells(1); // Fetch the first page of cells to refresh
-        }, 30000); // Poll every 30 seconds
+        }, 3600000); // Poll every 1 hour
 
         return () => clearInterval(pollingInterval);
+    }, [fetchCells]);
+
+    // Listen for custom event to manually refresh
+    useEffect(() => {
+        const handleRefresh = () => {
+            console.log('GridEditor: Manual refresh triggered by custom event.');
+            fetchCells(1);
+        };
+
+        window.addEventListener('refresh-grid-editor', handleRefresh);
+
+        return () => {
+            window.removeEventListener('refresh-grid-editor', handleRefresh);
+        };
     }, [fetchCells]);
 
     // Calculate stage and cell dimensions
@@ -259,6 +279,79 @@ const GridEditor = () => {
                 console.error("Error batch saving cells:", err);
                 const errorMessage = err.response?.data?.message || err.message;
                 setError("Failed to save selection: " + errorMessage);
+            });
+    };
+
+    const handleDeleteLocation = () => {
+        if (selectedCells.length === 0) return;
+        setError(null);
+
+        const payload = {
+            map_id: mapId,
+            cells: selectedCells,
+            location_id: null, // Explicitly set location to null
+        };
+
+        axios.post(`/she/api/cells/batch-update`, payload)
+            .then(response => {
+                const updatedCellsFromServer = response.data; // Server returns updated cells
+
+                // Update the cells state
+                const updatedCellsState = { ...cells };
+                updatedCellsFromServer.forEach(cell => {
+                    const key = `${cell.row_index}_${cell.col_index}`;
+                    updatedCellsState[key] = {
+                        ...updatedCellsState[key],
+                        ...cell,
+                        location: null,
+                        location_id: null,
+                    };
+                });
+                setCells(updatedCellsState);
+
+                setIsModalOpen(false);
+                setSelectedCells([]);
+            })
+            .catch(err => {
+                console.error("Error deleting location from cells:", err);
+                const errorMessage = err.response?.data?.message || "An unexpected error occurred.";
+                setError("Failed to remove location: " + errorMessage);
+            });
+    };
+
+    const handleDeleteGedungMap = () => {
+        if (selectedCells.length === 0) return;
+        setError(null);
+
+        const payload = {
+            map_id: mapId,
+            cells: selectedCells,
+            gedung_map_id: null, // Set gedung_map_id to null for Pabrik maps
+        };
+
+        axios.post(`/she/api/cells/batch-update`, payload)
+            .then(response => {
+                const updatedCellsFromServer = response.data;
+
+                // Update the cells state
+                const updatedCellsState = { ...cells };
+                updatedCellsFromServer.forEach(cell => {
+                    const key = `${cell.row_index}_${cell.col_index}`;
+                    updatedCellsState[key] = {
+                        ...updatedCellsState[key],
+                        ...cell,
+                        metadata: { ...cell.metadata, gedung_map_id: null }, // Clear gedung_map_id
+                    };
+                });
+                setCells(updatedCellsState);
+
+                setIsModalOpen(false);
+                setSelectedCells([]);
+            })
+            .catch(err => {
+                console.error("Error deleting Gedung map from cells:", err);
+                const errorMessage = err.response?.data?.message || "An unexpected error occurred.";
+                setError("Failed to remove Gedung map: " + errorMessage);
             });
     };
 
@@ -436,6 +529,22 @@ const GridEditor = () => {
 
     return (
         <div ref={containerRef}>
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-xl text-gray-800 leading-tight">
+                    Grid Editor: {mapName}
+                </h2>
+                <button
+                    type="button"
+                    onClick={() => fetchCells(1)}
+                    disabled={isUpdating}
+                    className={`inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150 ${
+                        isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300'
+                    }`}
+                >
+                    {isUpdating ? 'Updating...' : 'Update Map'}
+                </button>
+            </div>
+
             {/* Error Display */}
             {error && !isModalOpen && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -576,34 +685,93 @@ const GridEditor = () => {
                                     {mapType === 'Pabrik' ? (
                                         <div className="md:col-span-2">
                                             <label htmlFor="gedung_map_id" className="block text-sm font-medium text-gray-600">Pilih Gedung</label>
-                                            <select name="gedung_map_id" id="gedung_map_id" value={formData.gedung_map_id} onChange={(e) => setFormData({ ...formData, gedung_map_id: e.target.value })} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                                                <option value="">-- Pilih Gedung --</option>
-                                                {gedungMaps.map(gedung => (
-                                                    <option key={gedung.id} value={gedung.id}>
-                                                        {gedung.name}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <select name="gedung_map_id" id="gedung_map_id" value={formData.gedung_map_id} onChange={(e) => setFormData({ ...formData, gedung_map_id: e.target.value })} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                                    <option value="">-- Pilih Gedung --</option>
+                                                    {gedungMaps.map(gedung => (
+                                                        <option key={gedung.id} value={gedung.id}>
+                                                            {gedung.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="md:col-span-2">
                                             <label htmlFor="location_id" className="block text-sm font-medium text-gray-600">Master Lokasi</label>
-                                            <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({ ...formData, location_id: e.target.value })} className="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                                                <option value="">-- Pilih Lokasi --</option>
-                                                {masterLocations.map(loc => (
-                                                    <option key={loc.id} value={loc.id}>
-                                                        {loc.name} ({loc.location_id_string})
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <select name="location_id" id="location_id" value={formData.location_id} onChange={(e) => setFormData({ ...formData, location_id: e.target.value })} className="block w-full rounded-md shadow-sm border-gray-300 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                                    <option value="">-- Pilih Lokasi --</option>
+                                                    {masterLocations.map(loc => (
+                                                        <option key={loc.id} value={loc.id}>
+                                                            {loc.name} ({loc.location_id_string})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDeleteConfirmModal('location')}
+                                                    className="p-2.5 bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700 rounded-md shadow-sm transition-colors"
+                                                    title="Hapus penetapan lokasi dari sel ini"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
                         <div className="p-6 bg-gray-50 rounded-b-lg flex justify-end items-center gap-4">
+                            {mapType === 'Pabrik' && (
+                                <button
+                                    type="button"
+                                    onClick={() => setDeleteConfirmModal('gedung')}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                >
+                                    Hapus Gedung
+                                </button>
+                            )}
                             <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">Cancel</button>
                             <button onClick={saveSelection} className="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-red-700">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {deleteConfirmModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-sm w-full">
+                        <div className="p-6 text-center">
+                            <svg className="mx-auto mb-4 w-14 h-14 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h3 className="mb-5 text-lg font-normal text-gray-500">
+                                Apakah Anda yakin ingin menghapus penetapan ini?
+                            </h3>
+                            <p className="text-xs text-gray-400 mb-6 -mt-2">
+                                Tindakan ini tidak dapat dibatalkan.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (deleteConfirmModal === 'location') {
+                                        handleDeleteLocation();
+                                    } else if (deleteConfirmModal === 'gedung') {
+                                        handleDeleteGedungMap();
+                                    }
+                                    setDeleteConfirmModal(null);
+                                }}
+                                className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+                            >
+                                Ya, Hapus
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setDeleteConfirmModal(null)}
+                                className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                            >
+                                Batal
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -616,5 +784,13 @@ export default GridEditor;
 
 const element = document.getElementById('grid-editor');
 if (element) {
-    createRoot(element).render(<GridEditor />);
+    if (!element._reactRootContainer) { // Workaround: only create root if it doesn't exist
+        createRoot(element).render(<GridEditor />);
+    } else {
+        // If root already exists, just render. This scenario should ideally not happen for a top-level component.
+        // If it does, it indicates the script is running multiple times on the same element.
+        console.warn("Attempted to call createRoot on an already mounted container. Renderer will update existing root.");
+        // This line would require storing the root instance, which is not done globally here.
+        // For now, checking `_reactRootContainer` prevents the error.
+    }
 }
