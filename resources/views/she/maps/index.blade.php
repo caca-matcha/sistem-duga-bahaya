@@ -41,10 +41,17 @@
             </div>
         @endif
 
-        <!-- Section 1: Pabrik Map (Primary Map) -->
+        <!-- Section 1: Pabrik Maps (Multiple Maps) -->
         <section>
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-700 uppercase tracking-wider">Layout Utama Pabrik</h3>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700 uppercase tracking-wider">Layout Utama Pabrik</h3>
+                    <p class="text-xs text-gray-500 mt-1 italic">Kelola layout peta risiko untuk berbagai lokasi pabrik.</p>
+                </div>
+                <a href="{{ route('she.maps.create', ['type' => 'Pabrik']) }}" class="inline-flex items-center px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-lg shadow hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 transition">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    TAMBAH PABRIK
+                </a>
             </div>
             
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
@@ -54,7 +61,7 @@
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                         </div>
                         <h4 class="text-xl font-bold text-gray-900 mb-2">Belum Ada Peta Pabrik</h4>
-                        <p class="text-gray-500 max-w-sm mx-auto mb-6">Buat layout utama untuk keseluruhan pabrik. Anda hanya diperbolehkan memiliki satu peta tipe Pabrik.</p>
+                        <p class="text-gray-500 max-w-sm mx-auto mb-6">Buat layout utama untuk pabrik. Anda dapat membuat beberapa peta pabrik sesuai kebutuhan.</p>
                         <a href="{{ route('she.maps.create', ['type' => 'Pabrik']) }}" class="inline-flex items-center px-6 py-3 bg-gray-900 text-white font-bold rounded-lg hover:bg-gray-800 transition shadow-lg">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                             Inisialisasi Peta Pabrik
@@ -72,43 +79,51 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-100">
-                                <tr class="hover:bg-red-50/30 transition">
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-bold text-gray-900">{{ $pabrikMap->name }}</div>
-                                        <div class="text-xs text-gray-400">ID: #MAP-0{{ $pabrikMap->id }}</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Pabrik</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="px-2 py-1 bg-gray-100 rounded text-sm font-mono font-bold">{{ $pabrikMap->rows }} × {{ $pabrikMap->cols }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <div class="flex justify-end gap-2">
-                                            <a href="{{ route('she.maps.show', $pabrikMap->id) }}" class="inline-flex items-center p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition title="Grid Editor">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                                            </a>
-                                            <a href="{{ route('she.maps.edit', $pabrikMap->id) }}" class="inline-flex items-center p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition" title="Edit Properties">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                            </a>
-                                            <div class="relative inline-block group">
-                                                <button class="p-2 bg-gray-100 text-gray-600 rounded-lg group-hover:bg-gray-200">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                                </button>
-                                                <div class="absolute right-0 bottom-10 hidden group-hover:block bg-white border rounded-lg shadow-xl z-10 w-40 text-left">
-                                                    <a href="{{ route('she.maps.export', $pabrikMap->id) }}" class="block px-4 py-2 text-xs hover:bg-gray-50 text-gray-700 font-medium border-b italic">Export JSON</a>
-                                                    <a href="{{ route('she.maps.export-risk-excel', $pabrikMap->id) }}" class="block px-4 py-2 text-xs hover:bg-gray-50 text-gray-700 font-medium">Export Excel</a>
+                                @forelse ($pabrikMaps as $pabrikMap)
+                                    <tr class="hover:bg-red-50/30 transition">
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm font-bold text-gray-900">{{ $pabrikMap->name }}</div>
+                                            <div class="text-xs text-gray-400">ID: #MAP-0{{ $pabrikMap->id }}</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Pabrik</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <span class="px-2 py-1 bg-gray-100 rounded text-sm font-mono font-bold">{{ $pabrikMap->rows }} × {{ $pabrikMap->cols }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <div class="flex justify-end gap-2">
+                                                <a href="{{ route('she.maps.show', $pabrikMap->id) }}" class="inline-flex items-center p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition title="Grid Editor">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                                                </a>
+                                                <a href="{{ route('she.maps.edit', $pabrikMap->id) }}" class="inline-flex items-center p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition" title="Edit Properties">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                                </a>
+                                                <div class="relative inline-block group">
+                                                    <button class="p-2 bg-gray-100 text-gray-600 rounded-lg group-hover:bg-gray-200">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                                    </button>
+                                                    <div class="absolute right-0 bottom-10 hidden group-hover:block bg-white border rounded-lg shadow-xl z-10 w-40 text-left">
+                                                        <a href="{{ route('she.maps.export', $pabrikMap->id) }}" class="block px-4 py-2 text-xs hover:bg-gray-50 text-gray-700 font-medium border-b italic">Export JSON</a>
+                                                        <a href="{{ route('she.maps.export-risk-excel', $pabrikMap->id) }}" class="block px-4 py-2 text-xs hover:bg-gray-50 text-gray-700 font-medium">Export Excel</a>
+                                                    </div>
                                                 </div>
+                                                <form action="{{ route('she.maps.destroy', $pabrikMap->id) }}" method="POST" onsubmit="return confirm('Hapus peta ini beserta seluruh data cell-nya?');">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="p-2 bg-red-50 text-red-400 rounded-lg hover:bg-red-100 hover:text-red-700 transition">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    </button>
+                                                </form>
                                             </div>
-                                            <form action="{{ route('she.maps.destroy', $pabrikMap->id) }}" method="POST" onsubmit="return confirm('Hapus peta ini beserta seluruh data cell-nya?');">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="p-2 bg-red-50 text-red-400 rounded-lg hover:bg-red-100 hover:text-red-700 transition">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-12 text-center">
+                                            <p class="text-gray-400 text-sm">Tidak ditemukan peta pabrik.</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

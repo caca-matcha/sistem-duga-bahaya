@@ -18,11 +18,11 @@ class MapController extends Controller
     public function index()
     {
         Log::info('Test log entry from MapController@index'); // ADD THIS LINE
-        $pabrikMap = Map::where('type', 'Pabrik')->with('parent')->first();
+        $pabrikMaps = Map::where('type', 'Pabrik')->with('parent')->get();
         $gedungMaps = Map::where('type', 'Gedung')->with('parent')->get();
-        $existingPabrikMap = (bool) $pabrikMap;
+        $existingPabrikMap = $pabrikMaps->isNotEmpty();
 
-        return view('she.maps.index', compact('pabrikMap', 'gedungMaps', 'existingPabrikMap'));
+        return view('she.maps.index', compact('pabrikMaps', 'gedungMaps', 'existingPabrikMap'));
     }
 
     /**
@@ -30,7 +30,7 @@ class MapController extends Controller
      */
     public function create(Request $request)
     {
-        $maps = Map::where('type', 'Pabrik')->get(); // Only Pabrik maps can be parents
+        $maps = Map::where('type', 'Pabrik')->get(); // All Pabrik maps can be parents
         $existingPabrikMap = Map::where('type', 'Pabrik')->exists(); // Check if Pabrik map exists
         $type = $request->query('type', 'Gedung'); // Default to 'Gedung' if not provided
 
@@ -61,11 +61,6 @@ class MapController extends Controller
         ];
 
         $validatedData = $request->validate($rules, $messages);
-
-        // Custom validation for 'Pabrik' type uniqueness
-        if ($validatedData['type'] === 'Pabrik' && Map::where('type', 'Pabrik')->exists()) {
-            return back()->withInput()->withErrors(['type' => 'Peta dengan tipe Pabrik sudah ada. Anda hanya dapat membuat satu Peta Risiko Pabrik.']);
-        }
 
         $imagePath = null;
         if ($request->hasFile('background_image')) {

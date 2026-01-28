@@ -475,7 +475,16 @@ const GridEditor = () => {
             for (let j = visibleCellRange.startCol; j <= visibleCellRange.endCol; j++) {
                 const cellData = getCellData(i, j);
                 const isSelected = selectedCells.some(c => c.row_index === i && c.col_index === j);
-                const fillColor = cellData?.zone_color || 'white';
+
+                // For Pabrik maps, only show color if gedung_map_id exists
+                let fillColor = 'white';
+                if (cellData) {
+                    if (mapType === 'Pabrik') {
+                        fillColor = cellData.metadata?.gedung_map_id ? (cellData.zone_color || 'white') : 'white';
+                    } else {
+                        fillColor = cellData.zone_color || 'white';
+                    }
+                }
 
                 gridElements.push(
                     <Rect
@@ -485,9 +494,12 @@ const GridEditor = () => {
                         width={cellWidth}
                         height={cellHeight}
                         fill={fillColor}
-                        stroke={'#CCC'}
-                        strokeWidth={0.5}
-                        opacity={cellData ? (isSelected ? 0.9 : 0.7) : 0.5}
+                        stroke={isSelected ? '#A594F9' : '#CCC'}
+                        strokeWidth={isSelected ? 3 / stageScale : 0.5}
+                        opacity={cellData ? (isSelected ? 1 : 0.7) : 0.5}
+                        shadowColor={isSelected ? '#A594F9' : undefined}
+                        shadowBlur={isSelected ? 10 : 0}
+                        shadowOpacity={isSelected ? 0.5 : 0}
                         onMouseEnter={(e) => {
                             if (mapType === 'Pabrik' && cellData?.metadata?.gedung_map_id) {
                                 const hoveredGedung = gedungMaps.find(g => g.id === cellData.metadata.gedung_map_id);
@@ -537,9 +549,8 @@ const GridEditor = () => {
                     type="button"
                     onClick={() => fetchCells(1)}
                     disabled={isUpdating}
-                    className={`inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150 ${
-                        isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300'
-                    }`}
+                    className={`inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150 ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300'
+                        }`}
                 >
                     {isUpdating ? 'Updating...' : 'Update Map'}
                 </button>
@@ -666,7 +677,7 @@ const GridEditor = () => {
 
             {/* Modal remains largely the same */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-25 z-50 flex justify-center items-center p-4">
+                <div className="fixed inset-0 z-50 flex justify-center items-center p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
                         <div className="p-6 border-b">
                             <h3 className="text-2xl font-bold text-gray-800">Edit {selectedCells.length} cell(s)</h3>
@@ -727,9 +738,12 @@ const GridEditor = () => {
                                 <button
                                     type="button"
                                     onClick={() => setDeleteConfirmModal('gedung')}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                    className="inline-flex items-center justify-center p-2 text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                    title="Hapus Gedung"
                                 >
-                                    Hapus Gedung
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
                                 </button>
                             )}
                             <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">Cancel</button>
@@ -739,7 +753,7 @@ const GridEditor = () => {
                 </div>
             )}
             {deleteConfirmModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                <div className="fixed inset-0 z-50 flex justify-center items-center p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-sm w-full">
                         <div className="p-6 text-center">
                             <svg className="mx-auto mb-4 w-14 h-14 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
