@@ -255,8 +255,9 @@ class LocationController extends Controller
                 ->with('success', 'Data lokasi berhasil diimport!');
                 
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Location Import Error: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->route('she.locations.index')
-                ->with('error', 'Gagal mengimport data: ' . $e->getMessage());
+                ->with('error', 'Gagal mengimport data: ' . $e->getMessage() . ' (Lihat log untuk detail lebih lanjut)');
         }
     }
 }

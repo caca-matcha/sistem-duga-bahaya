@@ -60,6 +60,8 @@
                                         <div>
                                             <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Pelapor</dt>
                                             <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ $hazard->pelapor->name ?? 'N/A' }}</dd>
+                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-2">NPK</dt>
+                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ $hazard->pelapor->npk ?? 'N/A' }}</dd>
                                         </div>
                                         <div>
                                             <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Tanggal Observasi</dt>
@@ -83,6 +85,10 @@
                                             <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Kategori STOP6</dt>
                                             <dd class="text-base font-semibold text-gray-800 mt-0.5">{{ $final_kategori_stop6 ?? 'N/A' }}</dd>
                                         </div>
+                                    </div>
+                                    <div class="pt-3 border-t border-gray-200">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ide Penanggulangan</dt>
+                                        <dd class="text-base text-gray-700 leading-relaxed italic">"{{ $hazard->ide_penanggulangan ?? 'N/A' }}"</dd>
                                     </div>
                                 </div>
                             </section>
@@ -162,11 +168,19 @@
                                             </div>
                                         </div>
 
+                                        {{-- Ide Penanggulangan Input --}}
+                                        <div>
+                                            <label class="block text-xs font-black text-gray-700 uppercase tracking-wide">Ide Penanggulangan</label>
+                                            <textarea name="ide_penanggulangan" rows="4" placeholder="Deskripsikan ide atau usulan penanggulangan awal..." class="mt-2 w-full text-sm bg-gray-50 rounded-lg border-gray-200 shadow-sm focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                                        </div>
+
                                         {{-- Rencana Tindakan --}}
                                         <div>
                                             <label class="block text-xs font-black text-gray-700 uppercase tracking-wide">Rencana Tindakan Perbaikan</label>
-                                            <textarea name="tindakan_perbaikan" rows="4" class="mt-2 w-full text-sm bg-gray-50 rounded-lg border-gray-200 shadow-sm focus:ring-emerald-500 focus:border-emerald-500" required></textarea>
+                                            <textarea name="tindakan_perbaikan" rows="4" placeholder="Deskripsikan rencana tindakan perbaikan yang akan dilakukan..." class="mt-2 w-full text-sm bg-gray-50 rounded-lg border-gray-200 shadow-sm focus:ring-emerald-500 focus:border-emerald-500" required></textarea>
                                         </div>
+
+
                                         
                                         {{-- Warning Target Penyelesaian --}}
                                         <div class="p-3 bg-amber-50 border-l-4 border-amber-200 text-amber-700 mb-6" role="alert">
@@ -180,7 +194,7 @@
                                                 {{-- DROPDOWN DURASI --}}
                                                 <div>
                                                     <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-tight">Pilih Durasi Cepat</label>
-                                                    <select id="durasi" class="w-full text-sm rounded-md border-gray-300 shadow-sm" required>
+                                                    <select id="durasi" class="w-full text-sm rounded-md border-gray-300 shadow-sm">
                                                         <option value="">Pilih Durasi</option>
                                                         <optgroup label="Hari">
                                                             <option value="hari_1">1 Hari</option>
@@ -207,7 +221,7 @@
                                                 </div>
                                                 {{-- TANGGAL TARGET OTOMATIS --}}
                                                 <div>
-                                                    <label for="target_penyelesaian" class="block text-[10px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-tight">Atau Pilih Tanggal</label>
+                                                    <label for="target_penyelesaian" class="block text-[10px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-tight">&nbsp;</label>
                                                     <input type="date" name="target_penyelesaian" id="target_penyelesaian" class="w-full text-sm rounded-md border-gray-300 bg-gray-100 shadow-sm" required>
                                                 </div>
                                             </div>
@@ -275,7 +289,6 @@
                 targetInput.value = `${year}-${month}-${day}`;
                 
                 // Reset durasi select ke default untuk memungkinkan user memilih tanggal manual tanpa bingung
-                this.value = '';
             });
 
             // Jika user memilih tanggal manual, pastikan select durasi tidak terpilih
