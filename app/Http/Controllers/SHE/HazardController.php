@@ -25,23 +25,23 @@ class HazardController extends Controller
         $month = $request->input('month');
         $year = $request->input('year');
 
-        if (! empty($month)) {
+        if (!empty($month)) {
             $baseQuery->whereMonth('tgl_observasi', $month);
         }
-        if (! empty($year)) {
+        if (!empty($year)) {
             $baseQuery->whereYear('tgl_observasi', $year);
         }
 
         // Apply Search Filter
-        if ($request->has('search') && ! empty($request->search)) {
+        if ($request->has('search') && !empty($request->search)) {
             $searchTerm = strtolower($request->search);
             $baseQuery->where(function ($q) use ($searchTerm) {
-                $q->where('hazards.id', 'LIKE', '%'.$searchTerm.'%') // Search ID
-                    ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', '%'.$searchTerm.'%') // Search Date
+                $q->where('hazards.id', 'LIKE', '%' . $searchTerm . '%') // Search ID
+                    ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', '%' . $searchTerm . '%') // Search Date
                     ->orWhereHas('pelapor', function ($userQuery) use ($searchTerm) { // Search Reporter Name
-                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
+                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $searchTerm . '%');
                     })
-                    ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', '%'.$searchTerm.'%'); // Search Short Description
+                    ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', '%' . $searchTerm . '%'); // Search Short Description
 
                 // Risk Level (Low, Medium, High, Medium-High, Extreme) - Case-insensitive
                 if (strtolower($searchTerm) === 'low') {
@@ -56,30 +56,47 @@ class HazardController extends Controller
                     $q->orWhere('risk_score', '>', 20);
                 }
                 // Also allow direct search on 'kategori_resiko' string itself
-                $q->orWhere(DB::raw('LOWER(kategori_resiko)'), 'LIKE', '%'.$searchTerm.'%');
+                $q->orWhere(DB::raw('LOWER(kategori_resiko)'), 'LIKE', '%' . $searchTerm . '%');
             });
         }
 
         // Split by status after applying global filters
-        $hazardsMenungguValidasi = (clone $baseQuery)->where('status', 'menunggu validasi')->latest()->paginate(10, ['*'], 'baru_page')->withQueryString();
-        $hazardsDiproses = (clone $baseQuery)->where('status', 'diproses')->latest()->paginate(10, ['*'], 'diproses_page')->withQueryString();
-        $hazardsSelesai = (clone $baseQuery)->whereIn('status', ['selesai', 'ditolak'])->orderBy('ditangani_pada', 'desc')->paginate(10, ['*'], 'selesai_page')->withQueryString();
+        $hazardsMenungguValidasi = (clone $baseQuery)->where('status', 'menunggu validasi')->latest()->paginate(10, ['*'], 'baru_page')->appends(['tab' => 'baru'])->withQueryString();
+        $hazardsDiproses = (clone $baseQuery)->where('status', 'diproses')->latest()->paginate(10, ['*'], 'diproses_page')->appends(['tab' => 'diproses'])->withQueryString();
+        $hazardsSelesai = (clone $baseQuery)->whereIn('status', ['selesai', 'ditolak'])->orderBy('ditangani_pada', 'desc')->paginate(10, ['*'], 'selesai_page')->appends(['tab' => 'selesai'])->withQueryString();
+
+        // Specific query for 'Semua' tab with optional status filter
+        $semuaQuery = clone $baseQuery;
+        if ($request->filled('status')) {
+            $statusFilter = $request->status;
+            if ($statusFilter === 'selesai') {
+                $semuaQuery->whereIn('status', ['selesai', 'ditolak']);
+            } elseif ($statusFilter === 'menunggu') {
+                $semuaQuery->where('status', 'menunggu validasi');
+            } else {
+                $semuaQuery->where('status', $statusFilter);
+            }
+        }
+        $hazardsSemua = $semuaQuery->latest()->paginate(10, ['*'], 'semua_page')->appends(['tab' => 'semua'])->withQueryString(); // Fetch ALL reports with status filter if any
 
         // If it's an AJAX request, return JSON with rendered partials
         if ($request->ajax()) {
             return response()->json([
                 'menunggu_validasi_html' => view('she.hazards._table_menunggu_validasi_rows', compact('hazardsMenungguValidasi'))->render(),
-                'menunggu_validasi_pagination' => $hazardsMenungguValidasi->links()->toHtml(),
+                'menunggu_validasi_pagination' => $hazardsMenungguValidasi->links('vendor.pagination.custom')->toHtml(),
 
                 'diproses_html' => view('she.hazards._table_diproses_rows', compact('hazardsDiproses'))->render(),
-                'diproses_pagination' => $hazardsDiproses->links()->toHtml(),
+                'diproses_pagination' => $hazardsDiproses->links('vendor.pagination.custom')->toHtml(),
 
                 'selesai_html' => view('she.hazards._table_selesai_rows', compact('hazardsSelesai'))->render(),
-                'selesai_pagination' => $hazardsSelesai->links()->toHtml(),
+                'selesai_pagination' => $hazardsSelesai->links('vendor.pagination.custom')->toHtml(),
+
+                'semua_html' => view('she.hazards._table_semua_rows', compact('hazardsSemua'))->render(),
+                'semua_pagination' => $hazardsSemua->links('vendor.pagination.custom')->toHtml(),
             ]);
         }
 
-        return view('she.hazards.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai'));
+        return view('she.hazards.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai', 'hazardsSemua'));
     }
 
     /**
@@ -218,7 +235,7 @@ class HazardController extends Controller
 
         // --- 1. OTOMATISASI DATA PENANGANAN ---
         $validated['ditangani_oleh'] = Auth::id(); // ID User SHE yang memproses
-        if (! $hazard->ditangani_pada) {
+        if (!$hazard->ditangani_pada) {
             $validated['ditangani_pada'] = now();
         }
 
@@ -286,7 +303,7 @@ class HazardController extends Controller
                 $file = $request->file('foto_bukti_penyelesaian');
 
                 // Simpan dengan nama asli (disanitasi oleh Laravel storeAs)
-                $filename = time().'_'.$file->getClientOriginalName();
+                $filename = time() . '_' . $file->getClientOriginalName();
 
                 $validated['foto_bukti_penyelesaian'] = $file->storeAs('completion_photos', $filename, 'public');
             }
@@ -307,17 +324,17 @@ class HazardController extends Controller
             switch ($validated['status']) {
                 case 'diproses':
                     $notificationTitle = 'Laporan Anda Diproses';
-                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' sedang ditindaklanjuti oleh tim SHE.';
+                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' sedang ditindaklanjuti oleh tim SHE.';
                     $notificationType = 'info';
                     break;
                 case 'selesai':
                     $notificationTitle = 'Laporan Anda Selesai';
-                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' telah diselesaikan. Terima kasih atas partisipasi Anda.';
+                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' telah diselesaikan. Terima kasih atas partisipasi Anda.';
                     $notificationType = 'success';
                     break;
                 case 'ditolak':
                     $notificationTitle = 'Laporan Anda Ditolak';
-                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' ditolak. Silakan periksa detailnya.';
+                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' ditolak. Silakan periksa detailnya.';
                     $notificationType = 'warning';
                     break;
             }
@@ -369,7 +386,7 @@ class HazardController extends Controller
         // Default redirect for other statuses
         return redirect()
             ->route('she.hazards.show', $hazard)
-            ->with('success', 'Laporan berhasil diperbarui ke status: '.ucfirst($validated['status']).'.');
+            ->with('success', 'Laporan berhasil diperbarui ke status: ' . ucfirst($validated['status']) . '.');
     }
 
     // ===============================================
@@ -419,7 +436,7 @@ class HazardController extends Controller
         $validatedData = $request->session()->get('validated_data');
 
         // Jika data tidak ada (misal, user akses URL langsung), redirect kembali
-        if (! $validatedData) {
+        if (!$validatedData) {
             return redirect()->route('she.hazards.diprosesForm', $hazard)->with('error', 'Silakan isi form validasi terlebih dahulu.');
         }
 
@@ -448,7 +465,7 @@ class HazardController extends Controller
         $validatedData = $request->session()->get('validated_data');
 
         // Jika data tidak ada (misal, user akses URL langsung), redirect kembali
-        if (! $validatedData) {
+        if (!$validatedData) {
             return redirect()->route('she.hazards.diprosesForm', $hazard)->with('error', 'Silakan isi form validasi terlebih dahulu.');
         }
 
@@ -485,11 +502,11 @@ class HazardController extends Controller
             ->latest()
             ->get();
 
-        $filename = 'hazard_reports_export_'.now()->format('Y-m-d_H-i-s').'.csv';
+        $filename = 'hazard_reports_export_' . now()->format('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Pragma' => 'no-cache',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => '0',
@@ -499,7 +516,7 @@ class HazardController extends Controller
             $file = fopen('php://output', 'w');
 
             // Add BOM for UTF-8 Excel compatibility
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             // Define headers
             $columns = [
@@ -548,7 +565,7 @@ class HazardController extends Controller
                     $hazard->location?->name ?? $hazard->area_name,
                     $hazard->lokasi_detail_manual,
                     $hazard->deskripsi_bahaya,
-                    $hazard->foto_bukti ? asset('storage/'.$hazard->foto_bukti) : 'N/A',
+                    $hazard->foto_bukti ? asset('storage/' . $hazard->foto_bukti) : 'N/A',
                     $hazard->kategori_stop6,
                     $hazard->tingkat_keparahan,
                     $hazard->kemungkinan_terjadi,
@@ -565,7 +582,7 @@ class HazardController extends Controller
                     $hazard->final_kategori_stop6 ?? 'N/A',
                     is_array($hazard->upaya_penanggulangan) ? implode(', ', $hazard->upaya_penanggulangan) : $hazard->upaya_penanggulangan,
                     $hazard->tindakan_perbaikan,
-                    $hazard->foto_bukti_penyelesaian ? asset('storage/'.$hazard->foto_bukti_penyelesaian) : 'N/A',
+                    $hazard->foto_bukti_penyelesaian ? asset('storage/' . $hazard->foto_bukti_penyelesaian) : 'N/A',
                     $hazard->report_selesai ? \Carbon\Carbon::parse($hazard->report_selesai)->format('d/m/Y') : 'N/A',
                 ]);
             }
@@ -646,8 +663,8 @@ class HazardController extends Controller
         foreach ($overdueValidationHazards as $hazard) {
             $notifications->push([
                 'id' => $hazard->id,
-                'title' => 'Belum Divalidasi: #'.$hazard->id,
-                'description' => $hazard->deskripsi_bahaya.' (Tertahan '.$hazard->created_at->diffForHumans(null, true).')',
+                'title' => 'Belum Divalidasi: #' . $hazard->id,
+                'description' => $hazard->deskripsi_bahaya . ' (Tertahan ' . $hazard->created_at->diffForHumans(null, true) . ')',
                 'time_ago' => $hazard->created_at->diffForHumans(),
                 'link' => route('she.hazards.show', $hazard),
                 'type' => 'overdue',
@@ -663,8 +680,8 @@ class HazardController extends Controller
         foreach ($overdueHazards as $hazard) {
             $notifications->push([
                 'id' => $hazard->id,
-                'title' => 'Laporan Overdue: #'.$hazard->id,
-                'description' => $hazard->deskripsi_bahaya.' (Terlambat '.Carbon::parse($hazard->target_penyelesaian)->diffForHumans(null, true).')',
+                'title' => 'Laporan Overdue: #' . $hazard->id,
+                'description' => $hazard->deskripsi_bahaya . ' (Terlambat ' . Carbon::parse($hazard->target_penyelesaian)->diffForHumans(null, true) . ')',
                 'time_ago' => $hazard->created_at->diffForHumans(),
                 'link' => route('she.hazards.show', $hazard),
                 'type' => 'overdue',
@@ -681,8 +698,8 @@ class HazardController extends Controller
         foreach ($dueSoonHazards as $hazard) {
             $notifications->push([
                 'id' => $hazard->id,
-                'title' => 'Laporan Jatuh Tempo: #'.$hazard->id,
-                'description' => $hazard->deskripsi_bahaya.' (Jatuh tempo '.Carbon::parse($hazard->target_penyelesaian)->diffForHumans().')',
+                'title' => 'Laporan Jatuh Tempo: #' . $hazard->id,
+                'description' => $hazard->deskripsi_bahaya . ' (Jatuh tempo ' . Carbon::parse($hazard->target_penyelesaian)->diffForHumans() . ')',
                 'time_ago' => $hazard->created_at->diffForHumans(),
                 'link' => route('she.hazards.show', $hazard),
                 'type' => 'due_soon',

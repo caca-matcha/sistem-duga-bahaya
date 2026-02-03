@@ -298,6 +298,24 @@
                                             </div>
                                         @endif
                                         <div class="pt-2 border-t border-gray-100">
+                                            <dt class="text-xs text-gray-400 uppercase font-semibold mb-2">Tanggal
+                                                Observasi</dt>
+                                            <dd class="flex items-center gap-2">
+                                                <div class="p-2 bg-teal-50 rounded-lg">
+                                                    <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                        </path>
+                                                    </svg>
+                                                </div>
+                                                <p class="text-sm font-bold text-gray-800">
+                                                    {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->locale('id')->translatedFormat('d F Y') }}
+                                                </p>
+                                            </dd>
+                                        </div>
+                                        <div class="pt-2 border-t border-gray-100">
                                             <dt class="text-xs text-gray-400 uppercase font-semibold mb-1">Kategori
                                                 STOP-6</dt>
                                             <dd>

@@ -2,28 +2,38 @@
     @section('page-title', '')
 
     <!-- Header dengan Glassmorphism Effect -->
+    <!-- Header Standardized -->
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center gap-2">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                    {{ __('SHE Hazard Report') }}
-                </h2>
-                <p class="text-sm text-gray-500 mt-1">Monitoring keselamatan kerja & mitigasi risiko area</p>
+        <div class="relative py-2">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shadow-sm border border-red-100/50">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">
+                            SHE Hazard Report</h2>
+                        <p
+                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
+                            Monitoring keselamatan kerja & mitigasi risiko area.</p>
+                    </div>
+                </div>
             </div>
-
-
+            <div
+                class="absolute -bottom-4 left-0 w-32 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full opacity-50">
+            </div>
         </div>
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ 
                     activeTab: new URLSearchParams(window.location.search).get('tab') || (window.location.hash ? window.location.hash.replace('#', '') : 'baru'),
-                    selectionMode: false, // New state for selection mode
+                    selectionMode: false,
                     selectedHazards: [],
 
                     init() {
@@ -31,6 +41,7 @@
                         const searchInput = document.getElementById('search_input');
                         const monthSelect = form.querySelector('select[name=\'month\']');
                         const yearSelect = form.querySelector('select[name=\'year\']');
+                        const statusSelect = form.querySelector('select[name=\'status\']');
                         const contentArea = document.getElementById('hazard-content-area');
 
                         let debounceTimer;
@@ -42,13 +53,13 @@
 
                         monthSelect.addEventListener('change', () => this.fetchResults());
                         yearSelect.addEventListener('change', () => this.fetchResults());
+                        statusSelect.addEventListener('change', () => this.fetchResults());
                         
                         // Delegated listener for pagination clicks
                         contentArea.addEventListener('click', (event) => {
-                            const target = event.target.closest('.pagination a');
+                            const target = event.target.closest('nav[role=\'navigation\'] a');
                             if (target) {
                                 event.preventDefault();
-                                console.log('Pagination link clicked:', target.href); // Debugging line
                                 this.fetchResults(target.href);
                             }
                         });
@@ -71,8 +82,11 @@
                             document.getElementById('tbody-selesai').innerHTML = response.data.selesai_html;
                             document.getElementById('pagination-selesai').innerHTML = response.data.selesai_pagination;
 
+                            document.getElementById('tbody-semua').innerHTML = response.data.semua_html;
+                            document.getElementById('pagination-semua').innerHTML = response.data.semua_pagination;
+
                             window.history.pushState({}, '', fetchUrl);
-                            this.selectedHazards = []; // Clear selection on new data load
+                            this.selectedHazards = []; 
                         })
                         .catch(error => {
                             console.error('Error fetching filtered results:', error);
@@ -82,18 +96,16 @@
                     setTab(tab) {
                         this.activeTab = tab;
                         document.getElementById('activeTabInput').value = tab;
-                        this.selectionMode = false; // Reset selection mode on tab change
-                        this.selectedHazards = []; // Clear selection when changing tabs
+                        this.selectionMode = false;
+                        this.selectedHazards = []; 
                         this.fetchResults();
                     },
 
                     toggleSelectAll(ids) {
                         const allSelectedOnPage = ids.every(id => this.selectedHazards.includes(id));
                         if (allSelectedOnPage) {
-                            // Deselect all on current page
                             this.selectedHazards = this.selectedHazards.filter(id => !ids.includes(id));
                         } else {
-                            // Select all on current page
                             ids.forEach(id => {
                                 if (!this.selectedHazards.includes(id)) {
                                     this.selectedHazards.push(id);
@@ -102,16 +114,14 @@
                         }
                     },
 
-                    // Method to enter selection mode
                     enterSelectionMode() {
                         this.selectionMode = true;
-                        this.selectedHazards = []; // Clear any previous selections
+                        this.selectedHazards = []; 
                     },
 
-                    // Method to exit selection mode
                     exitSelectionMode() {
                         this.selectionMode = false;
-                        this.selectedHazards = []; // Clear selections
+                        this.selectedHazards = []; 
                     },
 
                     get exportUrl() {
@@ -162,6 +172,41 @@
                             </select>
                         </div>
 
+                        <!-- Status Filter (Clickable Badges - Only for 'Semua' tab) -->
+                        <div x-show="activeTab === 'semua'" x-cloak
+                            x-data="{ currentStatus: '{{ request('status', '') }}' }"
+                            class="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                            <input type="hidden" name="status" x-model="currentStatus">
+
+                            {{-- Semua --}}
+                            <button type="button" @click="currentStatus = ''; fetchResults()"
+                                :class="currentStatus === '' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:bg-gray-200/50'"
+                                class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200">
+                                Semua
+                            </button>
+
+                            {{-- Menunggu --}}
+                            <button type="button" @click="currentStatus = 'menunggu'; fetchResults()"
+                                :class="currentStatus === 'menunggu' ? 'bg-amber-100 text-amber-700 shadow-sm border-amber-200' : 'text-gray-500 hover:bg-gray-200/50'"
+                                class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
+                                Menunggu
+                            </button>
+
+                            {{-- Diproses --}}
+                            <button type="button" @click="currentStatus = 'diproses'; fetchResults()"
+                                :class="currentStatus === 'diproses' ? 'bg-blue-100 text-blue-700 shadow-sm border-blue-200' : 'text-gray-500 hover:bg-gray-200/50'"
+                                class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
+                                Diproses
+                            </button>
+
+                            {{-- Selesai --}}
+                            <button type="button" @click="currentStatus = 'selesai'; fetchResults()"
+                                :class="currentStatus === 'selesai' ? 'bg-emerald-100 text-emerald-700 shadow-sm border-emerald-200' : 'text-gray-500 hover:bg-gray-200/50'"
+                                class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
+                                Selesai
+                            </button>
+                        </div>
+
                         <!-- Action Buttons -->
                         <div class="flex items-center gap-2 ml-auto pr-1">
                             @if(request('month') || request('search'))
@@ -210,6 +255,20 @@
             <div class="sticky top-[138px] z-20 bg-gray-50 pb-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 pt-2">
                     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        {{-- Tab Semua Laporan --}}
+                        <button @click="setTab('semua')" :class="activeTab === 'semua' 
+                            ? 'border-purple-500 text-purple-600' 
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                            class="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            <svg :class="activeTab === 'semua' ? 'text-purple-500' : 'text-gray-400 group-hover:text-gray-500'"
+                                class="-ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            Semua Laporan
+                        </button>
+
                         {{-- Tab Baru --}}
                         <button @click="setTab('baru')" :class="activeTab === 'baru' 
                             ? 'border-indigo-500 text-indigo-600' 
@@ -282,6 +341,57 @@
                     class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
                     <!-- CONTENT AREA -->
                     <div class="p-6">
+
+                        {{-- ================= TAB: SEMUA LAPORAN ================= --}}
+                        <div x-show="activeTab === 'semua'" x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-2">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-bold text-gray-800">Semua Laporan Masuk</h3>
+                                <span class="text-xs text-gray-500">Menampilkan seluruh data</span>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+                                <table class="min-w-full divide-y divide-gray-200 table-auto">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <template x-if="selectionMode">
+                                                <th scope="col" class="p-4">
+                                                    <input type="checkbox"
+                                                        @click="toggleSelectAll({{ $hazardsSemua->pluck('id') }})"
+                                                        :checked="selectedHazards.length === {{ $hazardsSemua->pluck('id')->count() }} && {{ $hazardsSemua->pluck('id')->count() }} > 0"
+                                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                </th>
+                                            </template>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                ID & Tanggal</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Pelapor</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Status</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Risiko</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-semua" class="bg-white divide-y divide-gray-200">
+                                        @include('she.hazards._table_semua_rows', ['hazardsSemua' => $hazardsSemua])
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="pagination-semua">
+                                {{ $hazardsSemua->links('vendor.pagination.custom') }}
+                            </div>
+                        </div>
 
                         {{-- ================= TAB: LAPORAN BARU ================= --}}
                         <div x-show="activeTab === 'baru'" x-transition:enter="transition ease-out duration-300"
@@ -356,7 +466,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                                {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                                                                                            {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
                                                         {{ $hazard->risk_score }}
                                                     </span>
                                                     <div class="text-xs text-gray-500 mt-1">
@@ -386,7 +496,9 @@
                                     </tbody>
                                 </table>
                             </div>
-                            {{ $hazardsMenungguValidasi->links('vendor.pagination.custom') }}
+                            <div id="pagination-baru">
+                                {{ $hazardsMenungguValidasi->links('vendor.pagination.custom') }}
+                            </div>
                         </div>
 
                         {{-- ================= TAB: DIPROSES ================= --}}
@@ -501,7 +613,9 @@
                                     </tbody>
                                 </table>
                             </div>
-                            {{ $hazardsDiproses->links('vendor.pagination.custom') }}
+                            <div id="pagination-diproses">
+                                {{ $hazardsDiproses->links('vendor.pagination.custom') }}
+                            </div>
                         </div>
 
                         {{-- ================= TAB: SELESAI / DITOLAK ================= --}}
@@ -637,12 +751,13 @@
                                     </tbody>
                                 </table>
                             </div>
-                            {{ $hazardsSelesai->links('vendor.pagination.custom') }}
-                        </div>
+                            <div id="pagination-selesai">
+                                {{ $hazardsSelesai->links('vendor.pagination.custom') }}
+                            </div>
 
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
 </x-app-layout>

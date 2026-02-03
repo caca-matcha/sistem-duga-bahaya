@@ -16,6 +16,8 @@ class DashboardController extends Controller
     {
         $totalReports = Hazard::count();
         $validatedReports = Hazard::where('status', 'selesai')->count();
+        $processedReports = Hazard::where('status', 'diproses')->count();
+        $pendingReports = Hazard::where('status', 'menunggu validasi')->count();
         $latestReports = Hazard::where('created_at', '>=', Carbon::now()->subDays(7))
             ->latest()
             ->take(20)
@@ -26,7 +28,6 @@ class DashboardController extends Controller
             ->whereNotNull('kategori_resiko') // Exclude hazards with no risk category
             ->groupBy('kategori_resiko')
             ->pluck('count', 'kategori_resiko');
-
 
         // Logic for "Top lokasi dengan risiko tertinggi"
         $topRiskLocations = Hazard::select('area_gedung', DB::raw('SUM(risk_score) as total_risk_score'))
@@ -44,9 +45,9 @@ class DashboardController extends Controller
 
         // Logic for Overdue and Due Soon Hazards
         $allPendingActionHazards = Hazard::where('status', 'diproses')
-                                        ->whereNotNull('target_penyelesaian')
-                                        ->with('pelapor')
-                                        ->get();
+            ->whereNotNull('target_penyelesaian')
+            ->with('pelapor')
+            ->get();
 
         $overdueHazards = $allPendingActionHazards->filter(function ($hazard) {
             return Carbon::parse($hazard->target_penyelesaian)->isPast();
@@ -54,10 +55,9 @@ class DashboardController extends Controller
 
         $dueSoonHazards = $allPendingActionHazards->filter(function ($hazard) {
             return Carbon::parse($hazard->target_penyelesaian)->isFuture() &&
-                   Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
+                Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
         });
 
-
-        return view('she.dashboard', compact('totalReports', 'validatedReports', 'latestReports', 'riskCounts', 'topRiskLocations', 'hazardsPerluPerhatian', 'overdueHazards', 'dueSoonHazards'));
+        return view('she.dashboard', compact('totalReports', 'validatedReports', 'processedReports', 'pendingReports', 'latestReports', 'riskCounts', 'topRiskLocations', 'hazardsPerluPerhatian', 'overdueHazards', 'dueSoonHazards'));
     }
 }

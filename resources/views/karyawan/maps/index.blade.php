@@ -1,6 +1,43 @@
 <x-app-layout>
-    @section('page-title', '')
+    <x-slot name="header">
+        <div class="relative py-2">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shadow-sm border border-red-100/50">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">
+                            Peta Risiko Bahaya</h2>
+                        <p
+                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
+                            Pilih gedung pada peta untuk melihat visualisasi bahaya secara real-time.</p>
+                    </div>
+                </div>
 
+                {{-- Quick Stats Backdrop --}}
+                <div
+                    class="hidden lg:flex items-center gap-6 px-6 py-3 bg-gray-50/50 border border-gray-100 rounded-2xl">
+                    <div class="flex items-center gap-2">
+                        <span class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live
+                            Monitoring</span>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="absolute -bottom-4 left-0 w-32 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full opacity-50">
+            </div>
+        </div>
+    </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -13,35 +50,6 @@
 
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 sm:p-8">
-                    <div class="relative mb-10">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shadow-sm border border-red-100/50">
-                                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-extrabold text-gray-900 tracking-tight leading-none">Peta Risiko Bahaya</h3>
-                                    <p class="text-gray-400 text-[10px] font-medium mt-1 tracking-tight uppercase tracking-wider">Pilih gedung pada peta untuk melihat visualisasi bahaya secara real-time.</p>
-                                </div>
-                            </div>
-
-                            {{-- Quick Stats Backdrop --}}
-                            <div
-                                class="hidden lg:flex items-center gap-6 px-6 py-3 bg-gray-50/50 border border-gray-100 rounded-2xl">
-                                <div class="flex items-center gap-2">
-                                    <span class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live
-                                        Monitoring</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="absolute -bottom-4 left-0 w-32 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full opacity-50">
-                        </div>
-                    </div>
 
                     {{-- Pabrik Maps Section (Visual Viewer) --}}
                     @if($pabrikMap)

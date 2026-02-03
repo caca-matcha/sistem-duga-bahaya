@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Hazard;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; // IMPORT DB FACADE
 
@@ -37,13 +37,21 @@ class DashboardController extends Controller
         // Filter by Search Term
         if ($request->filled('search')) {
             $searchTerm = strtolower($request->search);
-            $query->where(function ($q) use ($searchTerm) {
+
+            // Translate Indonesian months to English for date search
+            $indoMonths = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
+            $engMonths = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+            $searchTermEnglish = str_replace($indoMonths, $engMonths, $searchTerm);
+
+            $query->where(function ($q) use ($searchTerm, $searchTermEnglish) {
                 $q->where('id', 'LIKE', "%{$searchTerm}%")
-                  ->orWhereRaw('LOWER(tgl_observasi) LIKE ?', ["%{$searchTerm}%"])
-                  ->orWhereRaw('LOWER(deskripsi_bahaya) LIKE ?', ["%{$searchTerm}%"])
-                  ->orWhereRaw('LOWER(area_gedung) LIKE ?', ["%{$searchTerm}%"])
-                  ->orWhereRaw('LOWER(area_name) LIKE ?', ["%{$searchTerm}%"])
-                  ->orWhereRaw('LOWER(status) LIKE ?', ["%{$searchTerm}%"]);
+                    ->orWhereRaw('LOWER(tgl_observasi) LIKE ?', ["%{$searchTerm}%"]) // Matches 2026-02-03
+                    ->orWhereRaw("LOWER(DATE_FORMAT(tgl_observasi, '%d %M %Y')) LIKE ?", ["%{$searchTermEnglish}%"]) // Matches 03 February 2026
+                    ->orWhereRaw("LOWER(DATE_FORMAT(tgl_observasi, '%W, %d %M %Y')) LIKE ?", ["%{$searchTermEnglish}%"]) // Matches Tuesday, 03 February 2026
+                    ->orWhereRaw('LOWER(deskripsi_bahaya) LIKE ?', ["%{$searchTerm}%"])
+                    ->orWhereRaw('LOWER(area_gedung) LIKE ?', ["%{$searchTerm}%"])
+                    ->orWhereRaw('LOWER(area_name) LIKE ?', ["%{$searchTerm}%"])
+                    ->orWhereRaw('LOWER(status) LIKE ?', ["%{$searchTerm}%"]);
             });
         }
 

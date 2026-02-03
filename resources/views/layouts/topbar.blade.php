@@ -15,8 +15,8 @@
     <div class="flex items-center gap-3 md:gap-6">
         <!-- Tanggal - Hidden on mobile, visible on tablet+ -->
         <p class="hidden md:block text-sm text-gray-600 font-medium">
-            {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Monday, 02 March 2020) --}}
-            {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+            {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Senin, 02 Maret 2020) --}}
+            {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}
         </p>
 
         <!-- User Profile & Actions -->
@@ -37,7 +37,7 @@
 
                     {{-- Badge Notifikasi (Jumlah notifikasi belum terbaca) --}}
                     <span id="notification-count-badge"
-                        class="absolute -top-1 -right-1 block h-3 w-3 rounded-full ring-2 ring-white bg-red-500 text-xs text-white flex items-center justify-center pointer-events-none transform translate-x-1/2 -translate-y-1/2"
+                        class="absolute top-0 right-0 block h-5 w-5 rounded-full ring-2 ring-white bg-red-600 text-[10px] font-bold text-white flex items-center justify-center pointer-events-none transform translate-x-1/3 -translate-y-1/3 shadow-sm"
                         style="display: none;">
                         <span class="sr-only">0 notifikasi baru</span>
                     </span>

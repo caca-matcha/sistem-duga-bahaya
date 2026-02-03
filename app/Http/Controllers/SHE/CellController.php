@@ -409,13 +409,17 @@ class CellController extends Controller
     public function getHazardSummary(Cell $cell)
     {
         try {
-            Log::info("Fetching hazard summary for cell ID: {$cell->id}");
+            Log::info("Fetching hazard summary for cell ID: {$cell->id}, location_id: {$cell->location_id}");
 
-            // Get all active hazards for this cell
-            $hazards = Hazard::where('cell_id', $cell->id)
-                ->whereIn('status', ['Belum Diproses', 'Diproses'])
-                ->orderBy('created_at', 'desc')
-                ->get(['jenis_bahaya', 'deskripsi_bahaya', 'status', 'created_at']);
+            // Get all active hazards for this cell's location
+            $hazards = collect();
+
+            if ($cell->location_id) {
+                $hazards = Hazard::where('location_id', $cell->location_id)
+                    ->whereIn('status', ['diproses', 'selesai'])
+                    ->orderBy('created_at', 'desc')
+                    ->get(['kategori_stop6', 'deskripsi_bahaya', 'status', 'created_at']);
+            }
 
             Log::info("Found {$hazards->count()} hazards for cell {$cell->id}");
 
@@ -427,22 +431,24 @@ class CellController extends Controller
             }
 
             // Create a detailed summary
-            $types = $hazards->pluck('jenis_bahaya')->unique()->values()->toArray();
+            $types = $hazards->pluck('kategori_stop6')->unique()->values()->toArray();
             $count = $hazards->count();
 
             // Mapping for specific hazard codes to descriptive text
             $hazardMappings = [
-                'A' => 'Terjepit/Tergores',
-                // Tambahkan kode lain di sini jika diperlukan. Contoh:
-                // 'B' => 'Terbakar',
-                // 'C' => 'Jatuh dari Ketinggian',
+                'A' => 'Potensi terjepit atau tergores oleh aparatus',
+                'B' => 'Risiko tertimpa benda berat',
+                'C' => 'Bahaya dari kendaraan atau forklift',
+                'D' => 'Risiko jatuh atau terpeleset',
+                'E' => 'Bahaya sengatan listrik',
+                'F' => 'Risiko terbakar atau terpapar panas',
+                'O' => 'Bahaya kimia atau lainnya',
             ];
 
             // Translate codes to descriptive text, keep original if no mapping exists
-            $displayTypes = array_map(function($type) use ($hazardMappings) {
+            $displayTypes = array_map(function ($type) use ($hazardMappings) {
                 return $hazardMappings[$type] ?? $type;
             }, $types);
-
 
             // Build summary string
             if (count($displayTypes) <= 3) {

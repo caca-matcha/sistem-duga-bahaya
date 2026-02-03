@@ -529,7 +529,7 @@ const MapViewer = () => {
 
                             {/* Hazard Summary */}
                             {hazardSummary && hazardSummary !== 'Tidak ada laporan bahaya aktif.' && (
-                                <div className="bg-amber-50 border-l-3 border-amber-400 p-3 rounded-r">
+                                <div className="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r">
                                     <p className="text-xs font-bold text-amber-800 mb-1">POTENSI BAHAYA</p>
                                     <p className="text-xs text-gray-700">{hazardSummary}</p>
                                 </div>
