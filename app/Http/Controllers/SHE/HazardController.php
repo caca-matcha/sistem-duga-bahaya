@@ -86,7 +86,7 @@ class HazardController extends Controller
      * Menyimpan laporan duga bahaya baru yang dikirim oleh karyawan.
      * Metode ini menerima semua input termasuk risk_score dan kategori_resiko (dari JS).
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -218,7 +218,9 @@ class HazardController extends Controller
 
         // --- 1. OTOMATISASI DATA PENANGANAN ---
         $validated['ditangani_oleh'] = Auth::id(); // ID User SHE yang memproses
-        $validated['ditangani_pada'] = now();
+        if (! $hazard->ditangani_pada) {
+            $validated['ditangani_pada'] = now();
+        }
 
         // --- 2. LOGIKA VALIDASI (Hitung Final Risk Score) ---
         $finalSeverity = $validated['final_tingkat_keparahan'] ?? $hazard->final_tingkat_keparahan ?? $hazard->tingkat_keparahan;
@@ -281,9 +283,12 @@ class HazardController extends Controller
                     Storage::disk('public')->delete($hazard->foto_bukti_penyelesaian);
                 }
 
-                $validated['foto_bukti_penyelesaian'] = $request
-                    ->file('foto_bukti_penyelesaian')
-                    ->store('completion_photos', 'public');
+                $file = $request->file('foto_bukti_penyelesaian');
+
+                // Simpan dengan nama asli (disanitasi oleh Laravel storeAs)
+                $filename = time().'_'.$file->getClientOriginalName();
+
+                $validated['foto_bukti_penyelesaian'] = $file->storeAs('completion_photos', $filename, 'public');
             }
         }
 
@@ -576,6 +581,11 @@ class HazardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Menghapus laporan duga bahaya dari sistem.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Hazard $hazard)
     {
         // Delete associated files from storage
@@ -607,7 +617,7 @@ class HazardController extends Controller
 
         $dueSoonHazards = $allPendingActionHazards->filter(function ($hazard) {
             return Carbon::parse($hazard->target_penyelesaian)->isFuture() &&
-                   Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
+                Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
         });
 
         return view('she.hazards.needs-follow-up', compact('overdueHazards', 'dueSoonHazards'));
@@ -626,6 +636,24 @@ class HazardController extends Controller
             ->get();
 
         $notifications = collect();
+
+        // --- 1. OVERDUE VALIDATION (Menunggu Validasi > 7 Hari) ---
+        $overdueValidationHazards = Hazard::where('status', 'menunggu validasi')
+            ->where('created_at', '<=', Carbon::now()->subDays(7))
+            ->with(['pelapor', 'location'])
+            ->get();
+
+        foreach ($overdueValidationHazards as $hazard) {
+            $notifications->push([
+                'id' => $hazard->id,
+                'title' => 'Belum Divalidasi: #'.$hazard->id,
+                'description' => $hazard->deskripsi_bahaya.' (Tertahan '.$hazard->created_at->diffForHumans(null, true).')',
+                'time_ago' => $hazard->created_at->diffForHumans(),
+                'link' => route('she.hazards.show', $hazard),
+                'type' => 'overdue',
+                'is_read' => false,
+            ]);
+        }
 
         // Add overdue hazards to notifications
         $overdueHazards = $allPendingActionHazards->filter(function ($hazard) {
@@ -647,7 +675,7 @@ class HazardController extends Controller
         // Add due soon hazards to notifications
         $dueSoonHazards = $allPendingActionHazards->filter(function ($hazard) {
             return Carbon::parse($hazard->target_penyelesaian)->isFuture() &&
-                   Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
+                Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
         });
 
         foreach ($dueSoonHazards as $hazard) {

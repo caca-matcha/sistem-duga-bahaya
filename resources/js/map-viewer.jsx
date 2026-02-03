@@ -4,7 +4,7 @@ import { Stage, Layer, Rect, Text, Image } from 'react-konva';
 import axios from 'axios';
 
 const MapViewer = () => {
-    const { id: mapId, rows, cols, background_image } = window.mapData;
+    const { id: mapId, rows, cols, background_image, type: mapType } = window.mapData;
 
     console.log("MapViewer: Initial window.mapData", window.mapData); // Debug log
 
@@ -17,6 +17,7 @@ const MapViewer = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCell, setSelectedCell] = useState(null);
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: '' });
+    const [hazardSummary, setHazardSummary] = useState('');
 
     const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
     const [stageScale, setStageScale] = useState(1);
@@ -25,6 +26,12 @@ const MapViewer = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState(null);
     const [backgroundImage, setBackgroundImage] = useState(null);
+
+    // Draggable Modal State
+    const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+    const isDraggingModal = useRef(false);
+    const dragStart = useRef({ x: 0, y: 0 });
+    const initialModalPos = useRef({ x: 0, y: 0 });
 
     // Effect for measuring container width
     useEffect(() => {
@@ -152,6 +159,49 @@ const MapViewer = () => {
         return cells[`${rowIndex}_${colIndex}`];
     };
 
+    // Modal drag handlers
+    const handleModalMouseDown = (e) => {
+        isDraggingModal.current = true;
+        dragStart.current = { x: e.clientX, y: e.clientY };
+        initialModalPos.current = { ...modalPosition };
+        document.addEventListener('mousemove', handleModalMouseMove);
+        document.addEventListener('mouseup', handleModalMouseUp);
+        e.preventDefault();
+    };
+
+    const handleModalMouseMove = useCallback((e) => {
+        if (!isDraggingModal.current) return;
+        const deltaX = e.clientX - dragStart.current.x;
+        const deltaY = e.clientY - dragStart.current.y;
+        setModalPosition({
+            x: initialModalPos.current.x + deltaX,
+            y: initialModalPos.current.y + deltaY
+        });
+    }, []);
+
+    const handleModalMouseUp = useCallback(() => {
+        isDraggingModal.current = false;
+        document.removeEventListener('mousemove', handleModalMouseMove);
+        document.removeEventListener('mouseup', handleModalMouseUp);
+    }, [handleModalMouseMove]);
+
+    useEffect(() => {
+        if (!isModalOpen) {
+            setModalPosition({ x: 0, y: 0 });
+            setHazardSummary('');
+        }
+    }, [isModalOpen]);
+
+    const fetchHazardSummary = async (cellId) => {
+        try {
+            const response = await axios.get(`/api/cells/${cellId}/hazard-summary`);
+            setHazardSummary(response.data.summary || 'Tidak ada laporan bahaya.');
+        } catch (error) {
+            console.error('Error fetching hazard summary:', error);
+            setHazardSummary('Gagal memuat ringkasan.');
+        }
+    };
+
     const handleCellClick = (rowIndex, colIndex) => {
         const cellData = getCellData(rowIndex, colIndex);
         if (cellData) {
@@ -164,6 +214,9 @@ const MapViewer = () => {
             } else {
                 setSelectedCell(cellData);
                 setIsModalOpen(true);
+                if (cellData.id) {
+                    fetchHazardSummary(cellData.id);
+                }
             }
         }
     };
@@ -208,10 +261,27 @@ const MapViewer = () => {
     const filteredCells = useMemo(() => {
         if (!searchTerm) return cells;
         const lowercasedTerm = searchTerm.toLowerCase();
-        return Object.values(cells).filter(cell =>
-            (cell.location?.location_id_string && cell.location.location_id_string.toLowerCase().includes(lowercasedTerm)) ||
-            (cell.location?.name && cell.location.name.toLowerCase().includes(lowercasedTerm))
-        ).reduce((acc, cell) => {
+
+        // Cari ID gedung yang namanya cocok dengan kata kunci
+        const matchingGedungIds = (window.gedungMaps || [])
+            .filter(g => g.name.toLowerCase().includes(lowercasedTerm))
+            .map(g => g.id.toString());
+
+        return Object.values(cells).filter(cell => {
+            // 1. Cek kecocokan lokasi standar (jika ada)
+            const matchLocation = (cell.location?.location_id_string && cell.location.location_id_string.toLowerCase().includes(lowercasedTerm)) ||
+                (cell.location?.name && cell.location.name.toLowerCase().includes(lowercasedTerm));
+
+            if (matchLocation) return true;
+
+            // 2. Cek kecocokan nama gedung (metadata gedung_map_id pada Pabrik Map)
+            const gedungId = cell.metadata?.gedung_map_id;
+            if (gedungId && matchingGedungIds.includes(gedungId.toString())) {
+                return true;
+            }
+
+            return false;
+        }).reduce((acc, cell) => {
             acc[`${cell.row_index}_${cell.col_index}`] = cell;
             return acc;
         }, {});
@@ -225,7 +295,18 @@ const MapViewer = () => {
         for (let i = visibleCellRange.startRow; i <= visibleCellRange.endRow; i++) {
             for (let j = visibleCellRange.startCol; j <= visibleCellRange.endCol; j++) {
                 const cellData = sourceCells[`${i}_${j}`];
-                const fillColor = cellData?.zone_color || 'white';
+
+                // Jika sedang mencari (searchTerm), sel yang cocok harus terlihat meskipun risk_scorenya 0.
+                const isMatch = searchTerm && cellData;
+                const hasRisk = cellData && cellData.risk_score > 0;
+
+                // Tentukan warna: gunakan zone_color jika ada risiko, atau abu-abu terang jika hanya match pencarian.
+                const fillColor = hasRisk
+                    ? (cellData.zone_color || '#9ca3af')
+                    : (isMatch ? '#e5e7eb' : 'transparent');
+
+                // Hilangkan garis tepi merah agar peta bersih
+                const strokeColor = 'transparent';
 
                 gridElements.push(
                     <Rect
@@ -235,9 +316,9 @@ const MapViewer = () => {
                         width={cellWidth}
                         height={cellHeight}
                         fill={fillColor}
-                        stroke={cellData?.metadata?.gedung_map_id ? '#dc2626' : 'transparent'}
-                        strokeWidth={cellData?.metadata?.gedung_map_id ? 1.5 / stageScale : 0}
-                        opacity={cellData ? 0.7 : 0.5}
+                        stroke={strokeColor}
+                        strokeWidth={0}
+                        opacity={cellData ? 0.7 : 0}
                         onClick={() => handleCellClick(i, j)}
                         onMouseEnter={(e) => {
                             const stage = e.target.getStage();
@@ -286,7 +367,7 @@ const MapViewer = () => {
                 <div className="mb-4">
                     <input
                         type="text"
-                        placeholder="Search by Area ID or Name (in loaded cells)"
+                        placeholder="Cari Nama Gedung atau ID Area..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -337,47 +418,29 @@ const MapViewer = () => {
                 )}
 
 
-                <div className="mt-4 p-4 bg-white rounded-lg shadow">
-                    <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
-
-                    <div className="flex items-center mb-1">
-                        <span
-                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                            style={{ backgroundColor: "#10b981" }}
-                        />
-                        <span className="text-sm text-gray-700">1–5 (Low Risk)</span>
+                {/* Simple & Clean Risk Zone Legend (Synced with SHE view) */}
+                <div className="mt-6 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                        <h4 className="font-bold text-gray-700 text-sm uppercase tracking-wider">Risk Zone Legend</h4>
+                        <div className="h-px flex-1 bg-gray-100"></div>
                     </div>
 
-                    <div className="flex items-center mb-1">
-                        <span
-                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                            style={{ backgroundColor: "#f59e0b" }}
-                        />
-                        <span className="text-sm text-gray-700">6–10 (Medium Risk)</span>
-                    </div>
-
-                    <div className="flex items-center mb-1">
-                        <span
-                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                            style={{ backgroundColor: "#ef4444" }}
-                        />
-                        <span className="text-sm text-gray-700">11–15 (Medium-High Risk)</span>
-                    </div>
-
-                    <div className="flex items-center mb-1">
-                        <span
-                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                            style={{ backgroundColor: "#f43f5e" }}
-                        />
-                        <span className="text-sm text-gray-700">16–20 (High Risk)</span>
-                    </div>
-
-                    <div className="flex items-center">
-                        <span
-                            className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                            style={{ backgroundColor: "#ff1a1a" }}
-                        />
-                        <span className="text-sm text-gray-700">21–25 (Extreme Risk)</span>
+                    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 px-2">
+                        {[
+                            { range: '1–5', label: 'Low Risk', color: '#10b981' },
+                            { range: '6–10', label: 'Medium Risk', color: '#f59e0b' },
+                            { range: '11–15', label: 'Medium-High Risk', color: '#ef4444' },
+                            { range: '16–20', label: 'High Risk', color: '#f43f5e' },
+                            { range: '21–25', label: 'Extreme Risk', color: '#ff1a1a' },
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                                <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: item.color }}></div>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-sm font-bold text-gray-800">{item.range}</span>
+                                    <span className="text-xs text-gray-500">({item.label})</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
@@ -399,8 +462,8 @@ const MapViewer = () => {
                                     y={cell.row_index * cellHeight}
                                     width={cellWidth}
                                     height={cellHeight}
-                                    fill={cell.zone_color || 'white'}
-                                    opacity={0.7}
+                                    fill={(cell.risk_score > 0) ? (cell.zone_color || '#9ca3af') : 'transparent'}
+                                    opacity={(cell.risk_score > 0) ? 0.7 : 0}
                                 />
                             ))}
                             <Rect
@@ -417,28 +480,74 @@ const MapViewer = () => {
             </div>
 
             {isModalOpen && selectedCell && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
-                        <div className="p-6 border-b">
-                            <h3 className="text-2xl font-bold text-gray-800">Cell Details ({selectedCell.row_index},{selectedCell.col_index})</h3>
-                        </div>
-                        <div className="p-6">
-                            <p><strong>Lokasi:</strong> {selectedCell.location ? `${selectedCell.location.name} (${selectedCell.location.location_id_string})` : 'N/A'}</p>
-                            <p><strong>Tipe Lokasi:</strong> {selectedCell.location ? selectedCell.location.type : 'N/A'}</p>
-                            <hr className="my-4" />
-                            <p><strong>Risk Score:</strong> {selectedCell.risk_score}</p>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <strong>Zone Color:</strong>
-                                <span style={{ display: 'inline-block', width: '20px', height: '20px', backgroundColor: selectedCell.zone_color, marginLeft: '10px', border: '1px solid black' }}></span>
+                <div className="fixed inset-0 bg-black/30 z-50 flex justify-center items-center p-4">
+                    <div
+                        className="bg-white rounded-xl shadow-2xl max-w-sm w-full border border-gray-200"
+                        style={{ transform: `translate(${modalPosition.x}px, ${modalPosition.y}px)` }}
+                    >
+                        <div
+                            className="px-4 py-3 border-b cursor-move select-none bg-gray-50 flex items-center justify-between"
+                            onMouseDown={handleModalMouseDown}
+                        >
+                            <div>
+                                <h3 className="text-sm font-bold text-gray-800">Detail Lokasi</h3>
+                                <p className="text-xs text-gray-500">Cell ({selectedCell.row_index}, {selectedCell.col_index})</p>
                             </div>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </div>
-                        <div className="p-6 bg-gray-50 rounded-b-lg flex justify-end items-center gap-4 border-t">
-                            <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">Close</button>
+
+                        <div className="p-4 space-y-3">
+                            {/* Location */}
+                            <div>
+                                <p className="text-xs font-semibold text-gray-500 mb-1">LOKASI</p>
+                                <p className="text-sm font-bold text-gray-900">
+                                    {selectedCell.location ? selectedCell.location.name : 'Tidak ada lokasi'}
+                                </p>
+                                {selectedCell.location && (
+                                    <p className="text-xs text-gray-600">{selectedCell.location.location_id_string} • {selectedCell.location.type}</p>
+                                )}
+                            </div>
+
+                            {/* Risk */}
+                            <div className="flex items-center justify-between pt-2 border-t">
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 mb-1">RISIKO</p>
+                                    <p className="text-xl font-bold text-gray-900">{selectedCell.risk_score || '0'}</p>
+                                </div>
+                                <div
+                                    className="w-10 h-10 rounded-lg border-2 border-gray-300"
+                                    style={{ backgroundColor: selectedCell.zone_color || '#e5e7eb' }}
+                                ></div>
+                            </div>
+
+                            {/* Hazard Summary */}
+                            {hazardSummary && hazardSummary !== 'Tidak ada laporan bahaya aktif.' && (
+                                <div className="bg-amber-50 border-l-3 border-amber-400 p-3 rounded-r">
+                                    <p className="text-xs font-bold text-amber-800 mb-1">POTENSI BAHAYA</p>
+                                    <p className="text-xs text-gray-700">{hazardSummary}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="px-4 py-3 bg-gray-50 flex gap-2 border-t">
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="flex-1 px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                            >
+                                Tutup
+                            </button>
                             <a
                                 href={`/karyawan/hazards/create?map_id=${mapId}&cell_id=${selectedCell.id}&location_id=${selectedCell.location_id || ''}`}
-                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                className="flex-1 px-3 py-2 text-xs font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 text-center"
                             >
-                                Laporkan Bahaya Di Sini
+                                Laporkan Bahaya
                             </a>
                         </div>
                     </div>

@@ -19,18 +19,42 @@ class CellController extends Controller
     public function index($map_id)
     {
         try {
-            Log::info('CellController@index method was hit for map ID: ' . $map_id);
+            Log::info("CellController@index: Refreshing cells for map $map_id");
 
             $map = Map::findOrFail($map_id);
-            // Muat relasi 'location' dan 'riskParameters'
             $cells = $map->cells()->with(['location.parent', 'riskParameters'])->paginate(500);
 
-            Log::info('Found ' . $cells->count() . ' cells for map ID: ' . $map_id);
+            // 1. Pre-fetch calculation data based on map type
+            $hazardsByLocation = collect();
+            $gedungAverages = collect();
 
-            $cells->getCollection()->transform(function ($cell) {
-                $currentRiskScore = $cell->risk_score; // Start with the cell's current stored risk score
+            if ($map->type === 'Pabrik') {
+                $gedungMapIds = $cells->getCollection()->pluck('metadata.gedung_map_id')->filter()->unique();
+                if ($gedungMapIds->isNotEmpty()) {
+                    // LIVE recalculation for Pabrik: Get average hazard risk from ALL locations in the linked gedung maps
+                    $gedungAverages = Cell::whereIn('cells.map_id', $gedungMapIds)
+                        ->join('hazards', 'cells.location_id', '=', 'hazards.location_id')
+                        ->whereIn('hazards.status', ['diproses', 'selesai'])
+                        ->groupBy('cells.map_id')
+                        ->selectRaw('cells.map_id, cast(avg(hazards.risk_score) as unsigned) as average_risk')
+                        ->pluck('average_risk', 'map_id');
+                }
+                Log::info('Pabrik map detected. Calculated '.$gedungAverages->count().' live gedung averages from hazards.');
+            } else {
+                // Gedung/Others: Pre-fetch hazards for all locations in the current view
+                $locationIds = $cells->getCollection()->pluck('location_id')->filter()->unique();
+                if ($locationIds->isNotEmpty()) {
+                    $hazardsByLocation = Hazard::whereIn('location_id', $locationIds)
+                        ->whereIn('status', ['diproses', 'selesai'])
+                        ->select('location_id', 'risk_score')
+                        ->get()
+                        ->groupBy('location_id');
+                }
+                Log::info('Non-Pabrik map detected. Fetched hazards for '.$hazardsByLocation->count().' locations.');
+            }
 
-                // Determine building_id from location hierarchy
+            $cells->getCollection()->transform(function ($cell) use ($map, $hazardsByLocation, $gedungAverages) {
+                // Determine building_id from location hierarchy (always needed for frontend)
                 $buildingId = null;
                 if ($cell->location) {
                     $currentLocation = $cell->location;
@@ -39,7 +63,7 @@ class CellController extends Controller
                             $buildingId = $currentLocation->id;
                             break;
                         }
-                        if ($currentLocation->type === 'factory') { // Stop if we reach a factory without finding a building
+                        if ($currentLocation->type === 'factory') {
                             break;
                         }
                         $currentLocation = $currentLocation->parent;
@@ -47,23 +71,29 @@ class CellController extends Controller
                 }
                 $cell->building_id = $buildingId;
 
-                // If cell has a location and current risk score is null, recalculate from hazards
-                if ($cell->location_id !== null && ($currentRiskScore === null || $currentRiskScore === 0)) {
-                    $associatedHazards = Hazard::where('location_id', $cell->location_id)
-                        ->whereIn('status', ['diproses', 'selesai'])
-                        ->get();
-
-                    if ($associatedHazards->isNotEmpty()) {
-                        $calculatedRiskScore = (int) round($associatedHazards->avg(function ($hazard) {
-                            return $hazard->risk_score ?? 0;
-                        }));
-                        $currentRiskScore = $calculatedRiskScore;
+                // RECALCULATION LOGIC
+                $currentRiskScore = 0;
+                if ($map->type === 'Pabrik') {
+                    $gedungMapId = $cell->metadata['gedung_map_id'] ?? null;
+                    if ($gedungMapId) {
+                        $currentRiskScore = (int) ($gedungAverages->get($gedungMapId) ?? 0);
                     } else {
-                        $currentRiskScore = 0; // Default to 0 if no hazards found
+                        $currentRiskScore = null;
                     }
-                } elseif ($cell->location_id === null && ($currentRiskScore === null || $currentRiskScore === 0)) {
-                    // If no location and no risk score, it's an empty cell
-                    $currentRiskScore = null;
+                } else {
+                    if ($cell->location_id !== null) {
+                        // Ensure key match by string/int consistency
+                        $locId = (int) $cell->location_id;
+                        $associatedHazards = $hazardsByLocation->get($locId) ?? $hazardsByLocation->get((string) $locId) ?? collect();
+
+                        if ($associatedHazards->isNotEmpty()) {
+                            $currentRiskScore = (int) round($associatedHazards->avg('risk_score'));
+                        } else {
+                            $currentRiskScore = 0;
+                        }
+                    } else {
+                        $currentRiskScore = null;
+                    }
                 }
 
                 $cell->risk_score = $currentRiskScore;
@@ -103,13 +133,13 @@ class CellController extends Controller
         $cell = null;
         DB::transaction(function () use ($validatedData, &$cell, $request) {
             $map = Map::find($validatedData['map_id']);
-            $riskScore = 0;
+            $riskScore = null;
 
             $cellData = $validatedData;
 
             if ($map && $map->type === 'Pabrik') {
                 $gedungMapId = $validatedData['gedung_map_id'] ?? null;
-                $aggregatedRiskScore = 0;
+                $aggregatedRiskScore = null;
 
                 if ($gedungMapId) {
                     $gedungMapCells = Cell::where('map_id', $gedungMapId)
@@ -132,14 +162,7 @@ class CellController extends Controller
             }
 
             $cellData['risk_score'] = $riskScore;
-
-            $zoneColor = 'green'; // Default
-            if ($riskScore >= 4 && $riskScore <= 7) {
-                $zoneColor = 'yellow';
-            } elseif ($riskScore >= 8) {
-                $zoneColor = 'red';
-            }
-            $cellData['zone_color'] = $zoneColor;
+            $cellData['zone_color'] = getRiskColor($riskScore);
 
             $cell = Cell::updateOrCreate(
                 [
@@ -191,7 +214,7 @@ class CellController extends Controller
             // Retrieve the map associated with the cell
             $map = $cell->map; // Assuming cell has a 'map' relationship
 
-            $riskScore = 0;
+            $riskScore = null;
             $riskParameters = $request->risk_parameters ?? []; // Define here for wider scope
 
             $cellDataToUpdate = [
@@ -203,7 +226,7 @@ class CellController extends Controller
 
             if ($map && $map->type === 'Pabrik') {
                 $gedungMapId = $validatedData['gedung_map_id'] ?? null;
-                $aggregatedRiskScore = 0;
+                $aggregatedRiskScore = null;
 
                 if ($gedungMapId) {
                     $gedungMapCells = Cell::where('map_id', $gedungMapId)
@@ -225,14 +248,7 @@ class CellController extends Controller
             }
 
             $cellDataToUpdate['risk_score'] = $riskScore;
-
-            $zoneColor = 'green'; // Default
-            if ($riskScore >= 4 && $riskScore <= 7) {
-                $zoneColor = 'yellow';
-            } elseif ($riskScore >= 8) {
-                $zoneColor = 'red';
-            }
-            $cellDataToUpdate['zone_color'] = $zoneColor;
+            $cellDataToUpdate['zone_color'] = getRiskColor($riskScore);
 
             $cell->update($cellDataToUpdate);
 
@@ -384,6 +400,73 @@ class CellController extends Controller
             Log::error('Error during batch cell update: '.$e->getMessage());
 
             return response()->json(['error' => 'Failed to update cells.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get hazard summary for a specific cell.
+     */
+    public function getHazardSummary(Cell $cell)
+    {
+        try {
+            Log::info("Fetching hazard summary for cell ID: {$cell->id}");
+
+            // Get all active hazards for this cell
+            $hazards = Hazard::where('cell_id', $cell->id)
+                ->whereIn('status', ['Belum Diproses', 'Diproses'])
+                ->orderBy('created_at', 'desc')
+                ->get(['jenis_bahaya', 'deskripsi_bahaya', 'status', 'created_at']);
+
+            Log::info("Found {$hazards->count()} hazards for cell {$cell->id}");
+
+            if ($hazards->isEmpty()) {
+                return response()->json([
+                    'summary' => 'Tidak ada laporan bahaya aktif.',
+                    'count' => 0,
+                ]);
+            }
+
+            // Create a detailed summary
+            $types = $hazards->pluck('jenis_bahaya')->unique()->values()->toArray();
+            $count = $hazards->count();
+
+            // Mapping for specific hazard codes to descriptive text
+            $hazardMappings = [
+                'A' => 'Terjepit/Tergores',
+                // Tambahkan kode lain di sini jika diperlukan. Contoh:
+                // 'B' => 'Terbakar',
+                // 'C' => 'Jatuh dari Ketinggian',
+            ];
+
+            // Translate codes to descriptive text, keep original if no mapping exists
+            $displayTypes = array_map(function($type) use ($hazardMappings) {
+                return $hazardMappings[$type] ?? $type;
+            }, $types);
+
+
+            // Build summary string
+            if (count($displayTypes) <= 3) {
+                $summary = implode(', ', $displayTypes);
+            } else {
+                $topTypes = array_slice($displayTypes, 0, 3);
+                $remaining = count($displayTypes) - 3;
+                $summary = implode(', ', $topTypes)." +{$remaining} lainnya";
+            }
+
+            return response()->json([
+                'summary' => $summary,
+                'count' => $count,
+                'types' => $types,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching hazard summary: '.$e->getMessage());
+            Log::error('Stack trace: '.$e->getTraceAsString());
+
+            return response()->json([
+                'summary' => 'Tidak ada laporan bahaya.',
+                'count' => 0,
+                'error' => $e->getMessage(),
+            ], 200); // Return 200 to avoid frontend error
         }
     }
 }

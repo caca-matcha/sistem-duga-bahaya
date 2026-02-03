@@ -16,8 +16,17 @@ class Map extends Model
         'background_image',
         'rows',
         'cols',
+        'is_primary',
+        'sort_order',
         'created_by',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_primary' => 'boolean',
+        ];
+    }
 
     /**
      * Get the parent map.

@@ -4,7 +4,7 @@ import { Stage, Layer, Rect, Text, Image } from 'react-konva';
 import axios from 'axios';
 
 const GridEditor = () => {
-    const { id: mapId, rows, cols, background_image, type: mapType, name: mapName } = window.mapData;
+    const { id: mapId, rows, cols, background_image, type: mapType, name: mapName } = window.mapData || {};
 
     const containerRef = useRef(null);
     const stageRef = useRef(null);
@@ -37,13 +37,52 @@ const GridEditor = () => {
     const [deleteConfirmModal, setDeleteConfirmModal] = useState(null);
     const [isUpdating, setIsUpdating] = useState(false);
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (containerRef.current) {
-                setContainerWidth(containerRef.current.offsetWidth);
-            }
-        };
+    // Draggable Modal State
+    const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+    const isDraggingModal = useRef(false);
+    const dragStart = useRef({ x: 0, y: 0 });
+    const initialModalPos = useRef({ x: 0, y: 0 });
 
+    const handleModalMouseDown = (e) => {
+        // Only allow dragging from header (where this handler will be attached)
+        isDraggingModal.current = true;
+        dragStart.current = { x: e.clientX, y: e.clientY };
+        initialModalPos.current = { ...modalPosition };
+        document.addEventListener('mousemove', handleModalMouseMove);
+        document.addEventListener('mouseup', handleModalMouseUp);
+        e.preventDefault(); // Prevent text selection
+    };
+
+    const handleModalMouseMove = useCallback((e) => {
+        if (!isDraggingModal.current) return;
+        const deltaX = e.clientX - dragStart.current.x;
+        const deltaY = e.clientY - dragStart.current.y;
+        setModalPosition({
+            x: initialModalPos.current.x + deltaX,
+            y: initialModalPos.current.y + deltaY
+        });
+    }, []);
+
+    const handleModalMouseUp = useCallback(() => {
+        isDraggingModal.current = false;
+        document.removeEventListener('mousemove', handleModalMouseMove);
+        document.removeEventListener('mouseup', handleModalMouseUp);
+    }, [handleModalMouseMove]);
+
+    useEffect(() => {
+        if (!isModalOpen) {
+            setModalPosition({ x: 0, y: 0 }); // Reset position when closed
+            setError(null);
+        }
+    }, [isModalOpen]);
+    const handleResize = () => {
+        if (containerRef.current) {
+            setContainerWidth(containerRef.current.offsetWidth);
+        }
+    };
+
+    // Modified Effect: Handle resize only on mount and window resize
+    useEffect(() => {
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -96,16 +135,14 @@ const GridEditor = () => {
             });
     }, [mapId, mapType]);
 
-    useEffect(() => {
-        if (!isModalOpen) setError(null);
-    }, [isModalOpen]);
 
-    const fetchCells = useCallback((page) => {
+
+    const fetchCells = useCallback((page, clearExisting = false) => {
         if (pagination.isLoading) return;
 
         setIsUpdating(true); // Set updating state to true
         setPagination(p => ({ ...p, isLoading: true }));
-        axios.get(`/api/maps/${mapId}/cells?page=${page}`)
+        axios.get(`/api/maps/${mapId}/cells?page=${page}&t=${Date.now()}`)
             .then(response => {
                 const { data, current_page, last_page, per_page, total } = response.data;
 
@@ -115,7 +152,12 @@ const GridEditor = () => {
                     return acc;
                 }, {});
 
-                setCells(prevCells => ({ ...prevCells, ...newCells }));
+                if (clearExisting) {
+                    setCells(newCells);
+                } else {
+                    setCells(prevCells => ({ ...prevCells, ...newCells }));
+                }
+
                 setPagination(p => ({
                     ...p,
                     currentPage: current_page,
@@ -138,14 +180,14 @@ const GridEditor = () => {
 
     // Initial fetch
     useEffect(() => {
-        fetchCells(1);
+        if (mapId) fetchCells(1);
     }, [mapId]);
 
     // Polling mechanism for periodic updates
     useEffect(() => {
         const pollingInterval = setInterval(() => {
             console.log("GridEditor: Polling for updated cells...");
-            fetchCells(1); // Fetch the first page of cells to refresh
+            fetchCells(1, true); // Fetch the first page and clear existing
         }, 3600000); // Poll every 1 hour
 
         return () => clearInterval(pollingInterval);
@@ -155,7 +197,7 @@ const GridEditor = () => {
     useEffect(() => {
         const handleRefresh = () => {
             console.log('GridEditor: Manual refresh triggered by custom event.');
-            fetchCells(1);
+            fetchCells(1, true);
         };
 
         window.addEventListener('refresh-grid-editor', handleRefresh);
@@ -501,22 +543,27 @@ const GridEditor = () => {
                         shadowBlur={isSelected ? 10 : 0}
                         shadowOpacity={isSelected ? 0.5 : 0}
                         onMouseEnter={(e) => {
+                            let text = '';
                             if (mapType === 'Pabrik' && cellData?.metadata?.gedung_map_id) {
-                                const hoveredGedung = gedungMaps.find(g => g.id === cellData.metadata.gedung_map_id);
-                                if (hoveredGedung) {
-                                    const stage = e.target.getStage();
-                                    const pointerPos = stage.getPointerPosition();
-                                    // Adjust for stage position and scale for accurate tooltip placement relative to the viewport
-                                    const tooltipX = (pointerPos.x / stage.scaleX()) - (stage.x() / stage.scaleX()) + 10;
-                                    const tooltipY = (pointerPos.y / stage.scaleY()) - (stage.y() / stage.scaleY()) + 10;
+                                const hoveredGedung = gedungMaps.find(g => g.id == cellData.metadata.gedung_map_id);
+                                text = hoveredGedung?.name;
+                            } else if (mapType !== 'Pabrik' && cellData?.location) {
+                                text = cellData.location.name;
+                            }
 
-                                    setTooltip({
-                                        visible: true,
-                                        x: tooltipX,
-                                        y: tooltipY,
-                                        text: hoveredGedung.name
-                                    });
-                                }
+                            if (text) {
+                                const stage = e.target.getStage();
+                                const pointerPos = stage.getPointerPosition();
+                                // Adjust for stage position and scale for accurate tooltip placement relative to the viewport
+                                const tooltipX = (pointerPos.x / stage.scaleX()) - (stage.x() / stage.scaleX()) + 10;
+                                const tooltipY = (pointerPos.y / stage.scaleY()) - (stage.y() / stage.scaleY()) + 10;
+
+                                setTooltip({
+                                    visible: true,
+                                    x: tooltipX,
+                                    y: tooltipY,
+                                    text: text
+                                });
                             }
                         }}
                         onMouseLeave={() => {
@@ -541,18 +588,25 @@ const GridEditor = () => {
 
     return (
         <div ref={containerRef}>
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    Grid Editor: {mapName}
-                </h2>
+            {/* Minimalist Toolbar - Title is now handled by Blade Breadcrumbs */}
+            <div className="flex justify-end mb-3">
                 <button
                     type="button"
-                    onClick={() => fetchCells(1)}
+                    onClick={() => fetchCells(1, true)}
                     disabled={isUpdating}
-                    className={`inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150 ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300'
+                    title="Sinkronisasi Data Terbaru"
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-[10px] font-bold text-gray-400 shadow-sm transition-all duration-200 ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 hover:text-red-500 hover:border-red-100 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500'
                         }`}
                 >
-                    {isUpdating ? 'Updating...' : 'Update Map'}
+                    <svg
+                        className={`w-3.5 h-3.5 ${isUpdating ? 'animate-spin text-red-500' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    {isUpdating ? 'SYNCING...' : 'SYNC DATA'}
                 </button>
             </div>
 
@@ -629,48 +683,29 @@ const GridEditor = () => {
                 </Stage>
             )}
 
-            {/* Legend and other UI elements... */}
-            <div className="mt-4 p-4 bg-white rounded-lg shadow">
-                <h4 className="font-bold text-gray-800 mb-2">Risk Zone Legend</h4>
-
-                <div className="flex items-center mb-1">
-                    <span
-                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                        style={{ backgroundColor: "#10b981" }}
-                    />
-                    <span className="text-sm text-gray-700">1–5 (Low Risk)</span>
+            {/* Simple & Clean Risk Zone Legend */}
+            <div className="mt-6 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                    <h4 className="font-bold text-gray-700 text-sm uppercase tracking-wider">Risk Zone Legend</h4>
+                    <div className="h-px flex-1 bg-gray-100"></div>
                 </div>
 
-                <div className="flex items-center mb-1">
-                    <span
-                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                        style={{ backgroundColor: "#f59e0b" }}
-                    />
-                    <span className="text-sm text-gray-700">6–10 (Medium Risk)</span>
-                </div>
-
-                <div className="flex items-center mb-1">
-                    <span
-                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                        style={{ backgroundColor: "#ef4444" }}
-                    />
-                    <span className="text-sm text-gray-700">11–15 (Medium-High Risk)</span>
-                </div>
-
-                <div className="flex items-center mb-1">
-                    <span
-                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                        style={{ backgroundColor: "#f43f5e" }}
-                    />
-                    <span className="text-sm text-gray-700">16–20 (High Risk)</span>
-                </div>
-
-                <div className="flex items-center">
-                    <span
-                        className="block w-6 h-4 rounded-sm mr-2 border border-gray-300"
-                        style={{ backgroundColor: "#ff1a1a" }}
-                    />
-                    <span className="text-sm text-gray-700">21–25 (Extreme Risk)</span>
+                <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+                    {[
+                        { range: '1–5', label: 'Low Risk', color: '#10b981' },
+                        { range: '6–10', label: 'Medium Risk', color: '#f59e0b' },
+                        { range: '11–15', label: 'Medium-High Risk', color: '#ef4444' },
+                        { range: '16–20', label: 'High Risk', color: '#f43f5e' },
+                        { range: '21–25', label: 'Extreme Risk', color: '#ff1a1a' },
+                    ].map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-3">
+                            <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: item.color }}></div>
+                            <div className="flex items-baseline gap-1.5">
+                                <span className="text-sm font-bold text-gray-800">{item.range}</span>
+                                <span className="text-xs text-gray-500">({item.label})</span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
@@ -678,9 +713,26 @@ const GridEditor = () => {
             {/* Modal remains largely the same */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex justify-center items-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-                        <div className="p-6 border-b">
+                    {/* Backdrop without Blur */}
+                    <div className="absolute inset-0 bg-gray-900/40 transition-opacity" onClick={() => setIsModalOpen(false)}></div>
+
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto relative z-10 border border-gray-200"
+                        style={{ transform: `translate(${modalPosition.x}px, ${modalPosition.y}px)` }}
+                    >
+                        <div
+                            className="p-6 border-b flex justify-between items-center cursor-move select-none"
+                            onMouseDown={handleModalMouseDown}
+                        >
                             <h3 className="text-2xl font-bold text-gray-800">Edit {selectedCells.length} cell(s)</h3>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </div>
                         <div className="p-6">
                             {error && (
@@ -733,7 +785,7 @@ const GridEditor = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="p-6 bg-gray-50 rounded-b-lg flex justify-end items-center gap-4">
+                        <div className="p-6 bg-gray-50 rounded-b-2xl flex justify-end items-center gap-4 border-t border-gray-200">
                             {mapType === 'Pabrik' && (
                                 <button
                                     type="button"
@@ -796,15 +848,9 @@ const GridEditor = () => {
 
 export default GridEditor;
 
+// Mount logic
 const element = document.getElementById('grid-editor');
 if (element) {
-    if (!element._reactRootContainer) { // Workaround: only create root if it doesn't exist
-        createRoot(element).render(<GridEditor />);
-    } else {
-        // If root already exists, just render. This scenario should ideally not happen for a top-level component.
-        // If it does, it indicates the script is running multiple times on the same element.
-        console.warn("Attempted to call createRoot on an already mounted container. Renderer will update existing root.");
-        // This line would require storing the root instance, which is not done globally here.
-        // For now, checking `_reactRootContainer` prevents the error.
-    }
+    const root = createRoot(element);
+    root.render(<GridEditor />);
 }

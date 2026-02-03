@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Map;
 use App\Jobs\RecalculateMapCellsJob;
+use App\Models\Map;
 
 class MapApiController extends Controller
 {
@@ -15,6 +15,8 @@ class MapApiController extends Controller
     {
         $maps = Map::select('id', 'name', 'background_image', 'type', 'parent_id')
             ->where('type', 'Gedung')
+            ->orderBy('sort_order')
+            ->orderBy('id')
             ->get();
 
         return response()->json($maps);

@@ -18,8 +18,8 @@ class MapController extends Controller
     public function index()
     {
         Log::info('Test log entry from MapController@index'); // ADD THIS LINE
-        $pabrikMaps = Map::where('type', 'Pabrik')->with('parent')->get();
-        $gedungMaps = Map::where('type', 'Gedung')->with('parent')->get();
+        $pabrikMaps = Map::where('type', 'Pabrik')->orderBy('sort_order')->orderBy('id')->with('parent')->get();
+        $gedungMaps = Map::where('type', 'Gedung')->orderBy('sort_order')->orderBy('id')->with('parent')->get();
         $existingPabrikMap = $pabrikMaps->isNotEmpty();
 
         return view('she.maps.index', compact('pabrikMaps', 'gedungMaps', 'existingPabrikMap'));
@@ -184,8 +184,16 @@ class MapController extends Controller
 
             // CSV Headers
             $columns = [
-                'Map Name', 'Map Type', 'Row Index', 'Col Index', 'Area ID', 'Area Name', 'Area Type',
-                'Risk Score', 'Zone Color', 'Metadata',
+                'Map Name',
+                'Map Type',
+                'Row Index',
+                'Col Index',
+                'Area ID',
+                'Area Name',
+                'Area Type',
+                'Risk Score',
+                'Zone Color',
+                'Metadata',
             ];
             // Dynamically add risk parameter columns
             $allRiskParamNames = $map->cells->flatMap(fn ($cell) => $cell->riskParameters->pluck('parameter_name'))->unique()->sort()->toArray();
@@ -230,7 +238,7 @@ class MapController extends Controller
      */
     public function getGedung()
     {
-        $gedung = Map::where('type', 'Gedung')->get(['id', 'name']);
+        $gedung = Map::where('type', 'Gedung')->orderBy('sort_order')->orderBy('id')->get(['id', 'name']);
 
         return response()->json($gedung);
     }
@@ -243,5 +251,36 @@ class MapController extends Controller
         $map->load(['cells.riskParameters.location']); // Eager load relations including location
 
         return view('she.maps.view-employee-mode', compact('map'));
+    }
+
+    /**
+     * Set the specified map as the primary map.
+     */
+    public function setPrimary(Map $map)
+    {
+        // Unset any existing primary map of type 'Pabrik'
+        Map::where('type', 'Pabrik')->where('is_primary', true)->update(['is_primary' => false]);
+
+        // Set the current map as primary
+        $map->update(['is_primary' => true]);
+
+        return redirect()->route('she.maps.index')->with('success', 'Peta "'.$map->name.'" telah ditetapkan sebagai Peta Utama.');
+    }
+
+    /**
+     * Reorder maps.
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:maps,id',
+        ]);
+
+        foreach ($request->ids as $index => $id) {
+            Map::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

@@ -99,16 +99,18 @@ Route::middleware(['auth', 'role:she'])
 
         Route::post('users/import', [UserController::class, 'import'])->name('users.import');
         Route::resource('users', UserController::class);
-        
+
         // Locations Import/Export Routes
         Route::get('locations/export', [LocationController::class, 'export'])->name('locations.export');
         Route::get('locations/template', [LocationController::class, 'downloadTemplate'])->name('locations.template');
         Route::post('locations/import', [LocationController::class, 'import'])->name('locations.import');
         Route::resource('locations', LocationController::class); // Tambahkan untuk Master Lokasi
-        
+
         Route::get('maps/{map}/export', [MapController::class, 'export'])->name('maps.export');
 
         Route::get('maps/{map}/export-risk-excel', [MapController::class, 'exportRiskDataExcel'])->name('maps.export-risk-excel');
+        Route::post('maps/{map}/set-primary', [MapController::class, 'setPrimary'])->name('maps.set-primary');
+        Route::post('maps/reorder', [MapController::class, 'reorder'])->name('maps.reorder');
     });
 
 // Route untuk serve file dari public storage via controller

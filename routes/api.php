@@ -22,4 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/maps', [MapApiController::class, 'index']);
-Route::get('/maps/{map}/cells', [MapApiController::class, 'getCells']);
+Route::get('/maps/{map_id}/cells', [\App\Http\Controllers\SHE\CellController::class, 'index']);
+Route::get('/cells/{cell}/hazard-summary', [\App\Http\Controllers\SHE\CellController::class, 'getHazardSummary']);

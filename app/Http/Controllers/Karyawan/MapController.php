@@ -12,8 +12,11 @@ class MapController extends Controller
      */
     public function index()
     {
-        $pabrikMap = Map::where('type', 'Pabrik')->first();
-        $gedungMaps = Map::where('type', 'Gedung')->get();
+        $pabrikMap = Map::where('type', 'Pabrik')
+            ->orderBy('is_primary', 'desc')
+            ->orderBy('sort_order')
+            ->first();
+        $gedungMaps = Map::where('type', 'Gedung')->orderBy('sort_order')->orderBy('id')->get();
 
         return view('karyawan.maps.index', compact('pabrikMap', 'gedungMaps'));
     }
