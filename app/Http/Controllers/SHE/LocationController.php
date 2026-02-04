@@ -23,22 +23,29 @@ class LocationController extends Controller
     {
         $query = Location::with(['creator', 'map']); // Eager load map relation
 
-        if ($request->has('search') && ! empty($request->search)) {
+        // Filter by Search
+        if ($request->has('search') && !empty($request->search)) {
             $searchTerm = strtolower($request->search);
             $query->where(function ($q) use ($searchTerm) {
-                $q->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%')
-                    ->orWhere(DB::raw('LOWER(location_id_string)'), 'LIKE', '%'.$searchTerm.'%')
-                    ->orWhere(DB::raw('LOWER(type)'), 'LIKE', '%'.$searchTerm.'%') // Search by Type
+                $q->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere(DB::raw('LOWER(location_id_string)'), 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere(DB::raw('LOWER(type)'), 'LIKE', '%' . $searchTerm . '%') // Search by Type
                     ->orWhereHas('map', function ($mapQuery) use ($searchTerm) {
-                        $mapQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
+                        $mapQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $searchTerm . '%');
                     })
                     ->orWhereHas('creator', function ($userQuery) use ($searchTerm) { // Search by Creator
-                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
+                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $searchTerm . '%');
                     });
             });
         }
 
-        $locations = $query->get();
+        // Filter by Map ID (Building)
+        if ($request->filled('map_id')) {
+            $query->where('map_id', $request->map_id);
+        }
+
+        $locations = $query->orderBy('map_id', 'asc')->orderBy('display_order', 'asc')->get();
+        $maps = Map::where('type', 'Gedung')->get(); // For the filter dropdown
 
         // If it's an AJAX request, return only the table rows
         if ($request->ajax()) {
@@ -48,7 +55,7 @@ class LocationController extends Controller
             ]);
         }
 
-        return view('she.locations.index', compact('locations'));
+        return view('she.locations.index', compact('locations', 'maps'));
     }
 
     /**
@@ -73,11 +80,14 @@ class LocationController extends Controller
             'map_id' => 'required|exists:maps,id', // Map ID is now required
         ]);
 
+        $maxOrder = Location::where('map_id', $validatedData['map_id'])->max('display_order') ?? 0;
+
         Location::create([
             'name' => $validatedData['name'],
             'location_id_string' => $validatedData['location_id_string'],
             'type' => $validatedData['type'],
             'map_id' => $validatedData['map_id'],
+            'display_order' => $maxOrder + 1,
             'created_by' => auth()->id(),
         ]);
 
@@ -109,7 +119,7 @@ class LocationController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'location_id_string' => 'required|string|max:255|unique:locations,location_id_string,'.$location->id,
+            'location_id_string' => 'required|string|max:255|unique:locations,location_id_string,' . $location->id,
             'type' => 'required|string|max:255|in:Area', // Type must be Area
             'map_id' => 'required|exists:maps,id', // Map ID is now required
         ]);
@@ -145,7 +155,7 @@ class LocationController extends Controller
             $query->where('map_id', $request->input('map_id'));
         }
 
-        $locations = $query->get();
+        $locations = $query->orderBy('map_id', 'asc')->orderBy('display_order', 'asc')->get();
 
         return response()->json($locations);
     }
@@ -158,7 +168,7 @@ class LocationController extends Controller
      */
     public function getLocationsForMap(Map $map)
     {
-        $locations = Location::where('map_id', $map->id)->get();
+        $locations = Location::where('map_id', $map->id)->orderBy('display_order', 'asc')->get();
         return response()->json($locations);
     }
 
@@ -226,7 +236,7 @@ class LocationController extends Controller
             Excel::import($import, $request->file('file'));
 
             $messages = [];
-            
+
             // Handle Validation Failures
             if ($import->failures()->isNotEmpty()) {
                 foreach ($import->failures() as $failure) {
@@ -253,7 +263,7 @@ class LocationController extends Controller
 
             return redirect()->route('she.locations.index')
                 ->with('success', 'Data lokasi berhasil diimport!');
-                
+
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Location Import Error: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->route('she.locations.index')

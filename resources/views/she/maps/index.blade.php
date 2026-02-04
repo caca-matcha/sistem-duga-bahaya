@@ -3,10 +3,10 @@
     <x-slot name="header">
         <div class="relative py-2">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <div
-                        class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -14,16 +14,15 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">Maps
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">Maps
                             Management</h2>
-                        <p
-                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
+                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
                             Kelola layout peta risiko untuk pabrik dan gedung operasional.</p>
                     </div>
                 </div>
 
                 <div
-                    class="hidden lg:flex items-center gap-4 px-5 py-2.5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                    class="hidden lg:flex items-center gap-4 px-5 py-2.5 bg-white/30 backdrop-blur-sm border border-white/20 rounded-2xl">
                     <div class="flex items-center gap-2">
                         <span class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Editor Active</span>
@@ -37,7 +36,7 @@
     </x-slot>
 
     <div class="py-6 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <!-- Alerts Section -->
             @if (session('success'))
@@ -75,18 +74,18 @@
 
             <!-- Section 1: Pabrik Maps (Multiple Maps) -->
             <section>
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
                     <div>
                         <div
-                            class="flex items-center gap-3 mb-2 bg-gray-100/50 w-fit px-4 py-1.5 rounded-xl border border-gray-200/30">
+                            class="flex items-center gap-2.5 mb-1.5 bg-gray-100/50 w-fit px-3 py-1 rounded-xl border border-gray-200/30">
                             <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
-                            <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Layout Utama Pabrik
+                            <h3 class="text-sm font-black text-gray-500 uppercase tracking-widest">Layout Utama Pabrik
                             </h3>
                         </div>
-                        <p class="text-sm text-gray-400 font-medium">Kelola layout peta risiko utama untuk berbagai
+                        <p class="text-[13px] text-gray-400 font-medium">Kelola layout peta risiko utama untuk berbagai
                             lokasi pabrik.</p>
                     </div>
                     <a href="{{ route('she.maps.create', ['type' => 'Pabrik']) }}"
@@ -123,7 +122,7 @@
                         </div>
                     @else
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 border-b">
+                            <table class="min-w-full divide-y divide-gray-100 shadow-sm" id="pabrik-maps-container">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
@@ -131,17 +130,17 @@
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Map Detail
                                         </th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Tipe</th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase text-center">
-                                            Ukuran Grid</th>
+                                        <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Ukuran
+                                            Grid</th>
                                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Aksi
-                                            Pintas</th>
+                                            Pintas
+                                        </th>
                                     </tr>
                                 </thead>
-                                <tbody id="pabrik-maps-body" class="bg-white divide-y divide-gray-100">
-                                    @forelse ($pabrikMaps as $pabrikMap)
-                                        <tr data-id="{{ $pabrikMap->id }}"
-                                            class="sortable-row hover:bg-gray-50/50 transition-colors group">
+                                @forelse ($pabrikMaps as $pabrikMap)
+                                    <tbody data-id="{{ $pabrikMap->id }}"
+                                        class="sortable-bundle bg-white divide-y divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-gray-50/30 transition-colors">
+                                        <tr class="group">
                                             <td class="px-4 py-5 w-10">
                                                 <div
                                                     class="cursor-move text-gray-300 hover:text-gray-500 transition-colors drag-handle">
@@ -287,14 +286,81 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    @empty
+                                        {{-- Visual Preview for Pinned Map --}}
+                                        @if ($pabrikMap->is_primary)
+                                            <tr class="bg-gray-50/30">
+                                                <td colspan="5" class="px-6 py-8">
+                                                    <div class="flex items-center gap-8 pl-4">
+                                                        <div
+                                                            class="relative w-64 h-40 rounded-2xl overflow-hidden shadow-md border-2 border-white ring-1 ring-gray-200 bg-white group hover:shadow-xl transition-all duration-300">
+                                                            @if($pabrikMap->background_image)
+                                                                <img src="{{ route('files.public', ['path' => $pabrikMap->background_image]) }}"
+                                                                    class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                                                            @else
+                                                                <div class="w-full h-full bg-gray-50 flex items-center justify-center">
+                                                                    <svg class="w-10 h-10 text-gray-200" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2"
+                                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                    </svg>
+                                                                </div>
+                                                            @endif
+
+                                                            {{-- Mini Grid Overlay with Colors --}}
+                                                            <div class="absolute inset-0 grid gap-[1px] p-[1px]"
+                                                                style="grid-template-rows: repeat({{ $pabrikMap->rows }}, 1fr); grid-template-columns: repeat({{ $pabrikMap->cols }}, 1fr);">
+                                                                @php
+                                                                    $cellMapPabrik = $pabrikMap->cells->keyBy(fn($c) => $c->row_index . '-' . $c->col_index);
+                                                                @endphp
+                                                                @for ($r = 0; $r < $pabrikMap->rows; $r++)
+                                                                    @for ($c = 0; $c < $pabrikMap->cols; $c++)
+                                                                        @php $pCell = $cellMapPabrik->get("$r-$c"); @endphp
+                                                                        <div class="border-[0.5px] border-red-500/10 transition-colors duration-500"
+                                                                            style="{{ $pCell && $pCell->risk_score > 0 ? 'background-color: ' . $pCell->zone_color . '99' : '' }}">
+                                                                        </div>
+                                                                    @endfor
+                                                                @endfor
+                                                            </div>
+
+                                                            <div
+                                                                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
+                                                                <a href="{{ route('she.maps.show', $pabrikMap->id) }}"
+                                                                    class="px-4 py-2 bg-white text-[10px] font-black uppercase tracking-widest text-red-600 rounded-xl shadow-lg border border-red-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                                                    Buka Editor
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-1 max-w-lg">
+                                                            <div class="flex items-center gap-2 mb-2">
+                                                                <span
+                                                                    class="flex h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+                                                                <h4
+                                                                    class="text-[11px] font-black text-red-600 uppercase tracking-[0.2em]">
+                                                                    Peta Aktif Pabrik</h4>
+                                                            </div>
+                                                            <p class="text-sm text-gray-900 font-bold mb-1 leading-tight">
+                                                                {{ $pabrikMap->name }}
+                                                            </p>
+                                                            <p class="text-[13px] text-gray-400 font-medium leading-relaxed">Peta
+                                                                ini menyambungkan seluruh gedung operasional. Grid berukuran <span
+                                                                    class="text-gray-900 font-bold">{{ $pabrikMap->rows }}x{{ $pabrikMap->cols }}</span>
+                                                                digunakan untuk menempatkan titik gedung utama di dashboard.</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                @empty
+                                    <tbody class="bg-white">
                                         <tr>
                                             <td colspan="5" class="px-6 py-12 text-center">
                                                 <p class="text-gray-400 text-sm">Tidak ditemukan peta pabrik.</p>
                                             </td>
                                         </tr>
-                                    @endforelse
-                                </tbody>
+                                    </tbody>
+                                @endforelse
                             </table>
                         </div>
                     @endif
@@ -303,18 +369,17 @@
 
             <!-- Section 2: Gedung Maps -->
             <section>
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pt-6">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4 pt-4">
                     <div>
                         <div
-                            class="flex items-center gap-3 mb-2 bg-red-50 w-fit px-4 py-1.5 rounded-xl border border-red-100">
+                            class="flex items-center gap-2.5 mb-1.5 bg-red-50 w-fit px-3 py-1 rounded-xl border border-red-100">
                             <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
-                            <h3 class="text-xs font-black text-red-700 uppercase tracking-[0.2em]">Daftar Peta Per
-                                Gedung</h3>
+                            <h3 class="text-sm font-black text-red-700 uppercase tracking-widest">Daftar Peta Per Gedung</h3>
                         </div>
-                        <p class="text-sm text-gray-400 font-medium tracking-tight">Detail layout spesifik untuk setiap
+                        <p class="text-[13px] text-gray-400 font-medium tracking-tight">Detail layout spesifik untuk setiap
                             gedung operasional yang terdaftar.</p>
                     </div>
                     <a href="{{ route('she.maps.create', ['type' => 'Gedung']) }}"
@@ -329,7 +394,7 @@
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200" id="gedung-maps-container">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
@@ -343,10 +408,10 @@
                                     <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="gedung-maps-body" class="bg-white divide-y divide-gray-100">
-                                @forelse ($gedungMaps as $map)
-                                    <tr data-id="{{ $map->id }}"
-                                        class="sortable-row hover:bg-gray-50/50 transition-colors group">
+                            @forelse ($gedungMaps as $map)
+                                <tbody data-id="{{ $map->id }}"
+                                    class="sortable-bundle bg-white divide-y divide-gray-100 border-b border-gray-100 last:border-0 hover:bg-gray-50/30 transition-colors">
+                                    <tr class="group">
                                         <td class="px-4 py-5 w-10">
                                             <div
                                                 class="cursor-move text-gray-300 hover:text-gray-500 transition-colors drag-handle">
@@ -420,14 +485,81 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @empty
+                                    {{-- Visual Preview for Pinned Gedung --}}
+                                    @if($map->is_primary)
+                                        <tr class="bg-gray-50/30">
+                                            <td colspan="5" class="px-6 py-8">
+                                                <div class="flex items-center gap-8 pl-4">
+                                                    <div
+                                                        class="relative w-64 h-40 rounded-2xl overflow-hidden shadow-md border-2 border-white ring-1 ring-gray-200 bg-white group hover:shadow-xl transition-all duration-300">
+                                                        @if($map->background_image)
+                                                            <img src="{{ route('files.public', ['path' => $map->background_image]) }}"
+                                                                class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                                                        @else
+                                                            <div class="w-full h-full bg-gray-50 flex items-center justify-center">
+                                                                <svg class="w-10 h-10 text-gray-200" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                </svg>
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Mini Grid Overlay with Colors --}}
+                                                        <div class="absolute inset-0 grid gap-[1px] p-[1px]"
+                                                            style="grid-template-rows: repeat({{ $map->rows }}, 1fr); grid-template-columns: repeat({{ $map->cols }}, 1fr);">
+                                                            @php
+                                                                $cellMapGedung = $map->cells->keyBy(fn($c) => $c->row_index . '-' . $c->col_index);
+                                                            @endphp
+                                                            @for ($r = 0; $r < $map->rows; $r++)
+                                                                @for ($c = 0; $c < $map->cols; $c++)
+                                                                    @php $gCell = $cellMapGedung->get("$r-$c"); @endphp
+                                                                    <div class="border-[0.5px] border-red-500/10 transition-colors duration-500"
+                                                                        style="{{ $gCell && $gCell->risk_score > 0 ? 'background-color: ' . $gCell->zone_color . '99' : '' }}">
+                                                                    </div>
+                                                                @endfor
+                                                            @endfor
+                                                        </div>
+
+                                                        <div
+                                                            class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
+                                                            <a href="{{ route('she.maps.show', $map->id) }}"
+                                                                class="px-4 py-2 bg-white text-[10px] font-black uppercase tracking-widest text-red-600 rounded-xl shadow-lg border border-red-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                                                Buka Editor
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-1 max-w-lg">
+                                                        <div class="flex items-center gap-2 mb-2">
+                                                            <span
+                                                                class="flex h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+                                                            <h4
+                                                                class="text-[11px] font-black text-red-600 uppercase tracking-[0.2em]">
+                                                                Peta Aktif Gedung</h4>
+                                                        </div>
+                                                        <p class="text-sm text-gray-900 font-bold mb-1 leading-tight">
+                                                            {{ $map->name }}
+                                                        </p>
+                                                        <p class="text-[13px] text-gray-400 font-medium leading-relaxed">Layout
+                                                            operasional aktif untuk gedung ini. Grid <span
+                                                                class="text-gray-900 font-bold">{{ $map->rows }}x{{ $map->cols }}</span>
+                                                            digunakan untuk pemetaan area spesifik laporan bahaya.</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            @empty
+                                <tbody class="bg-white">
                                     <tr>
                                         <td colspan="5" class="px-6 py-12 text-center">
                                             <p class="text-gray-400 text-sm">Tidak ditemukan peta gedung.</p>
                                         </td>
                                     </tr>
-                                @endforelse
-                            </tbody>
+                                </tbody>
+                            @endforelse
                         </table>
                     </div>
                 </div>
@@ -438,7 +570,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const reorderMaps = (elId) => {
                 const el = document.getElementById(elId);
                 if (!el) return;
@@ -446,10 +578,11 @@
                 new Sortable(el, {
                     animation: 150,
                     handle: '.drag-handle',
+                    draggable: '.sortable-bundle',
                     ghostClass: 'bg-red-50',
-                    onEnd: function() {
-                        const ids = Array.from(el.querySelectorAll('tr[data-id]')).map(tr => tr.dataset.id);
-                        
+                    onEnd: function () {
+                        const ids = Array.from(el.querySelectorAll('.sortable-bundle')).map(item => item.dataset.id);
+
                         axios.post('{{ route("she.maps.reorder") }}', { ids: ids })
                             .then(response => {
                                 console.log('Reorder success');
@@ -462,8 +595,8 @@
                 });
             };
 
-            reorderMaps('pabrik-maps-body');
-            reorderMaps('gedung-maps-body');
+            reorderMaps('pabrik-maps-container');
+            reorderMaps('gedung-maps-container');
         });
     </script>
 </x-app-layout>

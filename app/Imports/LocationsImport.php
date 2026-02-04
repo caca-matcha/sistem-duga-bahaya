@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Location;
+use App\Models\Map;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -28,57 +29,77 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     {
         // Debug: Log the raw row data
         Log::info('Import Row Data:', $row);
-        
-        // MAPPING: Handle various header formats
-        // Name: nama_lokasi OR nama_area
-        $name = $row['nama_lokasi'] ?? $row['nama_lokasi_'] ?? $row['nama-lokasi'] ?? $row['nama_area'] ?? null;
-        
-        // ID: location_id_string OR area_id
-        $locId = $row['location_id_string'] ?? $row['location_id_string_'] ?? $row['location-id-string'] ?? $row['area_id'] ?? null;
-        
-        // Type: tipe OR type
-        $type = $row['tipe'] ?? $row['tipe_'] ?? $row['type'] ?? null;
-        
-        // Parent: parent_id
-        $parentId = $row['parent_id_optional'] ?? $row['parent-id-optional'] ?? null;
-        
-        // Map: map_id OR gedung
-        $mapId = $row['map_id'] ?? $row['map_id_'] ?? $row['map-id'] ?? null;
-        $gedungName = $row['gedung'] ?? $row['gedung_'] ?? null;
 
-        // Auto-Create/Find Map if 'Gedung' is provided but map_id is missing
-        if (!$mapId && $gedungName) {
-            $map = \App\Models\Map::firstOrCreate(
-                ['name' => $gedungName],
-                [
-                    'type' => 'pabrik', // Default type
-                    'rows' => 10,       // Default rows
-                    'cols' => 10,       // Default cols
-                    'created_by' => Auth::id() ?? 1
-                ]
-            );
-            $mapId = $map->id;
-        }
-        
-        // Order: display_order OR default 0
-        $order = $row['display_order'] ?? $row['display_order_'] ?? $row['display-order'] ?? 0;
+        // MAPPING: Handle headers (slugified by Laravel Excel)
+        // Nama Lokasi * -> nama_lokasi
+        $name = $row['nama_lokasi'] ?? $row['nama_area'] ?? null;
 
-        // Skip if mandatory fields are missing
-        if (!$name && !$locId && !$mapId) {
-            return null;
+        // Location ID String * -> location_id_string
+        $locId = $row['location_id_string'] ?? $row['area_id'] ?? null;
+
+        // Tipe * -> tipe
+        $type = $row['tipe'] ?? $row['type'] ?? null;
+
+        // Nama Map * -> nama_map
+        // Try to find Map ID from Map Name
+        $mapName = $row['nama_map_gedung'] ?? $row['nama_map'] ?? $row['gedung'] ?? null;
+        $mapId = null;
+
+        if ($mapName && $mapName !== '-') {
+            $map = Map::where('name', $mapName)->first();
+            if ($map) {
+                $mapId = $map->id;
+            }
         }
 
-        return Location::updateOrCreate(
-            ['location_id_string' => $locId],
-            [
-                'name' => $name,
-                'type' => $type ? strtolower($type) : null,
-                'parent_id' => !empty($parentId) ? $parentId : null,
-                'map_id' => $mapId,
-                'display_order' => $order,
-                'created_by' => Auth::id() ?? 1,
-            ]
-        );
+        // Use explicit map_id if provided (for advanced users)
+        if (isset($row['map_id']) && !empty($row['map_id'])) {
+            $mapId = $row['map_id'];
+        }
+
+        $locIdString = $row['location_id_string'] ?? $row['area_id'] ?? null;
+        $systemId = $row['id'] ?? null;
+
+        $updateData = [
+            'name' => $row['nama_lokasi'] ?? $row['nama_area'] ?? 'Tanpa Nama',
+            'type' => isset($row['tipe']) || isset($row['type']) ? strtolower($row['tipe'] ?? $row['type']) : 'area',
+            'map_id' => $mapId,
+            'created_by' => Auth::id() ?? 1,
+        ];
+
+        // Also update location_id_string if it's provided (important for renaming via System ID)
+        if ($locIdString) {
+            $updateData['location_id_string'] = $locIdString;
+        }
+
+        // PRIMITIVE LOGIC: Priority 1: Use System ID for finding existing record
+        if ($systemId) {
+            $existing = Location::find($systemId);
+            if ($existing) {
+                $existing->update($updateData);
+                return $existing;
+            }
+        }
+
+        // Priority 2: Fallback to location_id_string (Backward compatibility & new entries)
+        if ($locIdString) {
+            $existing = Location::where('location_id_string', $locIdString)->first();
+            if ($existing) {
+                $existing->update($updateData);
+                return $existing;
+            }
+
+            // New record - calculate order
+            $maxOrder = Location::where('map_id', $mapId)->max('display_order') ?? 0;
+            $updateData['display_order'] = $maxOrder + 1;
+
+            return new Location($updateData);
+        }
+
+        // Priority 3: Create new if neither provided
+        $maxOrder = Location::where('map_id', $mapId)->max('display_order') ?? 0;
+        $updateData['display_order'] = $maxOrder + 1;
+        return new Location($updateData);
     }
 
     /**
@@ -91,18 +112,14 @@ class LocationsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             '*.nama_lokasi' => 'nullable',
             '*.location_id_string' => 'nullable',
             '*.tipe' => 'nullable',
+            '*.nama_map' => 'nullable',
             '*.map_id' => 'nullable',
-            
-            // Custom Format (Master_Lokasi_AutoID)
+
+            // Custom Format / Backward compatibility
             '*.nama_area' => 'nullable',
             '*.area_id' => 'nullable',
             '*.type' => 'nullable',
             '*.gedung' => 'nullable',
-            
-            // Dash variations
-            '*.nama-lokasi' => 'nullable',
-            '*.location-id-string' => 'nullable',
-            '*.map-id' => 'nullable',
         ];
     }
 

@@ -4,20 +4,19 @@
     <x-slot name="header">
         <div class="relative py-2">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <div
-                        class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
                             </path>
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
                             SHE Dashboard</h2>
-                        <p
-                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
+                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
                             Ringkasan cepat dan visualisasi data laporan bahaya.</p>
                     </div>
                 </div>
@@ -29,7 +28,7 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-[1920px] mx-auto sm:px-8 lg:px-16 space-y-8">
 
             {{-- SECTION 1: STATS CARDS --}}
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -354,7 +353,7 @@
                                                                             </p>
                                                                             <div class="flex items-center gap-2 mt-2">
                                                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide
-                                                                                                                                                    {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
+                                                                                                                                                                                                                                        {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
                                         ($report->status == 'diproses' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
                                             'bg-amber-50 text-amber-700 border border-amber-100') }}">
                                                                                     {{ ucfirst($report->status) }}
@@ -388,106 +387,106 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-                document.addEventListener('DO             MContentLoaded', function () {
-                    // --- CHART 1: RISK LEVEL (DYNAMIC) ---
-                    const riskCounts = @json($riskCounts);
+            document.addEventListener('DO             MContentLoaded', function () {
+                // --- CHART 1: RISK LEVEL (DYNAMIC) ---
+                const riskCounts = @json($riskCounts);
 
-                    // Define all possible categories, their labels, and colors.
-                    // This ensures a consistent order and color scheme.
-                    const riskConfig = {
-                        'Low': { label: 'Rendah', color: '#10B981' }, // Green-500
-                        'Medium': { label: 'Sedang', color: '#3B82F6' }, // Blue-500 (will be merged)
-                        'Medium-High': { label: 'Sedang & Menengah', color: '#F59E0B' }, // Amber-500
-                        'High': { label: 'Tinggi', color: '#F97316' }, // Orange-500 (will be merged)
-                        'Extreme': { label: 'Tinggi & Ekstrem', color: '#EF4444' }, // Red-500
-                    };
+                // Define all possible categories, their labels, and colors.
+                // This ensures a consistent order and color scheme.
+                const riskConfig = {
+                    'Low': { label: 'Rendah', color: '#10B981' }, // Green-500
+                    'Medium': { label: 'Sedang', color: '#3B82F6' }, // Blue-500 (will be merged)
+                    'Medium-High': { label: 'Sedang & Menengah', color: '#F59E0B' }, // Amber-500
+                    'High': { label: 'Tinggi', color: '#F97316' }, // Orange-500 (will be merged)
+                    'Extreme': { label: 'Tinggi & Ekstrem', color: '#EF4444' }, // Red-500
+                };
 
-                    // Aggregate data as requested
-                    const aggregatedData = {
-                        'Low': riskCounts['Low'] || 0,
-                        'Medium-High': (riskCounts['Medium'] || 0) + (riskCounts['Medium-High'] || 0),
-                        'Extreme': (riskCounts['High'] || 0) + (riskCounts['Extreme'] || 0)
-                    };
+                // Aggregate data as requested
+                const aggregatedData = {
+                    'Low': riskCounts['Low'] || 0,
+                    'Medium-High': (riskCounts['Medium'] || 0) + (riskCounts['Medium-High'] || 0),
+                    'Extreme': (riskCounts['High'] || 0) + (riskCounts['Extreme'] || 0)
+                };
 
-                    const chartLabels = [];
-                    const chartData = [];
-                    const chartColors = [];
+                const chartLabels = [];
+                const chartData = [];
+                const chartColors = [];
 
-                    // Populate chart data based on the final aggregated data
-                    // We use the config to ensure a consistent order and color
-                    if (aggregatedData['Low'] > 0) {
-                        chartLabels.push(riskConfig['Low'].label);
-                        chartData.push(aggregatedData['Low']);
-                        chartColors.push(riskConfig['Low'].color);
-                    }
-                    if (aggregatedData['Medium-High'] > 0) {
-                        chartLabels.push(riskConfig['Medium-High'].label);
-                        chartData.push(aggregatedData['Medium-High']);
-                        chartColors.push(riskConfig['Medium-High'].color);
-                    }
-                    if (aggregatedData['Extreme'] > 0) {
-                        chartLabels.push(riskConfig['Extreme'].label);
-                        chartData.push(aggregatedData['Extreme']);
-                        chartColors.push(riskConfig['Extreme'].color);
-                    }
+                // Populate chart data based on the final aggregated data
+                // We use the config to ensure a consistent order and color
+                if (aggregatedData['Low'] > 0) {
+                    chartLabels.push(riskConfig['Low'].label);
+                    chartData.push(aggregatedData['Low']);
+                    chartColors.push(riskConfig['Low'].color);
+                }
+                if (aggregatedData['Medium-High'] > 0) {
+                    chartLabels.push(riskConfig['Medium-High'].label);
+                    chartData.push(aggregatedData['Medium-High']);
+                    chartColors.push(riskConfig['Medium-High'].color);
+                }
+                if (aggregatedData['Extreme'] > 0) {
+                    chartLabels.push(riskConfig['Extreme'].label);
+                    chartData.push(aggregatedData['Extreme']);
+                    chartColors.push(riskConfig['Extreme'].color);
+                }
 
-                    const riskCtx = document.getElementById('riskLevelChart').getContext('2d');
+                const riskCtx = document.getElementById('riskLevelChart').getContext('2d');
 
-                    new Chart(riskCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: chartLabels,
-                            datasets: [{
-                                data: chartData,
-                                backgroundColor: chartColors,
-                                borderWidth: 0,
-                                hoverOffset: 10
-                            }]
+                new Chart(riskCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            data: chartData,
+                            backgroundColor: chartColors,
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } }
-                            },
-                            cutout: '70%',
-                        }
-                    });
+                        cutout: '70%',
+                    }
+                });
 
-                    // --- CHART 2: TOP LOCATIONS ---
-                    const topRiskLocations = @json($topRiskLocations);
-                    const locCtx = document.getElementById('topRiskLocationsChart').getContext('2d');
+                // --- CHART 2: TOP LOCATIONS ---
+                const topRiskLocations = @json($topRiskLocations);
+                const locCtx = document.getElementById('topRiskLocationsChart').getContext('2d');
 
-                    new Chart(locCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: topRiskLocations.map(l => l.area_gedung),
-                            datasets: [{
-                                label: 'Total Skor Risiko',
-                                data: topRiskLocations.map(l => l.total_risk_score),
-                                backgroundColor: '#EF4444', // Red 500
-                                borderRadius: 4,
-                                barPercentage: 0.6
-                            }]
+                new Chart(locCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: topRiskLocations.map(l => l.area_gedung),
+                        datasets: [{
+                            label: 'Total Skor Risiko',
+                            data: topRiskLocations.map(l => l.total_risk_score),
+                            backgroundColor: '#EF4444', // Red 500
+                            borderRadius: 4,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { display: false }
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { borderDash: [2, 4], color: '#E5E7EB' }
                             },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    grid: { borderDash: [2, 4], color: '#E5E7EB' }
-                                },
-                                x: {
-                                    grid: { display: false }
-                                }
+                            x: {
+                                grid: { display: false }
                             }
                         }
-                    });
+                    }
                 });
-            </script>
+            });
+        </script>
     @endpush
 </x-app-layout>

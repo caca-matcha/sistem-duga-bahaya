@@ -1,6 +1,6 @@
 <!-- Top Bar / Header Container -->
 <header x-data="{ showSheChatModal: false }"
-    class="relative z-20 bg-white shadow-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between transition-all duration-300">
+    class="relative z-20 bg-white shadow-md border-b border-gray-100 px-4 md:px-6 py-1.5 md:py-2 flex items-center justify-between transition-all duration-300">
 
     <!-- Left Section: SIDUBA Title -->
     <div class="flex items-center gap-2">

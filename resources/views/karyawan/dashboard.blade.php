@@ -14,11 +14,8 @@
                     <div>
                         <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">
                             Pusat Laporan Bahaya</h2>
-                        <p
-                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
-                            Selamat datang kembali, <span
-                                class="font-bold text-red-600">{{ Auth::user()->name }}</span>!
-                        </p>
+                        <p class="text-gray-400 font-medium mt-1 tracking-tight uppercase tracking-wider text-[11px]">
+                            Lapor bahaya, cek lokasi, dan pantau status laporan Anda.</p>
                     </div>
                 </div>
             </div>

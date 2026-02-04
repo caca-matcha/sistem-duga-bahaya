@@ -6,20 +6,19 @@
     <x-slot name="header">
         <div class="relative py-2">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <div
-                        class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
                             </path>
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
                             SHE Hazard Report</h2>
-                        <p
-                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
+                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
                             Monitoring keselamatan kerja & mitigasi risiko area.</p>
                     </div>
                 </div>
@@ -31,7 +30,7 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ 
+        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8" x-data="{ 
                     activeTab: new URLSearchParams(window.location.search).get('tab') || (window.location.hash ? window.location.hash.replace('#', '') : 'baru'),
                     selectionMode: false,
                     selectedHazards: [],
@@ -180,28 +179,28 @@
 
                             {{-- Semua --}}
                             <button type="button" @click="currentStatus = ''; fetchResults()"
-                                :class="currentStatus === '' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:bg-gray-200/50'"
+                                :class="currentStatus === '' ? 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-100' : 'text-gray-500 hover:bg-gray-200/50'"
                                 class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200">
                                 Semua
                             </button>
 
                             {{-- Menunggu --}}
                             <button type="button" @click="currentStatus = 'menunggu'; fetchResults()"
-                                :class="currentStatus === 'menunggu' ? 'bg-amber-100 text-amber-700 shadow-sm border-amber-200' : 'text-gray-500 hover:bg-gray-200/50'"
+                                :class="currentStatus === 'menunggu' ? 'bg-amber-500 text-white shadow-md ring-2 ring-amber-100 border-amber-500' : 'text-gray-500 hover:bg-gray-200/50'"
                                 class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
                                 Menunggu
                             </button>
 
                             {{-- Diproses --}}
                             <button type="button" @click="currentStatus = 'diproses'; fetchResults()"
-                                :class="currentStatus === 'diproses' ? 'bg-blue-100 text-blue-700 shadow-sm border-blue-200' : 'text-gray-500 hover:bg-gray-200/50'"
+                                :class="currentStatus === 'diproses' ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-100 border-blue-600' : 'text-gray-500 hover:bg-gray-200/50'"
                                 class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
                                 Diproses
                             </button>
 
                             {{-- Selesai --}}
                             <button type="button" @click="currentStatus = 'selesai'; fetchResults()"
-                                :class="currentStatus === 'selesai' ? 'bg-emerald-100 text-emerald-700 shadow-sm border-emerald-200' : 'text-gray-500 hover:bg-gray-200/50'"
+                                :class="currentStatus === 'selesai' ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-100 border-emerald-600' : 'text-gray-500 hover:bg-gray-200/50'"
                                 class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
                                 Selesai
                             </button>
@@ -466,7 +465,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                                                                            {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                                                                                                            {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
                                                         {{ $hazard->risk_score }}
                                                     </span>
                                                     <div class="text-xs text-gray-500 mt-1">

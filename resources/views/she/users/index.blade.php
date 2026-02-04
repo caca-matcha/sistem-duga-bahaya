@@ -2,21 +2,20 @@
     <x-slot name="header">
         <div class="relative py-2">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <div
-                        class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
                             </path>
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
                             User Management</h2>
-                        <p
-                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
-                            Kelola data pengguna, role, dan hak akses aplikasi.</p>
+                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
+                            Kelola hak akses dan profil pengguna sistem.</p>
                     </div>
                 </div>
             </div>
@@ -27,7 +26,7 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8">
             <!-- Session Status -->
             @if (session('success'))
                 <div class="mb-4 bg-green-50 border-l-4 border-green-400 text-green-700 p-4" role="alert">
@@ -159,19 +158,20 @@
                                 @forelse ($users as $user)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {{ $user->name }}</td>
+                                            {{ $user->name }}
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                    @if ($user->role == 'she')
-                                                        bg-red-100 text-red-800
-                                                    @elseif ($user->role == 'supervisor')
-                                                        bg-amber-100 text-amber-800
-                                                    @else
-                                                        bg-gray-100 text-gray-800
-                                                    @endif
-                                                ">
+                                                                @if ($user->role == 'she')
+                                                                    bg-red-100 text-red-800
+                                                                @elseif ($user->role == 'supervisor')
+                                                                    bg-amber-100 text-amber-800
+                                                                @else
+                                                                    bg-gray-100 text-gray-800
+                                                                @endif
+                                                            ">
                                                 {{ $user->role }}
                                             </span>
                                         </td>

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Map;
+use App\Models\Hazard;
 
 class Location extends Model
 {
@@ -18,6 +20,45 @@ class Location extends Model
         'created_by',
         'display_order',
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function booted()
+    {
+        static::updated(function ($location) {
+            // Check if fields relevant to Hazard reports have changed
+            $relevantFields = ['name', 'location_id_string', 'type', 'map_id'];
+            $changes = array_intersect_key($location->getChanges(), array_flip($relevantFields));
+
+            if (!empty($changes)) {
+                $updateData = [];
+
+                if (isset($changes['name'])) {
+                    $updateData['area_name'] = $changes['name'];
+                }
+                if (isset($changes['location_id_string'])) {
+                    $updateData['area_id'] = $changes['location_id_string'];
+                }
+                if (isset($changes['type'])) {
+                    $updateData['area_type'] = $changes['type'];
+                }
+                if (isset($changes['map_id'])) {
+                    $updateData['map_id'] = $changes['map_id'];
+                    // Also update area_gedung (building name)
+                    $map = Map::find($changes['map_id']);
+                    if ($map) {
+                        $updateData['area_gedung'] = $map->name;
+                    }
+                }
+
+                if (!empty($updateData)) {
+                    // Sync all related hazards to keep history consistent (Choice B)
+                    Hazard::where('location_id', $location->id)->update($updateData);
+                }
+            }
+        });
+    }
 
     /**
      * Get the map that the location belongs to.

@@ -18,8 +18,8 @@ class MapController extends Controller
     public function index()
     {
         Log::info('Test log entry from MapController@index'); // ADD THIS LINE
-        $pabrikMaps = Map::where('type', 'Pabrik')->orderBy('sort_order')->orderBy('id')->with('parent')->get();
-        $gedungMaps = Map::where('type', 'Gedung')->orderBy('sort_order')->orderBy('id')->with('parent')->get();
+        $pabrikMaps = Map::where('type', 'Pabrik')->orderBy('sort_order')->orderBy('id')->with(['parent', 'cells'])->get();
+        $gedungMaps = Map::where('type', 'Gedung')->orderBy('sort_order')->orderBy('id')->with(['parent', 'cells'])->get();
         $existingPabrikMap = $pabrikMaps->isNotEmpty();
 
         return view('she.maps.index', compact('pabrikMaps', 'gedungMaps', 'existingPabrikMap'));
@@ -92,7 +92,7 @@ class MapController extends Controller
 
         $searchQuery = $request->query('search_query'); // Get search query from request
 
-        Log::info('Map data for show view: '.json_encode($map->toArray())); // Log the map data
+        Log::info('Map data for show view: ' . json_encode($map->toArray())); // Log the map data
 
         return view('she.maps.show', compact('map', 'searchQuery')); // Pass searchQuery to view
     }
@@ -157,9 +157,9 @@ class MapController extends Controller
     {
         $mapData = $map->load(['cells.riskParameters']); // Eager load relations
 
-        $filename = 'map-'.Str::slug($map->name).'-'.$map->id.'.json';
+        $filename = 'map-' . Str::slug($map->name) . '-' . $map->id . '.json';
 
-        return response()->json($mapData)->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+        return response()->json($mapData)->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     /**
@@ -169,18 +169,18 @@ class MapController extends Controller
     {
         $map->load(['cells.riskParameters']); // Eager load relations
 
-        $filename = 'risk_data_'.Str::slug($map->name).'_'.$map->id.'.csv';
+        $filename = 'risk_data_' . Str::slug($map->name) . '_' . $map->id . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
         $callback = function () use ($map) {
             $file = fopen('php://output', 'w');
 
             // Add BOM for UTF-8 compatibility in Excel
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             // CSV Headers
             $columns = [
@@ -196,7 +196,7 @@ class MapController extends Controller
                 'Metadata',
             ];
             // Dynamically add risk parameter columns
-            $allRiskParamNames = $map->cells->flatMap(fn ($cell) => $cell->riskParameters->pluck('parameter_name'))->unique()->sort()->toArray();
+            $allRiskParamNames = $map->cells->flatMap(fn($cell) => $cell->riskParameters->pluck('parameter_name'))->unique()->sort()->toArray();
             $columns = array_merge($columns, $allRiskParamNames);
 
             fputcsv($file, $columns);
@@ -264,7 +264,7 @@ class MapController extends Controller
         // Set the current map as primary
         $map->update(['is_primary' => true]);
 
-        return redirect()->route('she.maps.index')->with('success', 'Peta "'.$map->name.'" telah ditetapkan sebagai Peta Utama.');
+        return redirect()->route('she.maps.index')->with('success', 'Peta "' . $map->name . '" telah ditetapkan sebagai Peta Utama.');
     }
 
     /**

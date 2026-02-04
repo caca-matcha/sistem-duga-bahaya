@@ -17,9 +17,8 @@
                     <div>
                         <h2 class="text-xl font-extrabold text-gray-900 tracking-tight capitalize leading-none">
                             Peta Risiko Bahaya</h2>
-                        <p
-                            class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[9px] text-gray-400">
-                            Pilih gedung pada peta untuk melihat visualisasi bahaya secara real-time.</p>
+                        <p class="text-gray-400 font-medium mt-1 tracking-tight uppercase tracking-wider text-[11px]">
+                            Lihat peta risiko dan titik bahaya di area operasional.</p>
                     </div>
                 </div>
 

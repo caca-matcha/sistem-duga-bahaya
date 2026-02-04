@@ -24,6 +24,8 @@
                         Verifikasi & Tandai Selesai <span class="text-gray-400 font-normal">| Laporan
                             #{{ $hazard->id }}</span>
                     </h2>
+                    <p class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[11px] text-gray-400">
+                        Arsip laporan bahaya yang telah divalidasi dan diselesaikan.</p>
                 </div>
             </div>
         </div>
@@ -115,7 +117,6 @@
                                             {{ $hazard->tindakan_perbaikan ?? 'N/A' }}
                                         </dd>
                                     </div>
-                                    <div class="pt-3 border-t border-gray-200">
                                         <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-2">
                                             Upaya Terpilih (Hirarki Pengendalian)</dt>
                                         <dd class="flex flex-wrap gap-2 mt-1">

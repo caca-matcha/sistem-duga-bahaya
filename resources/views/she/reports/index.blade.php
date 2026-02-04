@@ -1,8 +1,28 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Manajemen Laporan Duga Bahaya (SHE)') }}
-        </h2>
+        <div class="relative py-2">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 17v-2a4 4 0 10-8 0v2m8-1V7a4 4 0 10-8 0v7m8 1v3a1 1 0 01-1 1H2a1 1 0 01-1-1v-3m8 1h.01M17 16h4M17 12h4m-4-4h4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
+                            Reports Management</h2>
+                        <p
+                            class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
+                            Manajemen Laporan Duga Bahaya (SHE) & Hasil Temuan.</p>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="absolute -bottom-4 left-0 w-32 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full opacity-50">
+            </div>
+        </div>
     </x-slot>
 
     <div class="py-6">
