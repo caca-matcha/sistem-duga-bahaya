@@ -61,18 +61,18 @@
 
         <!-- BRAND / LOGO SECTION -->
         <div
-            class="flex flex-col items-center justify-center py-5 border-b border-gray-100 bg-white z-10 overflow-hidden shrink-0">
+            class="flex flex-col items-center justify-center py-4 border-b border-gray-100 bg-white z-10 overflow-hidden shrink-0">
             <a href="{{ route('dashboard') }}"
                 class="group transition-transform duration-500 hover:scale-105 flex flex-col items-center">
                 <img src="{{ asset('images/logo-DharmaPolimetal.png') }}" alt="Logo Dharma Polimetal"
-                    class="h-10 w-auto mt-2 mb-2 drop-shadow-sm transition-all duration-500"
-                    :class="sidebarMinimized ? 'h-8' : 'h-10'">
+                    class="h-9 w-auto mt-1 mb-1 drop-shadow-sm transition-all duration-500"
+                    :class="sidebarMinimized ? 'h-7' : 'h-9'">
             </a>
             <p x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-in duration-200 transform"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
-                class="text-[10px] font-extrabold text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap px-4">
+                class="text-[9px] font-extrabold text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap px-4">
                 PT Dharma Polimetal Tbk.
             </p>
         </div>
@@ -92,12 +92,12 @@
             {{-- ================= ROLE: SHE (ADMIN) ================= --}}
             @if(strtolower(Auth::user()->role) == 'she')
                 <p x-show="!sidebarMinimized"
-                    class="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-2">Main Menu</p>
-                <div x-show="sidebarMinimized" class="h-4"></div>
+                    class="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 mt-3">Main Menu</p>
+                <div x-show="sidebarMinimized" class="h-3"></div>
 
                 <a href="{{ route('she.dashboard') }}" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('she.dashboard') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('she.dashboard') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Dashboard' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.dashboard') ? $iconActive : $iconInactive }} transition-all duration-500"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,8 +114,8 @@
                 </a>
 
                 <a href="{{ route('she.hazards.index') }}" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('she.hazards.*') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('she.hazards.*') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Laporan Bahaya' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.hazards.*') ? $iconActive : $iconInactive }} transition-all duration-500"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,8 +131,8 @@
                 </a>
 
                 <a href="{{ route('she.maps.index') }}" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('she.maps.*') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('she.maps.*') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Peta Risiko' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.maps.*') ? $iconActive : $iconInactive }} transition-all duration-500"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,8 +148,8 @@
                 </a>
 
                 <a href="{{ route('she.locations.index') }}" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('she.locations.*') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('she.locations.*') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Master Lokasi' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.locations.*') ? $iconActive : $iconInactive }} transition-all duration-500"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -171,8 +171,8 @@
                 <div x-show="sidebarMinimized" class="h-6 border-t border-gray-100 mt-2 mx-2"></div>
 
                 <a href="{{ route('she.users.index') }}" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('she.users.*') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('she.users.*') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Kelola User' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.users.*') ? $iconActive : $iconInactive }} transition-all duration-500"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -194,8 +194,8 @@
                 <div x-show="sidebarMinimized" class="h-4"></div>
 
                 <a href="{{ route('supervisor.maps.index') }}" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('supervisor.maps.*') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('supervisor.maps.*') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Peta Risiko Gedung' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('supervisor.maps.*') ? $iconActive : $iconInactive }} transition-all duration-500"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -212,8 +212,8 @@
                 </a>
 
                 <a href="#" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('supervisor.reports.*') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('supervisor.reports.*') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Laporan' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('supervisor.reports.*') ? $iconActive : $iconInactive }} transition-all"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -230,8 +230,8 @@
                 <div x-show="sidebarMinimized" class="h-4"></div>
 
                 <a href="{{ route('karyawan.dashboard') }}" @click="sidebarOpen = false"
-                    class="group flex items-center rounded-lg text-sm mb-1 transition-all duration-300 {{ request()->routeIs('karyawan.dashboard') ? $activeClass : $inactiveClass }}"
-                    :class="sidebarMinimized ? 'px-0 justify-center h-11 w-11 mx-auto' : 'px-3 py-2'"
+                    class="group flex items-center rounded-lg text-[13px] mb-1 transition-all duration-300 {{ request()->routeIs('karyawan.dashboard') ? $activeClass : $inactiveClass }}"
+                    :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Dashboard' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('karyawan.dashboard') ? $iconActive : $iconInactive }} transition-all duration-500"
                         :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
