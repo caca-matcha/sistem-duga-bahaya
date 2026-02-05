@@ -28,7 +28,7 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-[1920px] mx-auto sm:px-8 lg:px-16 space-y-8">
+        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8 space-y-8">
 
             {{-- SECTION 1: STATS CARDS --}}
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -353,7 +353,7 @@
                                                                             </p>
                                                                             <div class="flex items-center gap-2 mt-2">
                                                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide
-                                                                                                                                                                                                                                        {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
+                                                                                                                                                                                                                                                                    {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
                                         ($report->status == 'diproses' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
                                             'bg-amber-50 text-amber-700 border border-amber-100') }}">
                                                                                     {{ ucfirst($report->status) }}
@@ -387,7 +387,7 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            document.addEventListener('DO             MContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function () {
                 // --- CHART 1: RISK LEVEL (DYNAMIC) ---
                 const riskCounts = @json($riskCounts);
 
