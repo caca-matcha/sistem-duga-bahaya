@@ -6,11 +6,9 @@
                 <div class="flex items-center gap-4">
                     <div
                         class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M15 19l-6-2.1 -5.2 2.6c-.4.2-.9.1-1.2-.2C2.1 19 2 18.6 2 18.2V5.6c0-.4.2-.7.5-.9.3-.2.7-.3 1.1-.1L9 7.1l6-2.1 5.2 2.6c.4.2.9.1 1.2-.2.4-.3.5-.7.5-1.1v12.6c0 .4-.2.7-.5.9-.3.2-.7.3-1.1.1L15 19z" />
                         </svg>
                     </div>
                     <div>
@@ -373,13 +371,15 @@
                     <div>
                         <div
                             class="flex items-center gap-2.5 mb-1.5 bg-red-50 w-fit px-3 py-1 rounded-xl border border-red-100">
-                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            <svg class="w-4 h-4 text-red-600" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M3 10V4c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-6c0-1.1.9-2 2-2h14v2H5c-1.1 0-2 .9-2 2" />
                             </svg>
-                            <h3 class="text-sm font-black text-red-700 uppercase tracking-widest">Daftar Peta Per Gedung</h3>
+                            <h3 class="text-sm font-black text-red-700 uppercase tracking-widest">Daftar Peta Per Gedung
+                            </h3>
                         </div>
-                        <p class="text-[13px] text-gray-400 font-medium tracking-tight">Detail layout spesifik untuk setiap
+                        <p class="text-[13px] text-gray-400 font-medium tracking-tight">Detail layout spesifik untuk
+                            setiap
                             gedung operasional yang terdaftar.</p>
                     </div>
                     <a href="{{ route('she.maps.create', ['type' => 'Gedung']) }}"

@@ -5,10 +5,9 @@
                 <div class="flex items-center gap-4">
                     <div
                         class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                            </path>
+                        <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M9 11c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm7 0c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3zm-7 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4zm7 0c-.3 0-.6 0-.9.1 1.2 1.2 1.9 2.8 1.9 4.6v1.3H22v-2c0-2.7-5.3-4-8-4z" />
                         </svg>
                     </div>
                     <div>
@@ -164,14 +163,14 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                                @if ($user->role == 'she')
-                                                                    bg-red-100 text-red-800
-                                                                @elseif ($user->role == 'supervisor')
-                                                                    bg-amber-100 text-amber-800
-                                                                @else
-                                                                    bg-gray-100 text-gray-800
-                                                                @endif
-                                                            ">
+                                                                    @if ($user->role == 'she')
+                                                                        bg-red-100 text-red-800
+                                                                    @elseif ($user->role == 'supervisor')
+                                                                        bg-amber-100 text-amber-800
+                                                                    @else
+                                                                        bg-gray-100 text-gray-800
+                                                                    @endif
+                                                                ">
                                                 {{ $user->role }}
                                             </span>
                                         </td>

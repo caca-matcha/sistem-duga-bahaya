@@ -7,10 +7,8 @@
                 <div class="flex items-center gap-4">
                     <div
                         class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                            </path>
+                        <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M4 4h7v7H4V4zm0 9h7v7H4v-7zm9-9h7v7h-7V4zm0 9h7v7h-7v-7z" />
                         </svg>
                     </div>
                     <div>
@@ -53,10 +51,9 @@
                         </div>
                         <div
                             class="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-200">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
+                            <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13z" />
                             </svg>
                         </div>
                     </div>
@@ -83,9 +80,9 @@
                         </div>
                         <div
                             class="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl shadow-lg shadow-emerald-200">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.9 14.3l-3.7-3.7 1.4-1.4 2.3 2.3 5.3-5.3 1.4 1.4-6.7 6.7z" />
                             </svg>
                         </div>
                     </div>
@@ -113,10 +110,9 @@
                         </div>
                         <div
                             class="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-xl shadow-lg shadow-indigo-200">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                                </path>
+                            <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 20c4.4 0 8-3.6 8-8s-3.6-8-8-8-8 3.6-8 8 3.6 8 8 8zm0-14c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6 2.7-6 6-6zM12.5 7H11v6l5.2 3.2.8-1.3-4.5-2.7V7z" />
                             </svg>
                         </div>
                     </div>
@@ -144,9 +140,9 @@
                         </div>
                         <div
                             class="p-3 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl shadow-lg shadow-amber-200">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                             </svg>
                         </div>
                     </div>
@@ -160,11 +156,9 @@
                     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                         <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
                             <div class="p-1.5 bg-indigo-100 rounded-lg text-indigo-600">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                                <svg class="w-4 h-4" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                        d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2 0v8.5H22c-.46-4.17-3.33-7.5-7-8.5zm0 11.5V22c3.67-1 6.54-4.33 7-8.5h-7z" />
                                 </svg>
                             </div>
                             Distribusi Tingkat Risiko
@@ -189,10 +183,9 @@
                     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                         <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
                             <div class="p-1.5 bg-red-100 rounded-lg text-red-600">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                                    </path>
+                                <svg class="w-4 h-4" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                        d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z" />
                                 </svg>
                             </div>
                             Top 5 Lokasi Risiko Tertinggi
@@ -224,10 +217,9 @@
                         <div class="px-6 py-4 border-b border-red-100 flex items-center justify-between bg-red-50/50">
                             <h3 class="text-base font-bold text-red-800 flex items-center gap-2">
                                 <div class="p-1.5 bg-red-100 rounded-lg text-red-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                        </path>
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M12 2L1 21h22L12 2zm0 15c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm1-4h-2V8h2v5z" />
                                     </svg>
                                 </div>
                                 Laporan Berisiko Tinggi Aktif
@@ -310,9 +302,9 @@
                         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                             <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
                                 <div class="p-1.5 bg-blue-100 rounded-lg text-blue-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
                                     </svg>
                                 </div>
                                 Laporan Terbaru
@@ -353,7 +345,7 @@
                                                                             </p>
                                                                             <div class="flex items-center gap-2 mt-2">
                                                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide
-                                                                                                                                                                                                                                                                    {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
+                                                                                                                                                                                                                                                                                                {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
                                         ($report->status == 'diproses' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
                                             'bg-amber-50 text-amber-700 border border-amber-100') }}">
                                                                                     {{ ucfirst($report->status) }}

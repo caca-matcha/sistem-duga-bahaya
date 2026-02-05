@@ -100,10 +100,8 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Dashboard' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.dashboard') ? $iconActive : $iconInactive }} transition-all duration-500"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                        </path>
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M4 4h7v7H4V4zm0 9h7v7H4v-7zm9-9h7v7h-7V4zm0 9h7v7h-7v-7z" />
                     </svg>
                     <span x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                         x-transition:enter-start="opacity-0 -translate-x-4"
@@ -118,9 +116,9 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Laporan Bahaya' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.hazards.*') ? $iconActive : $iconInactive }} transition-all duration-500"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M12 2.2c-.6 0-1.1.3-1.4.8L1.4 18.5c-.3.5-.3 1.1 0 1.6.3.5.8.8 1.4.8h18.3c.6 0 1.1-.3 1.4-.8.3-.5.3-1.1 0-1.6L13.4 3c-.3-.5-.8-.8-1.4-.8zM11 8h2v5h-2V8zm1 9c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z" />
                     </svg>
                     <span x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                         x-transition:enter-start="opacity-0 -translate-x-4"
@@ -135,9 +133,9 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Peta Risiko' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.maps.*') ? $iconActive : $iconInactive }} transition-all duration-500"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" />
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M15 19l-6-2.1 -5.2 2.6c-.4.2-.9.1-1.2-.2C2.1 19 2 18.6 2 18.2V5.6c0-.4.2-.7.5-.9.3-.2.7-.3 1.1-.1L9 7.1l6-2.1 5.2 2.6c.4.2.9.1 1.2-.2.4-.3.5-.7.5-1.1v12.6c0 .4-.2.7-.5.9-.3.2-.7.3-1.1.1L15 19z" />
                     </svg>
                     <span x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                         x-transition:enter-start="opacity-0 -translate-x-4"
@@ -152,11 +150,10 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Master Lokasi' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.locations.*') ? $iconActive : $iconInactive }} transition-all duration-500"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor" fill-rule="evenodd"
+                            d="M19 9c0 5.2-7 13-7 13S5 14.2 5 9c0-3.9 3.1-7 7-7s7 3.1 7 7zm-7 2.5c1.4 0 2.5-1.1 2.5-2.5S13.4 6.5 12 6.5 9.5 7.6 9.5 9s1.1 2.5 2.5 2.5z"
+                            clip-rule="evenodd" />
                     </svg>
                     <span x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                         x-transition:enter-start="opacity-0 -translate-x-4"
@@ -175,9 +172,9 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Kelola User' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('she.users.*') ? $iconActive : $iconInactive }} transition-all duration-500"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A10.99 10.99 0 002.5 10.5a10.99 10.99 0 003.5-5.697m11 5.697a10.99 10.99 0 00-3.5-5.697" />
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M9 11c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm7 0c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3zm-7 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4zm7 0c-.3 0-.6 0-.9.1 1.2 1.2 1.9 2.8 1.9 4.6v1.3H22v-2c0-2.7-5.3-4-8-4z" />
                     </svg>
                     <span x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                         x-transition:enter-start="opacity-0 -translate-x-4"
@@ -198,9 +195,9 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Peta Risiko Gedung' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('supervisor.maps.*') ? $iconActive : $iconInactive }} transition-all duration-500"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0-6V4m0 6h12M9 7l5.447 2.724A1 1 0 0015 10.618V19.382a1 1 0 00-1.447.894L9 20m0-6a3 3 0 100-6 3 3 0 000 6z" />
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M15 19l-6-2.1 -5.2 2.6c-.4.2-.9.1-1.2-.2C2.1 19 2 18.6 2 18.2V5.6c0-.4.2-.7.5-.9.3-.2.7-.3 1.1-.1L9 7.1l6-2.1 5.2 2.6c.4.2.9.1 1.2-.2.4-.3.5-.7.5-1.1v12.6c0 .4-.2.7-.5.9-.3.2-.7.3-1.1.1L15 19z" />
                     </svg>
                     <span x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                         x-transition:enter-start="opacity-0 -translate-x-4"
@@ -216,9 +213,9 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Laporan' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('supervisor.reports.*') ? $iconActive : $iconInactive }} transition-all"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
                     </svg>
                     <span x-show="!sidebarMinimized" class="whitespace-nowrap">Laporan</span>
                 </a>
@@ -234,10 +231,8 @@
                     :class="sidebarMinimized ? 'px-0 justify-center h-10 w-10 mx-auto' : 'px-3 py-1.5'"
                     :title="sidebarMinimized ? 'Dashboard' : ''">
                     <svg class="h-5 w-5 {{ request()->routeIs('karyawan.dashboard') ? $iconActive : $iconInactive }} transition-all duration-500"
-                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                        </path>
+                        :class="sidebarMinimized ? 'm-0' : 'mr-3'" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M4 4h7v7H4V4zm0 9h7v7H4v-7zm9-9h7v7h-7V4zm0 9h7v7h-7v-7z" />
                     </svg>
                     <span x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300 transform"
                         x-transition:enter-start="opacity-0 -translate-x-4"

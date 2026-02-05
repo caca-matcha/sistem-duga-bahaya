@@ -9,10 +9,9 @@
                 <div class="flex items-center gap-4">
                     <div
                         class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                            </path>
+                        <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M12 2.2c-.6 0-1.1.3-1.4.8L1.4 18.5c-.3.5-.3 1.1 0 1.6.3.5.8.8 1.4.8h18.3c.6 0 1.1-.3 1.4-.8.3-.5.3-1.1 0-1.6L13.4 3c-.3-.5-.8-.8-1.4-.8zM11 8h2v5h-2V8zm1 9c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z" />
                         </svg>
                     </div>
                     <div>
@@ -465,7 +464,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                                                                                            {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                                                                                                                {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
                                                         {{ $hazard->risk_score }}
                                                     </span>
                                                     <div class="text-xs text-gray-500 mt-1">
