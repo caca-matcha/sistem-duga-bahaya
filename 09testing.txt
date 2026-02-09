@@ -1,0 +1,265 @@
+=============================================================
+        SKENARIO TESTING - 09 FEBRUARI 2026
+        FITUR: SEARCHABLE DROPDOWN PIC & LEADER
+=============================================================
+
+TANGGAL: 09 Februari 2026
+FITUR YANG DIUJI: Tombol Select Searchable Dropdown untuk PIC dan Leader
+
+=============================================================
+1. RINGKASAN FITUR
+=============================================================
+
+Menambahkan fitur pencarian (search) pada dropdown PIC dan Leader 
+menggunakan library Tom Select. Fitur ini memudahkan pemilihan 
+user dari daftar yang panjang dengan mengetik nama.
+
+LOKASI FITUR:
+- Halaman Proses Hazard (she/hazards/diproses.blade.php)
+- Halaman Tambah Lokasi (she/locations/create.blade.php)
+- Halaman Edit Lokasi (she/locations/edit.blade.php)
+
+=============================================================
+2. SKENARIO TEST - HALAMAN PROSES HAZARD
+=============================================================
+
+TEST 2.1: Dropdown PIC (Eksekutor) - Search Functionality
+-----------------------------------------------------------
+LANGKAH:
+1. Login sebagai SHE
+2. Masuk ke Dashboard SHE
+3. Klik tab "Belum Diproses" atau "Sedang Diproses"
+4. Klik salah satu hazard untuk masuk ke form pemrosesan
+5. Cari field "PIC (Eksekutor)"
+6. Klik dropdown PIC
+
+EXPECTED:
+- Dropdown berubah menjadi searchable input
+- Ada placeholder atau text prompt
+- Styling premium (border rounded, shadow)
+
+7. Ketik nama karyawan (misal: "Ahmad" atau "Budi")
+
+EXPECTED:
+- Daftar terfilter sesuai huruf yang diketik
+- Hasil ditampilkan dengan nama + NPK (jika ada)
+- Jika tidak ditemukan, muncul pesan "Tidak ditemukan: [keyword]"
+
+8. Pilih salah satu nama dengan klik atau tekan Enter
+
+EXPECTED:
+- Nama terpilih tampil di field
+- Field bisa di-clear dengan tombol X
+
+
+TEST 2.2: Dropdown Leader (Pengawas Area) - Search Functionality
+-----------------------------------------------------------
+LANGKAH:
+1. Pada form pemrosesan hazard yang sama
+2. Cari field "Leader (Pengawas Area)"
+3. Klik dropdown Leader
+4. Ketik nama untuk mencari
+5. Pilih nama yang diinginkan
+
+EXPECTED:
+- Fungsionalitas sama dengan dropdown PIC
+- Search berfungsi
+- Selection berhasil
+
+
+TEST 2.3: Keyboard Navigation
+-----------------------------------------------------------
+LANGKAH:
+1. Klik dropdown PIC atau Leader
+2. Gunakan tombol panah atas/bawah untuk navigasi
+3. Tekan Enter untuk memilih
+4. Tekan Escape untuk menutup dropdown
+
+EXPECTED:
+- Navigasi keyboard berfungsi lancar
+- Hover highlight tampil saat navigasi
+- Enter memilih item yang di-highlight
+- Escape menutup dropdown tanpa memilih
+
+
+TEST 2.4: Clear Selection
+-----------------------------------------------------------
+LANGKAH:
+1. Pilih satu nama di dropdown PIC
+2. Klik tombol X di samping nama yang dipilih
+
+EXPECTED:
+- Pilihan ter-clear
+- Field kembali ke state kosong/placeholder
+
+
+TEST 2.5: Submit Form dengan Pilihan
+-----------------------------------------------------------
+LANGKAH:
+1. Pilih PIC dan Leader menggunakan search dropdown
+2. Isi field lainnya (Faktor Penyebab, Keparahan, dll)
+3. Submit form
+
+EXPECTED:
+- Data tersimpan dengan benar
+- PIC dan Leader yang dipilih tersimpan di database
+
+
+=============================================================
+3. SKENARIO TEST - HALAMAN LOKASI
+=============================================================
+
+TEST 3.1: Tambah Lokasi Baru - PIC & Leader Dropdown
+-----------------------------------------------------------
+LANGKAH:
+1. Login sebagai SHE
+2. Masuk ke menu Locations (SHE → Lokasi)
+3. Klik "Tambah Lokasi"
+4. Isi form sampai bagian PIC dan Leader
+5. Test search pada dropdown PIC
+6. Test search pada dropdown Leader
+
+EXPECTED:
+- Dropdown searchable berfungsi
+- Warna accent merah (sesuai theme)
+- Submit berhasil menyimpan data
+
+
+TEST 3.2: Edit Lokasi - PIC & Leader Dropdown
+-----------------------------------------------------------
+LANGKAH:
+1. Pada halaman daftar lokasi, klik Edit pada salah satu lokasi
+2. Perhatikan dropdown PIC dan Leader
+3. Jika sudah ada pilihan sebelumnya, harus tampil ter-select
+
+EXPECTED:
+- Data existing ditampilkan dengan benar
+- Dropdown bisa di-edit
+- Perubahan tersimpan saat submit
+
+
+=============================================================
+4. SKENARIO TEST - UI/UX STYLING
+=============================================================
+
+TEST 4.1: Visual Appearance
+-----------------------------------------------------------
+PERIKSA:
+□ Border dropdown rounded (0.75rem)
+□ Border width 2px
+□ Background gradient halus (white to light gray)
+□ Hover effect: border berubah warna
+□ Focus effect: ring/glow muncul
+□ Shadow pada dropdown list
+□ Option hover: background light color
+□ Option active/selected: gradient color dengan text putih
+
+TEST 4.2: Responsive Check
+-----------------------------------------------------------
+PERIKSA:
+□ Dropdown berfungsi di desktop (1920px)
+□ Dropdown berfungsi di tablet (768px)
+□ Dropdown berfungsi di mobile (375px)
+□ Z-index dropdown tidak tertutup elemen lain
+
+TEST 4.3: Browser Compatibility
+-----------------------------------------------------------
+PERIKSA:
+□ Chrome (terbaru)
+□ Firefox (terbaru)
+□ Edge (terbaru)
+
+
+=============================================================
+5. SKENARIO TEST - EDGE CASES
+=============================================================
+
+TEST 5.1: Daftar User Kosong
+-----------------------------------------------------------
+LANGKAH:
+1. Pastikan tidak ada user di database (atau mock scenario)
+2. Buka form dengan dropdown PIC/Leader
+
+EXPECTED:
+- Dropdown tetap muncul
+- Tidak ada crash/error
+- Pesan fallback atau placeholder ditampilkan
+
+
+TEST 5.2: Search dengan Karakter Spesial
+-----------------------------------------------------------
+LANGKAH:
+1. Ketik karakter seperti: <script>, ', ", &
+
+EXPECTED:
+- Input di-escape dengan benar
+- Tidak ada XSS vulnerability
+- Tidak ada error JavaScript
+
+
+TEST 5.3: Nama Panjang/Nama dengan Karakter Khusus
+-----------------------------------------------------------
+LANGKAH:
+1. Jika ada user dengan nama panjang (>50 karakter)
+2. Jika ada user dengan nama mengandung karakter khusus
+
+EXPECTED:
+- Nama ditampilkan dengan benar
+- Tidak ada truncation aneh
+- Search tetap berfungsi
+
+
+=============================================================
+6. CHECKLIST FINAL
+=============================================================
+
+Halaman Proses Hazard:
+□ PIC dropdown searchable
+□ Leader dropdown searchable
+□ Styling emerald/green theme
+□ Submit berfungsi
+
+Halaman Tambah Lokasi:
+□ PIC dropdown searchable
+□ Leader dropdown searchable
+□ Styling red theme
+□ Submit berfungsi
+
+Halaman Edit Lokasi:
+□ PIC dropdown searchable dengan data existing
+□ Leader dropdown searchable dengan data existing
+□ Styling red theme
+□ Update berfungsi
+
+General:
+□ Tom Select CDN loaded correctly
+□ No JavaScript errors in console
+□ Performance acceptable (no lag)
+□ Mobile responsive
+
+
+=============================================================
+7. CATATAN TEKNIS
+=============================================================
+
+Library: Tom Select v2.3.1 (CDN)
+CDN CSS: https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css
+CDN JS: https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js
+
+Files Modified:
+1. resources/views/she/hazards/diproses.blade.php
+2. resources/views/she/locations/create.blade.php
+3. resources/views/she/locations/edit.blade.php
+4. resources/views/layouts/app.blade.php (@stack('styles') added)
+
+
+=============================================================
+TESTER: ______________________
+TANGGAL TEST: ______________________
+STATUS: □ PASS  □ FAIL
+CATATAN:
+
+
+
+
+=============================================================
