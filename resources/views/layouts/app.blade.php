@@ -22,6 +22,7 @@
     </style>
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+    @stack('styles')
 </head>
 
 <body class="font-sans antialiased">

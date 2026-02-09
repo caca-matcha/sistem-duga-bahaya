@@ -191,9 +191,16 @@
                                         <input type="hidden" name="final_kemungkinan_terjadi"
                                             value="{{ $final_kemungkinan_terjadi }}">
                                         <input type="hidden" name="faktor_penyebab" value="{{ $faktor_penyebab }}">
+<<<<<<< Updated upstream
                                         <input type="hidden" name="final_kategori_stop6"
                                             value="{{ $final_kategori_stop6 }}">
 
+=======
+                                        <input type="hidden" name="final_kategori_stop6" value="{{ $final_kategori_stop6 }}">
+                                        <input type="hidden" name="pic_id" value="{{ $pic_id }}">
+                                        <input type="hidden" name="leader_id" value="{{ $leader_id }}">
+                                        
+>>>>>>> Stashed changes
                                         {{-- Upaya Penanggulangan --}}
                                         <div>
                                             <label

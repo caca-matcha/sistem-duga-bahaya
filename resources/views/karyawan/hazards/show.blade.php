@@ -754,6 +754,68 @@
                         </div>
                     @endif
 
+                    {{-- FORM TINDAK LANJUT PIC/LEADER --}}
+                    @if(in_array(Auth::id(), [$hazard->pic_id, $hazard->leader_id]) && $hazard->status === 'diproses')
+                        <div class="bg-white rounded-2xl shadow-sm border border-blue-200 overflow-hidden mb-6">
+                            <div class="px-5 py-3 border-b border-blue-100 bg-blue-50/50 flex justify-between items-center text-blue-800">
+                                <h3 class="font-bold text-sm flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Tindak Lanjut (PIC/Leader)
+                                </h3>
+                            </div>
+                            <div class="p-5 space-y-6">
+                                {{-- 1. SET DEADLINE FORM --}}
+                                @if(!$hazard->target_penyelesaian)
+                                    <form action="{{ route('karyawan.hazards.update', $hazard) }}" method="POST" class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="action" value="set_deadline">
+                                        <div class="mb-3">
+                                            <label class="block text-xs font-bold text-blue-800 uppercase mb-1">Tetapkan Target Penyelesaian</label>
+                                            <p class="text-xs text-blue-600 mb-2">Mohon tentukan kapan perbaikan ini akan diselesaikan.</p>
+                                            <input type="date" name="target_penyelesaian" required min="{{ date('Y-m-d') }}" class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition">
+                                            Simpan Tanggal
+                                        </button>
+                                    </form>
+                                @else
+                                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm">
+                                        <span class="text-blue-800 font-bold">Target Penyelesaian:</span>
+                                        <span class="font-mono font-bold text-blue-600">{{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->translatedFormat('d F Y') }}</span>
+                                    </div>
+
+                                    {{-- 2. COMPLETE TASK FORM --}}
+                                    <form action="{{ route('karyawan.hazards.update', $hazard) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="action" value="complete">
+                                        
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tindakan Perbaikan yang Dilakukan</label>
+                                            <textarea name="tindakan_perbaikan" rows="3" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Jelaskan perbaikan apa saja yang telah dilakukan..."></textarea>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Foto Bukti Perbaikan</label>
+                                            <input type="file" name="foto_bukti_penyelesaian" required accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition">
+                                            <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max 5MB)</p>
+                                        </div>
+
+                                        <div class="pt-4 border-t border-gray-100">
+                                            <button type="submit" class="w-full bg-green-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-green-700 shadow-lg shadow-green-200 transition flex justify-center items-center gap-2">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Selesaikan Laporan
+                                            </button>
+                                        </div>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Informasi Penyelesaian (Status Logs) --}}
                     @if (isset($hazard) && ($hazard->ditangani_oleh || $hazard->ditangani_pada || $hazard->report_selesai))
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">

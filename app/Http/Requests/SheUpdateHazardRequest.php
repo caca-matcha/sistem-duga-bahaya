@@ -32,7 +32,7 @@ class SheUpdateHazardRequest extends FormRequest
 
         return [
             // Status wajib diubah oleh SHE.
-            'status' => 'required|string|in:' . implode(',', $allowedStatus),
+            'status' => 'required|string|in:'.implode(',', $allowedStatus),
 
             // --- VALIDASI PENOLAKAN (Status = ditolak) ---
             'alasan_penolakan' => 'required_if:status,ditolak|nullable|string|max:1000',
@@ -55,16 +55,26 @@ class SheUpdateHazardRequest extends FormRequest
 
             // --- FIELD UMUM (TIDAK BERGANTUNG STATUS) ---
             'kategori_stop6' => 'nullable|string|max:50',
+            'pic_id' => 'nullable|exists:users,id',
+            'leader_id' => 'nullable|exists:users,id',
 
             // --- FIELD SELESAI (Status = selesai) ---
             'foto_bukti_penyelesaian' => [
                 Rule::requiredIf(function () {
+                    // Get the Hazard model from the route
+                    $hazard = $this->route('hazard');
+
+                    // If hazard already has a completion photo (uploaded by PIC), don't require it
+                    if ($hazard && $hazard->foto_bukti_penyelesaian) {
+                        return false;
+                    }
+
                     $tindakan = $this->input('tindakan_perbaikan');
                     $isDirectCompletion =
-                        str_contains($tindakan, 'Validasi tanpa tindak lanjut') ||
-                        str_contains($tindakan, 'SHE akan tetap pantau area yg terlapor secara berkala');
+                        str_contains($tindakan ?? '', 'Validasi tanpa tindak lanjut') ||
+                        str_contains($tindakan ?? '', 'SHE akan tetap pantau area yg terlapor secara berkala');
 
-                    return $this->input('status') === 'selesai' && !$isDirectCompletion;
+                    return $this->input('status') === 'selesai' && ! $isDirectCompletion;
                 }),
                 'nullable',
                 'file',

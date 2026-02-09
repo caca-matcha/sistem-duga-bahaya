@@ -43,7 +43,8 @@
                                 </h3>
                             </div>
                             <p class="text-sm text-gray-400 font-medium">Perbarui detail identitas dan mapping lokasi:
-                                <span class="font-semibold text-red-600">{{ $location->name }}</span></p>
+                                <span class="font-semibold text-red-600">{{ $location->name }}</span>
+                            </p>
                         </div>
                     </div>
 
@@ -127,6 +128,49 @@
                             @enderror
                         </div>
 
+                        <!-- PIC & Leader Assignment -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100 mt-6">
+                            <!-- PIC (Person in Charge) -->
+                            <div>
+                                <label for="pic_id" class="block text-sm font-semibold text-gray-700 mb-1">
+                                    PIC (Penanggung Jawab Area)
+                                </label>
+                                <select name="pic_id" id="pic_id" class="tom-select-search">
+                                    <option value="">-- Pilih PIC --</option>
+                                    @foreach ($users ?? [] as $user)
+                                        <option value="{{ $user->id }}" @selected(old('pic_id', $location->pic_id) == $user->id)>
+                                            {{ $user->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-400 mt-1">PIC akan menerima notifikasi dan tugas tindak
+                                    lanjut hazard di area ini.</p>
+                                @error('pic_id')
+                                    <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Leader -->
+                            <div>
+                                <label for="leader_id" class="block text-sm font-semibold text-gray-700 mb-1">
+                                    Leader (Atasan PIC)
+                                </label>
+                                <select name="leader_id" id="leader_id" class="tom-select-search">
+                                    <option value="">-- Pilih Leader --</option>
+                                    @foreach ($users ?? [] as $user)
+                                        <option value="{{ $user->id }}" @selected(old('leader_id', $location->leader_id) == $user->id)>
+                                            {{ $user->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-400 mt-1">Leader akan menerima notifikasi sebagai
+                                    CC/supervisor.</p>
+                                @error('leader_id')
+                                    <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div class="pt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
                             <a href="{{ route('she.locations.index') }}"
                                 class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
@@ -142,4 +186,107 @@
             </div>
         </div>
     </div>
+
+    @push('styles')
+        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+        <style>
+            /* Custom Tom Select Styling - Premium Look */
+            .ts-wrapper {
+                border-radius: 0.75rem !important;
+            }
+
+            .ts-control {
+                background: linear-gradient(to bottom, #ffffff, #f9fafb) !important;
+                border: 2px solid #e5e7eb !important;
+                border-radius: 0.75rem !important;
+                padding: 0.625rem 1rem !important;
+                font-size: 0.875rem !important;
+                font-weight: 500 !important;
+                min-height: 44px !important;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .ts-control:hover {
+                border-color: #ef4444 !important;
+            }
+
+            .ts-wrapper.focus .ts-control {
+                border-color: #ef4444 !important;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15) !important;
+                background: #ffffff !important;
+            }
+
+            .ts-control input {
+                font-size: 0.875rem !important;
+            }
+
+            .ts-control .item {
+                background: transparent !important;
+                color: #111827 !important;
+            }
+
+            .ts-dropdown {
+                border-radius: 0.75rem !important;
+                border: 2px solid #e5e7eb !important;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+                margin-top: 4px !important;
+                overflow: hidden !important;
+            }
+
+            .ts-dropdown .ts-dropdown-content {
+                max-height: 250px !important;
+                padding: 0.5rem !important;
+            }
+
+            .ts-dropdown .option {
+                padding: 0.625rem 1rem !important;
+                border-radius: 0.5rem !important;
+                margin-bottom: 2px !important;
+                font-size: 0.875rem !important;
+                transition: all 0.15s ease !important;
+            }
+
+            .ts-dropdown .option:hover {
+                background-color: #fef2f2 !important;
+            }
+
+            .ts-dropdown .option.active {
+                background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+                color: #ffffff !important;
+                font-weight: 600 !important;
+            }
+
+            .ts-dropdown .no-results {
+                padding: 1rem !important;
+                text-align: center !important;
+                color: #6b7280 !important;
+            }
+
+            .ts-control input::placeholder {
+                color: #9ca3af !important;
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.tom-select-search').forEach(function (el) {
+                    new TomSelect(el, {
+                        allowEmptyOption: true,
+                        placeholder: el.options[0]?.text || 'Pilih...',
+                        searchField: ['text'],
+                        sortField: { field: 'text', direction: 'asc' },
+                        render: {
+                            no_results: function (data, escape) {
+                                return '<div class="no-results">Tidak ditemukan: <strong>' + escape(data.input) + '</strong></div>';
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

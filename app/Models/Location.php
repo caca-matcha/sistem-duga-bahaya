@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Map;
-use App\Models\Hazard;
 
 class Location extends Model
 {
@@ -19,7 +17,25 @@ class Location extends Model
         'map_id',
         'created_by',
         'display_order',
+        'pic_id',
+        'leader_id',
     ];
+
+    /**
+     * Get the PIC associated with the location.
+     */
+    public function pic()
+    {
+        return $this->belongsTo(User::class, 'pic_id');
+    }
+
+    /**
+     * Get the Leader associated with the location.
+     */
+    public function leader()
+    {
+        return $this->belongsTo(User::class, 'leader_id');
+    }
 
     /**
      * Boot the model.
@@ -31,7 +47,7 @@ class Location extends Model
             $relevantFields = ['name', 'location_id_string', 'type', 'map_id'];
             $changes = array_intersect_key($location->getChanges(), array_flip($relevantFields));
 
-            if (!empty($changes)) {
+            if (! empty($changes)) {
                 $updateData = [];
 
                 if (isset($changes['name'])) {
@@ -52,7 +68,7 @@ class Location extends Model
                     }
                 }
 
-                if (!empty($updateData)) {
+                if (! empty($updateData)) {
                     // Sync all related hazards to keep history consistent (Choice B)
                     Hazard::where('location_id', $location->id)->update($updateData);
                 }

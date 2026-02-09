@@ -47,12 +47,22 @@ class HazardController extends Controller
             });
         }
 
+        // --- 3. QUERY TUGAS SAYA (SEBAGAI PIC/LEADER) ---
+        $assignedHazards = Hazard::where(function ($q) {
+            $q->where('pic_id', Auth::id())
+                ->orWhere('leader_id', Auth::id());
+        })
+            ->whereIn('status', ['diproses', 'menunggu verifikasi']) // Tasks active for PIC
+            ->latest()
+            ->get();
+
         // Ambil hasil yang sudah difilter dan paginasi
         $hazards = $query->latest()->paginate(10)->withQueryString();
 
         // Kirim semua variabel yang dibutuhkan ke view
         return view('karyawan.dashboard', [
             'hazards' => $hazards,
+            'assignedHazards' => $assignedHazards, // Tambahkan ini
             'totalLaporan' => $totalLaporan,
             'menungguValidasi' => $menungguValidasi,
             'sudahDivalidasi' => $sudahDivalidasi,
@@ -102,6 +112,8 @@ class HazardController extends Controller
             'area_type' => $location->type,
             'map_id' => $location->map_id, // Simpan map_id yang benar
             'cell_id' => $validated['cell_id'] ?? null,
+            'pic_id' => $location->pic_id, // Auto-assign PIC
+            'leader_id' => $location->leader_id, // Auto-assign Leader
             // ----------------------------------------------------
 
             'lokasi_detail_manual' => $validated['lokasi_detail_manual'],
@@ -199,5 +211,56 @@ class HazardController extends Controller
         }
 
         return view('karyawan.hazards.show', compact('hazard', 'timelineData'));
+    }
+
+    /**
+     * Memperbarui laporan bahaya (Khusus untuk PIC/Leader).
+     * Menangani penetapan deadline dan penyelesaian tugas.
+     */
+    public function update(Request $request, Hazard $hazard)
+    {
+        // 1. AUTHORIZATION CHECK
+        $isPicOrLeader = ($hazard->pic_id === Auth::id() || $hazard->leader_id === Auth::id());
+        if (! $isPicOrLeader) {
+            abort(403, 'Anda tidak memiliki akses untuk menindaklanjuti laporan ini.');
+        }
+
+        // 2. VALIDATION
+        $validated = $request->validate([
+            'action' => 'required|string|in:set_deadline,complete',
+            'target_penyelesaian' => 'nullable|date',
+            'tindakan_perbaikan' => 'nullable|string|required_if:action,complete',
+            'foto_bukti_penyelesaian' => 'nullable|image|max:5120|required_if:action,complete',
+        ]);
+
+        // 3. HANDLE ACTIONS - SET DEADLINE
+        if ($validated['action'] === 'set_deadline') {
+            $hazard->update([
+                'target_penyelesaian' => $validated['target_penyelesaian'],
+            ]);
+
+            return back()->with('success', 'Target penyelesaian berhasil ditetapkan.');
+        }
+
+        // 4. HANDLE ACTIONS - COMPLETE TASK
+        if ($validated['action'] === 'complete') {
+            $dataToUpdate = [
+                'tindakan_perbaikan' => $validated['tindakan_perbaikan'],
+                'status' => 'menunggu verifikasi', // Update status to waiting for verification
+                'report_selesai' => now(),
+            ];
+
+            if ($request->hasFile('foto_bukti_penyelesaian')) {
+                $filePath = $request->file('foto_bukti_penyelesaian')->store('completion_photos', 'public');
+                $dataToUpdate['foto_bukti_penyelesaian'] = $filePath;
+            }
+
+            $hazard->update($dataToUpdate);
+
+            return redirect()->route('karyawan.hazards.show', $hazard)
+                ->with('success', 'Laporan berhasil diperbarui. Menunggu verifikasi SHE.');
+        }
+
+        return back()->with('error', 'Aksi tidak valid.');
     }
 }

@@ -11,66 +11,66 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::create('hazards', function (Blueprint $table) {
-        $table->id();
+        Schema::create('hazards', function (Blueprint $table) {
+            $table->id();
 
-        // Pelapor (karyawan)
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            // Pelapor (karyawan)
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-        // Data karyawan saat melapor
-        $table->string('nama');
-        $table->string('NPK');
-        $table->string('dept');
+            // Data karyawan saat melapor
+            $table->string('nama');
+            $table->string('NPK');
+            $table->string('dept');
 
-        // Detail observasi
-        $table->date('tgl_observasi');
-        $table->string('area_gedung')->nullable();
-        $table->string('area_id')->nullable();
-        $table->string('aktivitas_kerja')->nullable();
+            // Detail observasi
+            $table->date('tgl_observasi');
+            $table->string('area_gedung')->nullable();
+            $table->string('area_id')->nullable();
+            $table->string('aktivitas_kerja')->nullable();
 
-        // Detail bahaya
-        $table->text('deskripsi_bahaya');
-        $table->string('foto_bukti')->nullable();
-        $table->string('kategori_stop6')->nullable();
-        $table->string('faktor_penyebab')->nullable();
+            // Detail bahaya
+            $table->text('deskripsi_bahaya');
+            $table->string('foto_bukti')->nullable();
+            $table->string('kategori_stop6')->nullable();
+            $table->string('faktor_penyebab')->nullable();
 
-        // Severity & Probability
-        $table->integer('tingkat_keparahan')->nullable();
-        $table->integer('kemungkinan_terjadi')->nullable();
-        $table->integer('risk_score')->nullable();
-        $table->string('kategori_resiko')->nullable();
+            // Severity & Probability
+            $table->integer('tingkat_keparahan')->nullable();
+            $table->integer('kemungkinan_terjadi')->nullable();
+            $table->integer('risk_score')->nullable();
+            $table->string('kategori_resiko')->nullable();
 
-        $table->text('ide_penanggulangan')->nullable();
+            $table->text('ide_penanggulangan')->nullable();
 
-        $table->integer('final_tingkat_keparahan')->nullable();                                
-        $table->integer(column: 'final_kemungkinan_terjadi')->nullable();                      
-        $table->string('final_kategori_stop6')->nullable();   
+            $table->integer('final_tingkat_keparahan')->nullable();
+            $table->integer(column: 'final_kemungkinan_terjadi')->nullable();
+            $table->string('final_kategori_stop6')->nullable();
 
-        // Flow status
-        $table->enum('status', ['menunggu validasi', 'ditolak', 'diproses', 'selesai'])
-            ->default('menunggu validasi');
+            // Flow status
+            $table->enum('status', ['menunggu validasi', 'ditolak', 'diproses', 'menunggu verifikasi', 'selesai'])
+                ->default('menunggu validasi');
 
-        $table->text('alasan_penolakan')->nullable();
-        $table->timestamp('report_selesai')->nullable()->default(null);
+            $table->text('alasan_penolakan')->nullable();
+            $table->timestamp('report_selesai')->nullable()->default(null);
 
-        // SHE yang menangani
-        $table->foreignId('ditangani_oleh')
-            ->nullable()
-            ->constrained('users')
-            ->nullOnDelete();
+            // SHE yang menangani
+            $table->foreignId('ditangani_oleh')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
-        $table->timestamp('ditangani_pada')->nullable();
-        $table->timestamps();
+            $table->timestamp('ditangani_pada')->nullable();
+            $table->timestamps();
 
-    });
+        });
 
     }
 
     public function down(): void
     {
-            /**
-     * Run the migrations.
-     */
+        /**
+         * Run the migrations.
+         */
         Schema::dropIfExists('hazards');
     }
 };

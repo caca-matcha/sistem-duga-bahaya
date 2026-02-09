@@ -87,6 +87,9 @@ Route::middleware(['auth', 'role:she'])
         // Rute untuk submit validasi awal dari form diproses (untuk jalur tanpa tindak lanjut)
         Route::post('hazards/{hazard}/validasi-submit-tanpa-tindak-lanjut', [SHEHazardController::class, 'submitValidasiTanpaTindakLanjut'])->name('hazards.validasi.submitTanpaTindakLanjut');
 
+        // Rute untuk submit validasi dan langsung teruskan ke PIC (Bypass Rencana Tindakan)
+        Route::post('hazards/{hazard}/forward-to-pic', [SHEHazardController::class, 'forwardToPic'])->name('hazards.forwardToPic');
+
         // ROUTE UTAMA UPDATE STATUS: Menangani semua status update (POST/PUT)
         Route::put('hazards/{hazard}/update-status', [SHEHazardController::class, 'updateStatus'])->name('hazards.updateStatus');
         Route::delete('hazards/{hazard}', [SHEHazardController::class, 'destroy'])->name('hazards.destroy');

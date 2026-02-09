@@ -1,13 +1,53 @@
-16:27 🔍 Browser logger active (MCP server detected). Posting to: http://127.0.0.1:8000/_boost/browser-logs
-16:86 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
-:8000/api/maps/16/cells?page=1:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
-16:86 Error fetching cells: AxiosError
-console.<computed> @ 16:86
-cells:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
-16:86 Error fetching cells: AxiosError {message: 'Request failed with status code 500', name: 'AxiosError', code: 'ERR_BAD_RESPONSE', config: {…}, request: XMLHttpRequest, …}
-console.<computed> @ 16:86
-(anonymous) @ grid-editor.jsx:130
-e5DMJOlJ3uANhpIOuzcvMtD2bkhOjYyEXCR1F6uG.png:1  Failed to load resource: the server responded with a status of 403 (Forbidden)
-16:86 Failed to load background image: http://127.0.0.1:8000/storage/map_backgrounds/e5DMJOlJ3uANhpIOuzcvMtD2bkhOjYyEXCR1F6uG.png
-console.<computed> @ 16:86
-img.onerror @ grid-editor.jsx:60
+Oke, ini adalah rekap lengkap alur sistem manajemen perbaikan (SHE Reporting System) yang diinginkan teman kamu, mulai dari pelaporan hingga verifikasi akhir:
+
+### 1. Struktur Pengguna & Tanggung Jawab (Roles)
+
+* **Karyawan (Pelapor):** Melaporkan temuan kerusakan/bahaya di area kerja.
+* **SHE (Admin/Validator):** Pengawas pusat yang memverifikasi laporan, menunjuk eksekutor, dan menjaga standar kualitas.
+* **PIC (Gedung) & Leader (Line/Area):** Eksekutor lapangan yang bertanggung jawab melakukan perbaikan.
+
+---
+
+### 2. Alur Proses (End-to-End Workflow)
+
+#### **Fase 1: Pelaporan & Mapping Otomatis**
+
+* Karyawan membuat laporan kerusakan di area tertentu.
+* **Sistem Cerdas:** Sistem secara otomatis mendeteksi siapa **PIC Gedung** dan **Leader Area** berdasarkan lokasi yang dipilih pelapor. Tidak perlu mencari nama manual.
+* **Filter SHE:** Laporan masuk ke SHE terlebih dahulu. SHE meninjau laporan dan melakukan **Tagging** (meneruskan) kepada PIC/Leader terkait yang sudah terhubung otomatis tadi.
+
+#### **Fase 2: Komitmen Perbaikan (Due Date)**
+
+* PIC/Leader menerima notifikasi laporan.
+* **Penentuan Target:** PIC/Leader mengecek kondisi lapangan, lalu menginput **Tanggal Kesanggupan Selesai (Due Date)** di aplikasi.
+* **Catatan:** Pemilihan tanggal bersifat bebas (manual via *date picker*), bukan otomatis dari sistem (seperti +7 hari), agar sesuai dengan tingkat kesulitan di lapangan.
+
+#### **Fase 3: Eksekusi & Pengajuan Perbaikan**
+
+* PIC/Leader melakukan perbaikan.
+* Setelah selesai, mereka mengirim bukti perbaikan (foto/catatan) langsung melalui sistem kembali ke arah SHE untuk meminta persetujuan.
+
+#### **Fase 4: Verifikasi & Kontrol Kualitas (Gatekeeping)**
+
+* SHE memeriksa hasil kerja PIC/Leader.
+* **Jika Belum Sesuai:** SHE memiliki akses untuk **Menolak** dan mengirim balik laporan tersebut kepada PIC agar diperbaiki lagi sampai standar *safety* terpenuhi.
+* **Jika Sesuai:** SHE memberikan **Approval** (Persetujuan).
+
+#### **Fase 5: Penutupan Laporan (Feedback Loop)**
+
+* Setelah disetujui SHE, sistem mengirimkan informasi otomatis kepada **Karyawan (Pelapor awal)**.
+* Karyawan menerima bukti foto atau catatan bahwa laporan mereka di area tersebut sudah tuntas diperbaiki.
+
+---
+
+### 3. Ringkasan Fitur Utama
+
+| Fitur | Penjelasan |
+| --- | --- |
+| **Auto-Connect Role** | Mapping otomatis antara Area/Gedung dengan PIC/Leader yang bertugas. |
+| **Flexible Due Date** | PIC bisa pilih tanggal sendiri kapan sanggup menyelesaikan tugas. |
+| **Approval System** | Kontrol penuh di tangan SHE untuk menerima atau menolak hasil kerja. |
+| **Evidence-Based** | Pengiriman hasil perbaikan wajib menyertakan bukti (foto/catatan). |
+| **Closed-Loop Notif** | Pelapor awal selalu mendapat info update hasil akhir perbaikan. |
+
+---

@@ -44,6 +44,8 @@ class Hazard extends Model
         'ditangani_pada',
         'report_selesai',
         'target_penyelesaian',
+        'pic_id',
+        'leader_id',
 
         // --- FIELDS BARU SHE ---
         'faktor_penyebab',
@@ -83,6 +85,22 @@ class Hazard extends Model
     public function ditanganiOleh(): BelongsTo
     {
         return $this->belongsTo(User::class, 'ditangani_oleh');
+    }
+
+    /**
+     * Relasi ke User (PIC) yang bertanggung jawab.
+     */
+    public function pic(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pic_id');
+    }
+
+    /**
+     * Relasi ke User (Leader) yang bertanggung jawab.
+     */
+    public function leader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'leader_id');
     }
 
     /**

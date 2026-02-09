@@ -452,7 +452,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                                                                                                                    {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                                                                                                                                        {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
                                                         {{ $hazard->risk_score }}
                                                     </span>
                                                     <div class="text-xs text-gray-500 mt-1">
@@ -568,14 +568,25 @@
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                        <svg class="mr-1.5 h-2 w-2 text-blue-400" fill="currentColor"
-                                                            viewBox="0 0 8 8">
-                                                            <circle cx="4" cy="4" r="3" />
-                                                        </svg>
-                                                        Diproses
-                                                    </span>
+                                                    @if($hazard->status === 'menunggu verifikasi')
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                            <svg class="mr-1.5 h-2 w-2 text-purple-400" fill="currentColor"
+                                                                viewBox="0 0 8 8">
+                                                                <circle cx="4" cy="4" r="3" />
+                                                            </svg>
+                                                            Menunggu Verifikasi
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            <svg class="mr-1.5 h-2 w-2 text-blue-400" fill="currentColor"
+                                                                viewBox="0 0 8 8">
+                                                                <circle cx="4" cy="4" r="3" />
+                                                            </svg>
+                                                            Diproses
+                                                        </span>
+                                                    @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <div class="text-sm text-gray-900 font-bold">

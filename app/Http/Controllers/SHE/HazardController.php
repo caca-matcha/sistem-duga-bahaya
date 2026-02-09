@@ -25,23 +25,23 @@ class HazardController extends Controller
         $month = $request->input('month');
         $year = $request->input('year');
 
-        if (!empty($month)) {
+        if (! empty($month)) {
             $baseQuery->whereMonth('tgl_observasi', $month);
         }
-        if (!empty($year)) {
+        if (! empty($year)) {
             $baseQuery->whereYear('tgl_observasi', $year);
         }
 
         // Apply Search Filter
-        if ($request->has('search') && !empty($request->search)) {
+        if ($request->has('search') && ! empty($request->search)) {
             $searchTerm = strtolower($request->search);
             $baseQuery->where(function ($q) use ($searchTerm) {
-                $q->where('hazards.id', 'LIKE', '%' . $searchTerm . '%') // Search ID
-                    ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', '%' . $searchTerm . '%') // Search Date
+                $q->where('hazards.id', 'LIKE', '%'.$searchTerm.'%') // Search ID
+                    ->orWhere(DB::raw('LOWER(tgl_observasi)'), 'LIKE', '%'.$searchTerm.'%') // Search Date
                     ->orWhereHas('pelapor', function ($userQuery) use ($searchTerm) { // Search Reporter Name
-                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%' . $searchTerm . '%');
+                        $userQuery->where(DB::raw('LOWER(name)'), 'LIKE', '%'.$searchTerm.'%');
                     })
-                    ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', '%' . $searchTerm . '%'); // Search Short Description
+                    ->orWhere(DB::raw('LOWER(deskripsi_bahaya)'), 'LIKE', '%'.$searchTerm.'%'); // Search Short Description
 
                 // Risk Level (Low, Medium, High, Medium-High, Extreme) - Case-insensitive
                 if (strtolower($searchTerm) === 'low') {
@@ -56,13 +56,13 @@ class HazardController extends Controller
                     $q->orWhere('risk_score', '>', 20);
                 }
                 // Also allow direct search on 'kategori_resiko' string itself
-                $q->orWhere(DB::raw('LOWER(kategori_resiko)'), 'LIKE', '%' . $searchTerm . '%');
+                $q->orWhere(DB::raw('LOWER(kategori_resiko)'), 'LIKE', '%'.$searchTerm.'%');
             });
         }
 
         // Split by status after applying global filters
         $hazardsMenungguValidasi = (clone $baseQuery)->where('status', 'menunggu validasi')->latest()->paginate(10, ['*'], 'baru_page')->appends(['tab' => 'baru'])->withQueryString();
-        $hazardsDiproses = (clone $baseQuery)->where('status', 'diproses')->latest()->paginate(10, ['*'], 'diproses_page')->appends(['tab' => 'diproses'])->withQueryString();
+        $hazardsDiproses = (clone $baseQuery)->whereIn('status', ['diproses', 'menunggu verifikasi'])->latest()->paginate(10, ['*'], 'diproses_page')->appends(['tab' => 'diproses'])->withQueryString();
         $hazardsSelesai = (clone $baseQuery)->whereIn('status', ['selesai', 'ditolak'])->orderBy('ditangani_pada', 'desc')->paginate(10, ['*'], 'selesai_page')->appends(['tab' => 'selesai'])->withQueryString();
 
         // Specific query for 'Semua' tab with optional status filter
@@ -201,6 +201,8 @@ class HazardController extends Controller
             'final_tingkat_keparahan' => 'required|integer|in:1,3,5',
             'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'final_kategori_stop6' => 'required|string|max:255',
+            'pic_id' => 'nullable|exists:users,id',
+            'leader_id' => 'nullable|exists:users,id',
         ]);
 
         // Simpan data yang divalidasi ke session untuk dibawa ke step berikutnya
@@ -219,6 +221,8 @@ class HazardController extends Controller
             'final_tingkat_keparahan' => 'required|integer|in:1,3,5',
             'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'final_kategori_stop6' => 'required|string|max:255',
+            'pic_id' => 'nullable|exists:users,id',
+            'leader_id' => 'nullable|exists:users,id',
         ]);
 
         // Simpan data yang divalidasi ke session untuk dibawa ke step berikutnya
@@ -228,6 +232,68 @@ class HazardController extends Controller
         return redirect()->route('she.hazards.tanpaTindakLanjut', $hazard);
     }
 
+    // FORWARD TO PIC (BYPASS RENCANA TINDAK LANJUT)
+    public function forwardToPic(Request $request, Hazard $hazard)
+    {
+        // 1. Validasi Input (sama seperti submitValidasi)
+        $validated = $request->validate([
+            'faktor_penyebab' => 'required|string|max:100',
+            'final_tingkat_keparahan' => 'required|integer|in:1,3,5',
+            'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
+            'final_kategori_stop6' => 'required|string|max:255',
+            'pic_id' => 'nullable|exists:users,id',
+            'leader_id' => 'nullable|exists:users,id',
+        ]);
+
+        // 2. Hitung Risk Score Baru
+        $riskScore = $validated['final_tingkat_keparahan'] * $validated['final_kemungkinan_terjadi'];
+        $kategoriResiko = 'Low';
+        if ($riskScore <= 4) {
+            $kategoriResiko = 'Low';
+        } elseif ($riskScore <= 9) {
+            $kategoriResiko = 'Medium';
+        } elseif ($riskScore <= 15) {
+            $kategoriResiko = 'Medium-High';
+        } elseif ($riskScore <= 20) {
+            $kategoriResiko = 'High';
+        } else {
+            $kategoriResiko = 'Extreme';
+        }
+
+        // 3. Update Hazard
+        $hazard->update([
+            'status' => 'diproses', // Langsung diproses (menunggu PIC)
+            'faktor_penyebab' => $validated['faktor_penyebab'],
+            'final_tingkat_keparahan' => $validated['final_tingkat_keparahan'],
+            'final_kemungkinan_terjadi' => $validated['final_kemungkinan_terjadi'],
+            'final_kategori_stop6' => $validated['final_kategori_stop6'],
+            'risk_score' => $riskScore,
+            'kategori_resiko' => $kategoriResiko,
+            'pic_id' => $validated['pic_id'] ?? $hazard->pic_id,
+            'leader_id' => $validated['leader_id'] ?? $hazard->leader_id,
+            'ditangani_oleh' => Auth::id(),
+            'ditangani_pada' => now(),
+            // Kosongkan rencana tindakan karena ini tanggung jawab PIC
+            'tindakan_perbaikan' => null,
+            'target_penyelesaian' => null,
+        ]);
+
+        // 4. Notifikasi ke PIC/Leader
+        $targetUsers = collect([$hazard->pic_id, $hazard->leader_id])->filter()->unique();
+        foreach ($targetUsers as $userId) {
+            Notification::create([
+                'user_id' => $userId,
+                'report_id' => $hazard->id,
+                'title' => 'Tugas Baru: Laporan Bahaya #'.$hazard->id,
+                'message' => 'Anda telah ditunjuk sebagai PIC/Leader untuk menindaklanjuti laporan ini. Silakan tentukan tenggat waktu penyelesaian.',
+                'type' => 'info',
+            ]);
+        }
+
+        return redirect()->route('she.hazards.index')
+            ->with('success', 'Laporan berhasil divalidasi dan diteruskan ke PIC/Leader untuk tindak lanjut.');
+    }
+
     // UPDATE LAPORAN OLEH SHE (Menangani Tolak, Proses, Selesai)
     public function updateStatus(SheUpdateHazardRequest $request, Hazard $hazard)
     {
@@ -235,7 +301,7 @@ class HazardController extends Controller
 
         // --- 1. OTOMATISASI DATA PENANGANAN ---
         $validated['ditangani_oleh'] = Auth::id(); // ID User SHE yang memproses
-        if (!$hazard->ditangani_pada) {
+        if (! $hazard->ditangani_pada) {
             $validated['ditangani_pada'] = now();
         }
 
@@ -273,7 +339,19 @@ class HazardController extends Controller
             $hazard->final_kategori_stop6 = $validated['final_kategori_stop6'];
         }
 
+        if (isset($validated['final_kategori_stop6'])) {
+            $hazard->final_kategori_stop6 = $validated['final_kategori_stop6'];
+        }
+
+        if (isset($validated['pic_id'])) {
+            $hazard->pic_id = $validated['pic_id'];
+        }
+        if (isset($validated['leader_id'])) {
+            $hazard->leader_id = $validated['leader_id'];
+        }
+
         unset($validated['final_tingkat_keparahan'], $validated['final_kemungkinan_terjadi'], $validated['final_kategori_stop6']);
+        unset($validated['pic_id'], $validated['leader_id']); // Unset to avoid mass assignment issues if not safely handled (though fillable protects it, clean up is good)
         unset($validated['pic_penanggung_jawab']); // hapus jika ada
 
         /* ----------------------------------------------------------
@@ -303,7 +381,7 @@ class HazardController extends Controller
                 $file = $request->file('foto_bukti_penyelesaian');
 
                 // Simpan dengan nama asli (disanitasi oleh Laravel storeAs)
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
 
                 $validated['foto_bukti_penyelesaian'] = $file->storeAs('completion_photos', $filename, 'public');
             }
@@ -324,17 +402,17 @@ class HazardController extends Controller
             switch ($validated['status']) {
                 case 'diproses':
                     $notificationTitle = 'Laporan Anda Diproses';
-                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' sedang ditindaklanjuti oleh tim SHE.';
+                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' sedang ditindaklanjuti oleh tim SHE.';
                     $notificationType = 'info';
                     break;
                 case 'selesai':
                     $notificationTitle = 'Laporan Anda Selesai';
-                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' telah diselesaikan. Terima kasih atas partisipasi Anda.';
+                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' telah diselesaikan. Terima kasih atas partisipasi Anda.';
                     $notificationType = 'success';
                     break;
                 case 'ditolak':
                     $notificationTitle = 'Laporan Anda Ditolak';
-                    $notificationMessage = 'Laporan bahaya #' . $hazard->id . ' ditolak. Silakan periksa detailnya.';
+                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' ditolak. Silakan periksa detailnya.';
                     $notificationType = 'warning';
                     break;
             }
@@ -386,7 +464,7 @@ class HazardController extends Controller
         // Default redirect for other statuses
         return redirect()
             ->route('she.hazards.show', $hazard)
-            ->with('success', 'Laporan berhasil diperbarui ke status: ' . ucfirst($validated['status']) . '.');
+            ->with('success', 'Laporan berhasil diperbarui ke status: '.ucfirst($validated['status']).'.');
     }
 
     // ===============================================
@@ -402,7 +480,9 @@ class HazardController extends Controller
                 ->with('error', 'Laporan harus berstatus BARU untuk diproses.');
         }
 
-        return view('she.hazards.diproses', compact('hazard'));
+        $users = \App\Models\User::orderBy('name')->get();
+
+        return view('she.hazards.diproses', compact('hazard', 'users'));
     }
 
     // VIEW FORM PENOLAKAN
@@ -436,7 +516,7 @@ class HazardController extends Controller
         $validatedData = $request->session()->get('validated_data');
 
         // Jika data tidak ada (misal, user akses URL langsung), redirect kembali
-        if (!$validatedData) {
+        if (! $validatedData) {
             return redirect()->route('she.hazards.diprosesForm', $hazard)->with('error', 'Silakan isi form validasi terlebih dahulu.');
         }
 
@@ -444,6 +524,8 @@ class HazardController extends Controller
         $final_kemungkinan_terjadi = $validatedData['final_kemungkinan_terjadi'];
         $faktor_penyebab = $validatedData['faktor_penyebab'];
         $final_kategori_stop6 = $validatedData['final_kategori_stop6']; // Tambahkan ini
+        $pic_id = $validatedData['pic_id'] ?? null;
+        $leader_id = $validatedData['leader_id'] ?? null;
 
         // Hitung skor risiko di backend
         $final_risk_score = (int) $final_tingkat_keparahan * (int) $final_kemungkinan_terjadi;
@@ -454,7 +536,9 @@ class HazardController extends Controller
             'final_kemungkinan_terjadi',
             'final_risk_score',
             'faktor_penyebab',
-            'final_kategori_stop6' // Tambahkan ini
+            'final_kategori_stop6', // Tambahkan ini
+            'pic_id',
+            'leader_id'
         ));
     }
 
@@ -465,7 +549,7 @@ class HazardController extends Controller
         $validatedData = $request->session()->get('validated_data');
 
         // Jika data tidak ada (misal, user akses URL langsung), redirect kembali
-        if (!$validatedData) {
+        if (! $validatedData) {
             return redirect()->route('she.hazards.diprosesForm', $hazard)->with('error', 'Silakan isi form validasi terlebih dahulu.');
         }
 
@@ -502,11 +586,11 @@ class HazardController extends Controller
             ->latest()
             ->get();
 
-        $filename = 'hazard_reports_export_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = 'hazard_reports_export_'.now()->format('Y-m-d_H-i-s').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             'Pragma' => 'no-cache',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => '0',
@@ -516,7 +600,7 @@ class HazardController extends Controller
             $file = fopen('php://output', 'w');
 
             // Add BOM for UTF-8 Excel compatibility
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             // Define headers
             $columns = [
@@ -565,7 +649,7 @@ class HazardController extends Controller
                     $hazard->location?->name ?? $hazard->area_name,
                     $hazard->lokasi_detail_manual,
                     $hazard->deskripsi_bahaya,
-                    $hazard->foto_bukti ? asset('storage/' . $hazard->foto_bukti) : 'N/A',
+                    $hazard->foto_bukti ? asset('storage/'.$hazard->foto_bukti) : 'N/A',
                     $hazard->kategori_stop6,
                     $hazard->tingkat_keparahan,
                     $hazard->kemungkinan_terjadi,
@@ -582,7 +666,7 @@ class HazardController extends Controller
                     $hazard->final_kategori_stop6 ?? 'N/A',
                     is_array($hazard->upaya_penanggulangan) ? implode(', ', $hazard->upaya_penanggulangan) : $hazard->upaya_penanggulangan,
                     $hazard->tindakan_perbaikan,
-                    $hazard->foto_bukti_penyelesaian ? asset('storage/' . $hazard->foto_bukti_penyelesaian) : 'N/A',
+                    $hazard->foto_bukti_penyelesaian ? asset('storage/'.$hazard->foto_bukti_penyelesaian) : 'N/A',
                     $hazard->report_selesai ? \Carbon\Carbon::parse($hazard->report_selesai)->format('d/m/Y') : 'N/A',
                 ]);
             }
@@ -663,8 +747,8 @@ class HazardController extends Controller
         foreach ($overdueValidationHazards as $hazard) {
             $notifications->push([
                 'id' => $hazard->id,
-                'title' => 'Belum Divalidasi: #' . $hazard->id,
-                'description' => $hazard->deskripsi_bahaya . ' (Tertahan ' . $hazard->created_at->diffForHumans(null, true) . ')',
+                'title' => 'Belum Divalidasi: #'.$hazard->id,
+                'description' => $hazard->deskripsi_bahaya.' (Tertahan '.$hazard->created_at->diffForHumans(null, true).')',
                 'time_ago' => $hazard->created_at->diffForHumans(),
                 'link' => route('she.hazards.show', $hazard),
                 'type' => 'overdue',
@@ -680,8 +764,8 @@ class HazardController extends Controller
         foreach ($overdueHazards as $hazard) {
             $notifications->push([
                 'id' => $hazard->id,
-                'title' => 'Laporan Overdue: #' . $hazard->id,
-                'description' => $hazard->deskripsi_bahaya . ' (Terlambat ' . Carbon::parse($hazard->target_penyelesaian)->diffForHumans(null, true) . ')',
+                'title' => 'Laporan Overdue: #'.$hazard->id,
+                'description' => $hazard->deskripsi_bahaya.' (Terlambat '.Carbon::parse($hazard->target_penyelesaian)->diffForHumans(null, true).')',
                 'time_ago' => $hazard->created_at->diffForHumans(),
                 'link' => route('she.hazards.show', $hazard),
                 'type' => 'overdue',
@@ -698,8 +782,8 @@ class HazardController extends Controller
         foreach ($dueSoonHazards as $hazard) {
             $notifications->push([
                 'id' => $hazard->id,
-                'title' => 'Laporan Jatuh Tempo: #' . $hazard->id,
-                'description' => $hazard->deskripsi_bahaya . ' (Jatuh tempo ' . Carbon::parse($hazard->target_penyelesaian)->diffForHumans() . ')',
+                'title' => 'Laporan Jatuh Tempo: #'.$hazard->id,
+                'description' => $hazard->deskripsi_bahaya.' (Jatuh tempo '.Carbon::parse($hazard->target_penyelesaian)->diffForHumans().')',
                 'time_ago' => $hazard->created_at->diffForHumans(),
                 'link' => route('she.hazards.show', $hazard),
                 'type' => 'due_soon',
