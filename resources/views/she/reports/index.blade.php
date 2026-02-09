@@ -10,10 +10,10 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
+                        <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">
                             Reports Management</h2>
                         <p
-                            class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
+                            class="text-gray-400 font-medium mt-1.5 tracking-tight uppercase text-[12px]">
                             Manajemen Laporan Duga Bahaya (SHE) & Hasil Temuan.</p>
                     </div>
                 </div>
@@ -25,8 +25,8 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="max-w-[98%] mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow-md rounded-2xl p-4 sm:p-8">
 
                 <!-- NAVIGATION TABS -->
                 <ul class="flex border-b mb-6" role="tablist">

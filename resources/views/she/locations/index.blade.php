@@ -13,9 +13,9 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
+                        <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">
                             Master Lokasi</h2>
-                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
+                        <p class="text-gray-400 font-medium mt-1.5 tracking-tight uppercase text-[12px]">
                             Daftar area dan titik pantau bahaya di seluruh fasilitas.</p>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-[98%] mx-auto sm:px-4 lg:px-6 space-y-6">
             <!-- Dynamic Controls & Filters -->
 
             <!-- Main Content Card -->
@@ -37,7 +37,7 @@
                     <div class="flex items-center gap-3">
                         <h3 class="text-lg font-bold text-gray-800">Daftar Lokasi</h3>
                         <span id="location-count"
-                            class="px-3 py-1 text-xs font-bold text-red-800 bg-red-100 rounded-full">{{ $locations->count() }}</span>
+                            class="px-3 py-1 text-[11px] font-black text-red-800 bg-red-100 rounded-full">{{ $locations->count() }}</span>
                     </div>
 
                     <!-- Actions Container -->

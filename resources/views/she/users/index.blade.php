@@ -11,9 +11,9 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
+                        <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">
                             User Management</h2>
-                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
+                        <p class="text-gray-400 font-medium mt-1.5 tracking-tight uppercase text-[12px]">
                             Kelola hak akses dan profil pengguna sistem.</p>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-[98%] mx-auto sm:px-6 lg:px-8">
             <!-- Session Status -->
             @if (session('success'))
                 <div class="mb-4 bg-green-50 border-l-4 border-green-400 text-green-700 p-4" role="alert">
@@ -163,14 +163,14 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                                    @if ($user->role == 'she')
-                                                                        bg-red-100 text-red-800
-                                                                    @elseif ($user->role == 'supervisor')
-                                                                        bg-amber-100 text-amber-800
-                                                                    @else
-                                                                        bg-gray-100 text-gray-800
-                                                                    @endif
-                                                                ">
+                                                                            @if ($user->role == 'she')
+                                                                                bg-red-100 text-red-800
+                                                                            @elseif ($user->role == 'supervisor')
+                                                                                bg-amber-100 text-amber-800
+                                                                            @else
+                                                                                bg-gray-100 text-gray-800
+                                                                            @endif
+                                                                        ">
                                                 {{ $user->role }}
                                             </span>
                                         </td>

@@ -12,9 +12,9 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">Maps
+                        <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">Maps
                             Management</h2>
-                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
+                        <p class="text-gray-400 font-medium mt-1.5 tracking-tight uppercase text-[12px]">
                             Kelola layout peta risiko untuk pabrik dan gedung operasional.</p>
                     </div>
                 </div>
@@ -34,7 +34,7 @@
     </x-slot>
 
     <div class="py-6 bg-gray-50 min-h-screen">
-        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-[98%] mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <!-- Alerts Section -->
             @if (session('success'))

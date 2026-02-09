@@ -1,32 +1,103 @@
 <x-app-layout>
     @section('page-title', '')
 
-    <x-slot name="header">
-        <div class="relative py-2">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100/50">
-                        <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M4 4h7v7H4V4zm0 9h7v7H4v-7zm9-9h7v7h-7V4zm0 9h7v7h-7v-7z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
-                            SHE Dashboard</h2>
-                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
-                            Ringkasan cepat dan visualisasi data laporan bahaya.</p>
-                    </div>
-                </div>
-            </div>
-            <div
-                class="absolute -bottom-4 left-0 w-32 h-1 bg-gradient-to-r from-red-600 to-red-400 rounded-full opacity-50">
-            </div>
-        </div>
-    </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8 space-y-8">
+
+            {{-- SECTION: WELCOME (V2 - Premium Aurora Style) --}}
+            @php
+                $hour = date('H');
+                $greeting = 'Selamat Datang';
+                if ($hour >= 5 && $hour < 11) {
+                    $greeting = 'Selamat Pagi';
+                } elseif ($hour >= 11 && $hour < 15) {
+                    $greeting = 'Selamat Siang';
+                } elseif ($hour >= 15 && $hour < 18) {
+                    $greeting = 'Selamat Sore';
+                } else {
+                    $greeting = 'Selamat Malam';
+                }
+            @endphp
+            <div
+                class="relative overflow-hidden bg-white p-6 md:p-8 rounded-[32px] shadow-xl shadow-gray-200/50 border border-gray-100 group transition-all duration-500 hover:shadow-2xl hover:shadow-red-200/20">
+                <!-- Aurora Decorative Elements -->
+                <div
+                    class="absolute -right-20 -top-20 bg-gradient-to-br from-red-600/20 to-rose-400/20 blur-[80px] rounded-full w-80 h-80 group-hover:scale-125 transition-transform duration-1000">
+                </div>
+                <div
+                    class="absolute -left-10 -bottom-10 bg-gradient-to-tr from-blue-400/10 to-indigo-400/10 blur-[60px] rounded-full w-60 h-60 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                </div>
+
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div class="flex-1">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest mb-4 border border-red-100/50">
+                            <span class="relative flex h-2 w-2">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                            </span>
+                            SHE System Active
+                        </div>
+                        <h2 class="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
+                            {{ $greeting }}, <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-500">{{ explode(' ', Auth::user()->name)[0] }}!</span>
+                            <span class="inline-block animate-bounce-slow">✨</span>
+                        </h2>
+                        <p class="text-gray-500 font-bold mt-3 leading-relaxed max-w-2xl text-sm md:text-base">
+                            Senang melihat Anda kembali! Mari kita pastikan lingkungan kerja hari ini tetap aman, sehat,
+                            dan terjaga bersama-sama demi keselamatan kita semua.
+                        </p>
+                    </div>
+
+                    <div class="hidden xl:flex items-center gap-6">
+                        <div class="h-px w-12 bg-gray-200"></div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status
+                                Laporan</p>
+                            @if($pendingReports > 0)
+                                <div class="flex items-center justify-end gap-2">
+                                    <span class="relative flex h-2 w-2">
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                    </span>
+                                    <p class="text-sm font-bold text-amber-600">Butuh Validasi</p>
+                                </div>
+                            @elseif($processedReports > 0)
+                                <div class="flex items-center justify-end gap-2">
+                                    <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
+                                    <p class="text-sm font-bold text-indigo-600">Sedang Diproses</p>
+                                </div>
+                            @else
+                                <div class="flex items-center justify-end gap-2">
+                                    <span class="h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></span>
+                                    <p class="text-sm font-bold text-emerald-600">Semua Terkendali</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-5 bg-gray-50/80 backdrop-blur-sm p-4 rounded-[24px] border border-white shadow-inner">
+                        <div
+                            class="h-14 w-14 rounded-2xl bg-white shadow-lg flex items-center justify-center text-red-600 transition-transform group-hover:rotate-12 duration-500">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p
+                                class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1.5">
+                                Overview Hari Ini</p>
+                            <p class="text-base font-black text-gray-800 tracking-tight">
+                                {{ now()->translatedFormat('d F Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {{-- SECTION 1: STATS CARDS --}}
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -38,8 +109,9 @@
                     </div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div>
-                            <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Total Laporan</p>
-                            <h3 class="text-3xl font-black text-gray-800 mt-2">{{ $totalReports }}</h3>
+                            <p class="text-sm font-bold text-gray-500 uppercase tracking-tight">Total Laporan</p>
+                            <h3 class="text-3xl font-extrabold text-gray-800 mt-2 tracking-tighter">{{ $totalReports }}
+                            </h3>
                             <div
                                 class="mt-2 flex items-center text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-lg w-fit">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,8 +139,10 @@
                     </div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div>
-                            <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Divalidasi</p>
-                            <h3 class="text-3xl font-black text-gray-800 mt-2">{{ $validatedReports }}</h3>
+                            <p class="text-sm font-bold text-gray-500 uppercase tracking-tight">Divalidasi</p>
+                            <h3 class="text-3xl font-extrabold text-gray-800 mt-2 tracking-tighter">
+                                {{ $validatedReports }}
+                            </h3>
                             <div
                                 class="mt-2 flex items-center text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-lg w-fit">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,8 +170,10 @@
                     </div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div>
-                            <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Diproses</p>
-                            <h3 class="text-3xl font-black text-gray-800 mt-2">{{ $processedReports }}</h3>
+                            <p class="text-sm font-bold text-gray-500 uppercase tracking-tight">Diproses</p>
+                            <h3 class="text-3xl font-extrabold text-gray-800 mt-2 tracking-tighter">
+                                {{ $processedReports }}
+                            </h3>
                             <div
                                 class="mt-2 flex items-center text-xs text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-lg w-fit">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,8 +202,9 @@
                     </div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div>
-                            <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Menunggu</p>
-                            <h3 class="text-3xl font-black text-gray-800 mt-2">{{ $pendingReports }}
+                            <p class="text-sm font-bold text-gray-500 uppercase tracking-tight">Menunggu</p>
+                            <h3 class="text-3xl font-extrabold text-gray-800 mt-2 tracking-tighter">
+                                {{ $pendingReports }}
                             </h3>
                             <div
                                 class="mt-2 flex items-center text-xs text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-lg w-fit">
@@ -163,13 +240,34 @@
                             </div>
                             Distribusi Tingkat Risiko
                         </h3>
-                        <button class="text-gray-400 hover:text-gray-600 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
-                                </path>
-                            </svg>
-                        </button>
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" @click.away="open = false"
+                                class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                class="absolute right-0 mt-2 w-48 bg-white/80 backdrop-blur-md border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
+                                <div class="py-1">
+                                    <button @click="downloadChart('riskLevelChart', 'Distribusi-Risiko'); open = false"
+                                        class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 w-full text-left transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download PNG
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-6">
                         <div class="relative h-64 w-full flex justify-center">
@@ -190,13 +288,35 @@
                             </div>
                             Top 5 Lokasi Risiko Tertinggi
                         </h3>
-                        <button class="text-gray-400 hover:text-gray-600 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
-                                </path>
-                            </svg>
-                        </button>
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" @click.away="open = false"
+                                class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                class="absolute right-0 mt-2 w-48 bg-white/80 backdrop-blur-md border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
+                                <div class="py-1">
+                                    <button
+                                        @click="downloadChart('topRiskLocationsChart', 'Top-Lokasi-Risiko'); open = false"
+                                        class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 w-full text-left transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download PNG
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-6">
                         <div class="relative h-64 w-full">
@@ -345,7 +465,7 @@
                                                                             </p>
                                                                             <div class="flex items-center gap-2 mt-2">
                                                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide
-                                                                                                                                                                                                                                                                                                {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
+                                                                                                                                                                                                                                                                                                                                                                                    {{ $report->status == 'selesai' ? 'bg-green-50 text-green-700 border border-green-100' :
                                         ($report->status == 'diproses' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
                                             'bg-amber-50 text-amber-700 border border-amber-100') }}">
                                                                                     {{ ucfirst($report->status) }}
@@ -379,6 +499,32 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
+            // GLOBAL FUNCTION FOR CHART EXPORT
+            window.downloadChart = function (canvasId, filename) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+
+                // Create a temporary link element
+                const link = document.createElement('a');
+                link.download = `${filename}-${new Date().toISOString().slice(0, 10)}.png`;
+
+                // To set white background for transparent charts
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const ctx = tempCanvas.getContext('2d');
+
+                // Fill white background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                // Draw the original chart on top
+                ctx.drawImage(canvas, 0, 0);
+
+                link.href = tempCanvas.toDataURL('image/png', 1.0);
+                link.click();
+            };
+
             document.addEventListener('DOMContentLoaded', function () {
                 // --- CHART 1: RISK LEVEL (DYNAMIC) ---
                 const riskCounts = @json($riskCounts);

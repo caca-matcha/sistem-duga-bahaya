@@ -1,5 +1,5 @@
 <!-- Top Bar / Header Container -->
-<header x-data="{ showSheChatModal: false }"
+<header x-data="{ showSheChatModal: false}"
     class="relative z-20 bg-white shadow-md border-b border-gray-100 px-4 md:px-6 py-1.5 md:py-2 flex items-center justify-between transition-all duration-300">
 
     <!-- Left Section: SIDUBA Title -->
@@ -13,14 +13,10 @@
 
     <!-- Center/Right Section: Date & Actions -->
     <div class="flex items-center gap-3 md:gap-6">
-        <!-- Tanggal - Hidden on mobile, visible on tablet+ -->
-        <p class="hidden md:block text-sm text-gray-600 font-medium">
-            {{-- Menampilkan Hari, Tanggal, dan Bulan Tahun saat ini (Contoh: Senin, 02 Maret 2020) --}}
-            {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}
-        </p>
 
         <!-- User Profile & Actions -->
         <div class="flex items-center space-x-1 md:space-x-2">
+
 
 
 

@@ -32,7 +32,7 @@ class SheUpdateHazardRequest extends FormRequest
 
         return [
             // Status wajib diubah oleh SHE.
-            'status' => 'required|string|in:'.implode(',', $allowedStatus),
+            'status' => 'required|string|in:' . implode(',', $allowedStatus),
 
             // --- VALIDASI PENOLAKAN (Status = ditolak) ---
             'alasan_penolakan' => 'required_if:status,ditolak|nullable|string|max:1000',
@@ -59,8 +59,12 @@ class SheUpdateHazardRequest extends FormRequest
             // --- FIELD SELESAI (Status = selesai) ---
             'foto_bukti_penyelesaian' => [
                 Rule::requiredIf(function () {
-                    return $this->input('status') === 'selesai' &&
-                        $this->input('tindakan_perbaikan') !== 'Validasi tanpa tindak lanjut.';
+                    $tindakan = $this->input('tindakan_perbaikan');
+                    $isDirectCompletion =
+                        str_contains($tindakan, 'Validasi tanpa tindak lanjut') ||
+                        str_contains($tindakan, 'SHE akan tetap pantau area yg terlapor secara berkala');
+
+                    return $this->input('status') === 'selesai' && !$isDirectCompletion;
                 }),
                 'nullable',
                 'file',

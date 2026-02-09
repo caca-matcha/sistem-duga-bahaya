@@ -25,9 +25,9 @@
                             </div>
                             <div class="flex flex-col">
                                 <span
-                                    class="text-[10px] font-black text-red-500/70 uppercase tracking-[0.2em] leading-none mb-1">Building
+                                    class="text-[11px] font-bold text-red-600/60 uppercase tracking-widest leading-none mb-1.5">Building
                                     Area</span>
-                                <span class="text-[16px] font-black text-gray-900 uppercase tracking-tight leading-none">
+                                <span class="text-[17px] font-black text-gray-900 uppercase tracking-tight leading-none">
                                     {{ $location->map?->name ?? 'TANPA MAPPING' }}
                                 </span>
                             </div>
@@ -69,7 +69,7 @@
         </td>
         <td class="px-3 py-2 align-middle w-1">
             <span
-                class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-black bg-white text-gray-600 uppercase border border-gray-200 tracking-tighter shadow-sm group-hover:border-red-100 group-hover:text-red-700 transition-colors whitespace-nowrap">
+                class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black bg-gray-50 text-gray-500 uppercase border border-gray-200 tracking-wider shadow-sm group-hover:bg-red-50 group-hover:border-red-100 group-hover:text-red-700 transition-colors whitespace-nowrap">
                 {{ $location->type }}
             </span>
         </td>

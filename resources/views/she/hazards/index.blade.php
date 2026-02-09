@@ -15,9 +15,9 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-black text-gray-900 tracking-tight capitalize leading-none">
+                        <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">
                             SHE Hazard Report</h2>
-                        <p class="text-gray-400 font-bold mt-1.5 tracking-tight uppercase tracking-widest text-[12px]">
+                        <p class="text-gray-400 font-medium mt-1.5 tracking-tight uppercase text-[12px]">
                             Monitoring keselamatan kerja & mitigasi risiko area.</p>
                     </div>
                 </div>
@@ -29,7 +29,7 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-[96%] mx-auto sm:px-6 lg:px-8" x-data="{ 
+        <div class="max-w-[98%] mx-auto sm:px-6 lg:px-8" x-data="{ 
                     activeTab: new URLSearchParams(window.location.search).get('tab') || (window.location.hash ? window.location.hash.replace('#', '') : 'baru'),
                     selectionMode: false,
                     selectedHazards: [],
@@ -130,15 +130,15 @@
                     }
                  }" x-init="init()">
             <!-- Filter Section: Compact & Interactive (Sticky at top) -->
-            <div class="sticky top-[72px] z-30 bg-gray-50 pt-2 pb-2">
+            <div class="sticky top-[64px] lg:top-[72px] z-30 bg-gray-50 pt-2 pb-2 transition-all duration-300">
                 <form id="combinedFilterForm" action="{{ route('she.hazards.index') }}" method="GET">
                     <input type="hidden" name="tab" id="activeTabInput" x-model="activeTab">
                     <div
-                        class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap items-center gap-2">
+                        class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-stretch md:items-center gap-2">
                         <!-- Search Box -->
-                        <div class="relative flex-grow min-w-[300px]">
+                        <div class="relative flex-grow">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -146,143 +146,126 @@
                             </div>
                             <input type="text" name="search" id="search_input" value="{{ request('search') }}"
                                 placeholder="Cari ID, Pelapor, atau Deskripsi..."
-                                class="block w-full pl-11 pr-4 py-2.5 bg-gray-50 border-none focus:ring-2 focus:ring-indigo-500 rounded-xl text-sm transition-all">
+                                class="block w-full pl-10 pr-4 py-2 bg-gray-50 border-none focus:ring-2 focus:ring-indigo-500 rounded-xl text-xs transition-all">
                         </div>
 
-                        <!-- Date Filters -->
-                        <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-100">
-                            <select name="month"
-                                class="bg-transparent border-none text-sm font-medium focus:ring-0 cursor-pointer rounded-lg hover:bg-white transition-all px-3 pr-8 py-2">
-                                <option value="">Semua Bulan</option>
-                                @foreach(range(1, 12) as $month)
-                                    <option value="{{ $month }}" @selected(request('month') == $month)>
-                                        {{ \Carbon\Carbon::create()->month($month)->locale('id')->monthName }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <div class="h-4 w-px bg-gray-300"></div>
-                            <select name="year"
-                                class="bg-transparent border-none text-sm font-medium focus:ring-0 cursor-pointer rounded-lg hover:bg-white transition-all px-3 pr-8 py-2">
-                                <option value="">Semua Tahun</option>
-                                @foreach(range(\Carbon\Carbon::now()->year, \Carbon\Carbon::now()->year - 5) as $year)
-                                    <option value="{{ $year }}" @selected(request('year') == $year)>{{ $year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Date Filters -->
+                            <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                                <select name="month"
+                                    class="bg-transparent border-none text-xs font-medium focus:ring-0 cursor-pointer rounded-lg hover:bg-white transition-all px-2 pr-7 py-1.5">
+                                    <option value="">Bulan</option>
+                                    @foreach (range(1, 12) as $month)
+                                        <option value="{{ $month }}" @selected(request('month') == $month)>
+                                            {{ \Carbon\Carbon::create()->month($month)->locale('id')->monthName }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="h-4 w-px bg-gray-300"></div>
+                                <select name="year"
+                                    class="bg-transparent border-none text-xs font-medium focus:ring-0 cursor-pointer rounded-lg hover:bg-white transition-all px-2 pr-7 py-1.5">
+                                    @foreach (range(\Carbon\Carbon::now()->year, \Carbon\Carbon::now()->year - 2) as $year)
+                                        <option value="{{ $year }}" @selected(request('year') == $year)>{{ $year }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        <!-- Status Filter (Clickable Badges - Only for 'Semua' tab) -->
-                        <div x-show="activeTab === 'semua'" x-cloak
-                            x-data="{ currentStatus: '{{ request('status', '') }}' }"
-                            class="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
-                            <input type="hidden" name="status" x-model="currentStatus">
+                            <!-- Action Buttons -->
+                            <div class="flex items-center gap-2 ml-auto">
+                                @if (request('month') || request('search'))
+                                    <a href="{{ route('she.hazards.index') }}"
+                                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                        title="Reset Filter">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </a>
+                                @endif
 
-                            {{-- Semua --}}
-                            <button type="button" @click="currentStatus = ''; fetchResults()"
-                                :class="currentStatus === '' ? 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-100' : 'text-gray-500 hover:bg-gray-200/50'"
-                                class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200">
-                                Semua
-                            </button>
-
-                            {{-- Menunggu --}}
-                            <button type="button" @click="currentStatus = 'menunggu'; fetchResults()"
-                                :class="currentStatus === 'menunggu' ? 'bg-amber-500 text-white shadow-md ring-2 ring-amber-100 border-amber-500' : 'text-gray-500 hover:bg-gray-200/50'"
-                                class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
-                                Menunggu
-                            </button>
-
-                            {{-- Diproses --}}
-                            <button type="button" @click="currentStatus = 'diproses'; fetchResults()"
-                                :class="currentStatus === 'diproses' ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-100 border-blue-600' : 'text-gray-500 hover:bg-gray-200/50'"
-                                class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
-                                Diproses
-                            </button>
-
-                            {{-- Selesai --}}
-                            <button type="button" @click="currentStatus = 'selesai'; fetchResults()"
-                                :class="currentStatus === 'selesai' ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-100 border-emerald-600' : 'text-gray-500 hover:bg-gray-200/50'"
-                                class="px-4 py-2 rounded-lg text-xs font-bold border border-transparent transition-all duration-200">
-                                Selesai
-                            </button>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex items-center gap-2 ml-auto pr-1">
-                            @if(request('month') || request('search'))
-                                <a href="{{ route('she.hazards.index') }}"
-                                    class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                    title="Reset Filter">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button type="button"
+                                    @click="selectionMode ? exitSelectionMode() : enterSelectionMode()"
+                                    class="inline-flex items-center justify-center px-3 py-2 border border-transparent rounded-xl font-bold text-xs text-white shadow-md transition-all duration-200"
+                                    :class="selectionMode ? 'bg-gray-700 hover:bg-gray-800' : 'bg-green-600 hover:bg-green-700'">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        x-show="!selectionMode">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        x-show="selectionMode">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
-                                </a>
-                            @endif
+                                    <span x-show="!selectionMode">Ekspor</span>
+                                    <span x-show="selectionMode">Batal</span>
+                                </button>
+                            </div>
+                        </div>
 
-                            <a :href="exportUrl" x-show="selectionMode && selectedHazards.length > 0"
-                                style="display: none;"
-                                class="inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-100 transition-all duration-200">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                Ekspor <span x-text="selectedHazards.length"></span> Laporan
-                            </a>
-
-                            <button type="button" @click="selectionMode ? exitSelectionMode() : enterSelectionMode()"
-                                class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg transition-all duration-200"
-                                :class="selectionMode ? 'bg-gray-700 hover:bg-gray-800 focus:ring-gray-300' : 'bg-green-600 hover:bg-green-700 focus:ring-green-300'">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    x-show="!selectionMode">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    x-show="selectionMode">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                                <span x-show="!selectionMode">Ekspor Excel</span>
-                                <span x-show="selectionMode">Batal</span>
-                            </button>
+                        <!-- Status Filter (Only for 'Semua' tab) - Moved below on mobile -->
+                        <div x-show="activeTab === 'semua'" x-cloak
+                            x-data="{ currentStatus: '{{ request('status', '') }}' }"
+                            class="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100 overflow-x-auto scrollbar-hide">
+                            <input type="hidden" name="status" x-model="currentStatus">
+                            <button type="button" @click="currentStatus = ''; fetchResults()"
+                                :class="currentStatus === '' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200/50'"
+                                class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap">Semua</button>
+                            <button type="button" @click="currentStatus = 'menunggu'; fetchResults()"
+                                :class="currentStatus === 'menunggu' ? 'bg-amber-500 text-white' : 'text-gray-500'"
+                                class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap">Menunggu</button>
+                            <button type="button" @click="currentStatus = 'diproses'; fetchResults()"
+                                :class="currentStatus === 'diproses' ? 'bg-blue-600 text-white' : 'text-gray-500'"
+                                class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap">Diproses</button>
+                            <button type="button" @click="currentStatus = 'selesai'; fetchResults()"
+                                :class="currentStatus === 'selesai' ? 'bg-emerald-600 text-white' : 'text-gray-500'"
+                                class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap">Selesai</button>
                         </div>
                     </div>
                 </form>
             </div>
 
             <!-- MODERN NAVIGATION TABS (Sticky below Filters) -->
-            <div class="sticky top-[138px] z-20 bg-gray-50 pb-4">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 pt-2">
-                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <div class="sticky top-[104px] lg:top-[138px] z-20 bg-gray-50 pb-4 transition-all duration-300">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto scrollbar-hide">
+                    <nav class="-mb-px flex space-x-6 sm:space-x-8 px-4 sm:px-6" aria-label="Tabs">
                         {{-- Tab Semua Laporan --}}
                         <button @click="setTab('semua')" :class="activeTab === 'semua' 
                             ? 'border-purple-500 text-purple-600' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                            class="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            class="group inline-flex items-center py-4 px-1 border-b-2 font-bold text-[10px] sm:text-xs uppercase tracking-tight transition-colors duration-200 whitespace-nowrap">
                             <svg :class="activeTab === 'semua' ? 'text-purple-500' : 'text-gray-400 group-hover:text-gray-500'"
-                                class="-ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                             Semua Laporan
+                            @if ($hazardsSemua->total() > 0)
+                                <span
+                                    class="ml-2 bg-purple-100 text-purple-600 py-0.5 px-2.5 rounded-full text-[11px] font-black">
+                                    {{ $hazardsSemua->total() }}
+                                </span>
+                            @endif
                         </button>
 
                         {{-- Tab Baru --}}
                         <button @click="setTab('baru')" :class="activeTab === 'baru' 
                             ? 'border-indigo-500 text-indigo-600' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                            class="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            class="group inline-flex items-center py-4 px-1 border-b-2 font-bold text-[10px] sm:text-xs uppercase tracking-tight transition-colors duration-200 whitespace-nowrap">
                             <svg :class="activeTab === 'baru' ? 'text-indigo-500' : 'text-gray-400 group-hover:text-gray-500'"
-                                class="-ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             Laporan Baru
-                            @if($hazardsMenungguValidasi->count() > 0)
+                            @if ($hazardsMenungguValidasi->total() > 0)
                                 <span
-                                    class="ml-2 bg-indigo-100 text-indigo-600 py-0.5 px-2.5 rounded-full text-xs font-bold md:inline-block hidden">
-                                    {{ $hazardsMenungguValidasi->count() }}
+                                    class="ml-2 bg-indigo-100 text-indigo-600 py-0.5 px-2.5 rounded-full text-[11px] font-black">
+                                    {{ $hazardsMenungguValidasi->total() }}
                                 </span>
                             @endif
                         </button>
@@ -291,18 +274,17 @@
                         <button @click="setTab('diproses')" :class="activeTab === 'diproses' 
                             ? 'border-blue-500 text-blue-600' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                            class="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            class="group inline-flex items-center py-4 px-1 border-b-2 font-bold text-[10px] sm:text-xs uppercase tracking-tight transition-colors duration-200 whitespace-nowrap">
                             <svg :class="activeTab === 'diproses' ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'"
-                                class="-ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                             </svg>
                             Sedang Diproses
-                            @if($hazardsDiproses->count() > 0)
-                                <span
-                                    class="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2.5 rounded-full text-xs font-bold md:inline-block hidden">
-                                    {{ $hazardsDiproses->count() }}
+                            @if ($hazardsDiproses->total() > 0)
+                                <span class="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-[9px] font-black">
+                                    {{ $hazardsDiproses->total() }}
                                 </span>
                             @endif
                         </button>
@@ -311,14 +293,20 @@
                         <button @click="setTab('selesai')" :class="activeTab === 'selesai' 
                             ? 'border-green-500 text-green-600' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                            class="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            class="group inline-flex items-center py-4 px-1 border-b-2 font-bold text-[10px] sm:text-xs uppercase tracking-tight transition-colors duration-200 whitespace-nowrap">
                             <svg :class="activeTab === 'selesai' ? 'text-green-500' : 'text-gray-400 group-hover:text-gray-500'"
-                                class="-ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Riwayat / Selesai
+                            @if ($hazardsSelesai->total() > 0)
+                                <span
+                                    class="ml-2 bg-green-100 text-green-600 py-0.5 px-2.5 rounded-full text-[11px] font-black">
+                                    {{ $hazardsSelesai->total() }}
+                                </span>
+                            @endif
                         </button>
                     </nav>
                 </div>
@@ -464,7 +452,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                                                                                                {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                                                                                                                                    {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
                                                         {{ $hazard->risk_score }}
                                                     </span>
                                                     <div class="text-xs text-gray-500 mt-1">

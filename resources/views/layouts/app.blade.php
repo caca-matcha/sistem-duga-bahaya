@@ -9,8 +9,10 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
 
     <!-- Scripts -->
     <style>
@@ -38,7 +40,7 @@
                 <!-- Page Heading (Sticky at the top of the scroll area) -->
                 @isset($header)
                     <header class="bg-white/40 backdrop-blur-md border-b border-white/20 sticky top-0 z-40">
-                        <div class="max-w-[1920px] mx-auto py-3 px-4 sm:px-8 lg:px-16">
+                        <div class="max-w-[98%] mx-auto py-3 px-4 sm:px-6 lg:px-8">
                             {{ $header }}
                         </div>
                     </header>
