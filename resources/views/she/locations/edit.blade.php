@@ -128,48 +128,6 @@
                             @enderror
                         </div>
 
-                        <!-- PIC & Leader Assignment -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100 mt-6">
-                            <!-- PIC (Person in Charge) -->
-                            <div>
-                                <label for="pic_id" class="block text-sm font-semibold text-gray-700 mb-1">
-                                    PIC (Penanggung Jawab Area)
-                                </label>
-                                <select name="pic_id" id="pic_id" class="tom-select-search">
-                                    <option value="">-- Pilih PIC --</option>
-                                    @foreach ($users ?? [] as $user)
-                                        <option value="{{ $user->id }}" @selected(old('pic_id', $location->pic_id) == $user->id)>
-                                            {{ $user->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <p class="text-xs text-gray-400 mt-1">PIC akan menerima notifikasi dan tugas tindak
-                                    lanjut hazard di area ini.</p>
-                                @error('pic_id')
-                                    <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Leader -->
-                            <div>
-                                <label for="leader_id" class="block text-sm font-semibold text-gray-700 mb-1">
-                                    Leader (Atasan PIC)
-                                </label>
-                                <select name="leader_id" id="leader_id" class="tom-select-search">
-                                    <option value="">-- Pilih Leader --</option>
-                                    @foreach ($users ?? [] as $user)
-                                        <option value="{{ $user->id }}" @selected(old('leader_id', $location->leader_id) == $user->id)>
-                                            {{ $user->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <p class="text-xs text-gray-400 mt-1">Leader akan menerima notifikasi sebagai
-                                    CC/supervisor.</p>
-                                @error('leader_id')
-                                    <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
 
                         <div class="pt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
                             <a href="{{ route('she.locations.index') }}"

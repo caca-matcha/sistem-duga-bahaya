@@ -19,15 +19,22 @@ class HazardController extends Controller
      */
     public function index(Request $request)
     {
-        // --- 1. STATISTIK (Dihitung dari semua data user tanpa filter) ---
-        $allUserHazards = Hazard::where('user_id', Auth::id())->get();
+        // --- 1. STATISTIK (Dihitung dari laporannya sendiri ATAU tugasnya sebagai PIC) ---
+        $allUserHazards = Hazard::where(function ($q) {
+            $q->where('user_id', Auth::id())
+                ->orWhere('pic_id', Auth::id());
+        })->get();
+
         $totalLaporan = $allUserHazards->count();
-        $menungguValidasi = $allUserHazards->whereIn('status', ['menunggu validasi', 'diproses'])->count();
+        $menungguValidasi = $allUserHazards->whereIn('status', ['menunggu validasi', 'diproses', 'menunggu verifikasi'])->count();
         $sudahDivalidasi = $allUserHazards->whereIn('status', ['disetujui', 'selesai'])->count();
         $ditolak = $allUserHazards->where('status', 'ditolak')->count();
 
-        // --- 2. QUERY UTAMA DENGAN FILTER ---
-        $query = Hazard::where('user_id', Auth::id());
+        // --- 2. QUERY UTAMA DENGAN FILTER (Laporan sendiri OR PIC) ---
+        $query = Hazard::where(function ($q) {
+            $q->where('user_id', Auth::id())
+                ->orWhere('pic_id', Auth::id());
+        });
 
         // Filter by Status
         if ($request->filled('status')) {
@@ -47,22 +54,19 @@ class HazardController extends Controller
             });
         }
 
-        // --- 3. QUERY TUGAS SAYA (SEBAGAI PIC/LEADER) ---
-        $assignedHazards = Hazard::where(function ($q) {
-            $q->where('pic_id', Auth::id())
-                ->orWhere('leader_id', Auth::id());
-        })
-            ->whereIn('status', ['diproses', 'menunggu verifikasi']) // Tasks active for PIC
+        // --- 3. QUERY TUGAS SAYA (SEBAGAI PIC - Hanya yang aktif/perlu tindakan) ---
+        $assignedHazards = Hazard::where('pic_id', Auth::id())
+            ->whereIn('status', ['diproses', 'menunggu verifikasi'])
             ->latest()
             ->get();
 
         // Ambil hasil yang sudah difilter dan paginasi
-        $hazards = $query->latest()->paginate(10)->withQueryString();
+        $hazards = $query->latest('updated_at')->paginate(10)->withQueryString();
 
         // Kirim semua variabel yang dibutuhkan ke view
         return view('karyawan.dashboard', [
             'hazards' => $hazards,
-            'assignedHazards' => $assignedHazards, // Tambahkan ini
+            'assignedHazards' => $assignedHazards,
             'totalLaporan' => $totalLaporan,
             'menungguValidasi' => $menungguValidasi,
             'sudahDivalidasi' => $sudahDivalidasi,
@@ -88,7 +92,9 @@ class HazardController extends Controller
         $filePath = null;
 
         if ($request->hasFile('foto_bukti')) {
-            $filePath = $request->file('foto_bukti')->store('hazard_photos', 'public');
+            $file = $request->file('foto_bukti');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $filePath = $file->storeAs('hazard_photos', $filename, 'public');
         }
 
         // Hitung skor risiko di backend
@@ -99,9 +105,10 @@ class HazardController extends Controller
 
         $hazard = Hazard::create([
             'user_id' => Auth::id(),
-            'nama' => Auth::user()->name,
-            'NPK' => $validated['NPK'],
-            'dept' => $validated['dept'],
+            'nama' => $validated['nama'] ?? Auth::user()->name,
+            'NPK' => $validated['NPK'] ?? Auth::user()->npk,
+            'dept' => $validated['dept'] ?? Auth::user()->department,
+            'position' => Auth::user()->job_family,
             'tgl_observasi' => $validated['tgl_observasi'],
 
             // --- Mengisi data lokasi dari Master Location ---
@@ -112,8 +119,6 @@ class HazardController extends Controller
             'area_type' => $location->type,
             'map_id' => $location->map_id, // Simpan map_id yang benar
             'cell_id' => $validated['cell_id'] ?? null,
-            'pic_id' => $location->pic_id, // Auto-assign PIC
-            'leader_id' => $location->leader_id, // Auto-assign Leader
             // ----------------------------------------------------
 
             'lokasi_detail_manual' => $validated['lokasi_detail_manual'],
@@ -147,8 +152,8 @@ class HazardController extends Controller
      */
     public function show(Hazard $hazard)
     {
-        // Pastikan hanya pemilik laporan yang bisa melihat
-        if ($hazard->user_id !== Auth::id()) {
+        // Pastikan hanya pemilik laporan atau PIC yang bisa melihat
+        if ($hazard->user_id !== Auth::id() && $hazard->pic_id !== Auth::id()) {
             abort(403, 'Anda tidak memiliki akses ke laporan ini.');
         }
 
@@ -157,57 +162,97 @@ class HazardController extends Controller
         // Persiapan data untuk timeline
         $timelineData = [];
 
-        // 1. Status: Laporan Dibuat (menunggu validasi)
-        $timelineData[] = [
-            'status' => 'Laporan Dibuat',
-            'date' => $hazard->created_at,
-            'is_active' => true,
-            'is_current' => $hazard->status === 'menunggu validasi',
-            'details' => 'Laporan telah dikirim dan menunggu tinjauan dari Tim SHE.',
-        ];
+        // CEK APAKAH USER ADALAH PIC (Untuk Alur Timeline Khusus)
+        $isUserPic = (Auth::id() === $hazard->pic_id);
 
-        // 2. Status: Diproses oleh SHE
-        $isDiproses = in_array($hazard->status, ['diproses', 'selesai']);
-        $timelineData[] = [
-            'status' => 'Diproses',
-            'date' => $hazard->ditangani_pada,
-            'is_active' => $isDiproses,
-            'is_current' => $hazard->status === 'diproses',
-            'details' => $isDiproses
-                ? 'Laporan sedang ditangani. Target penyelesaian: '.($hazard->target_penyelesaian ? \Carbon\Carbon::parse($hazard->target_penyelesaian)->format('d M Y') : 'Belum ditentukan')
-                : 'Menunggu laporan divalidasi dan diterima oleh Tim SHE.',
-        ];
+        if ($isUserPic && in_array($hazard->status, ['diproses', 'menunggu verifikasi', 'selesai'])) {
+            // --- ALUR TIMELINE KHUSUS PIC ---
 
-        // 3. Status: Selesai atau Ditolak
-        if ($hazard->status === 'selesai') {
+            // 1. Laporan Masuk (Tgl SHE kirim ke PIC)
+            $timelineData[] = [
+                'status' => 'Laporan Masuk',
+                'date' => $hazard->ditangani_pada,
+                'is_active' => true,
+                'is_current' => ($hazard->status === 'diproses' && ! $hazard->target_penyelesaian),
+                'details' => 'Laporan bahaya telah divalidasi SHE dan masuk ke antrean Anda.',
+            ];
+
+            // 2. Diproses (Keluar) - (Tgl PIC input bukti & klik selesai)
+            $hasSubmitted = in_array($hazard->status, ['menunggu verifikasi', 'selesai']);
+            $timelineData[] = [
+                'status' => 'Proses / Keluar',
+                'date' => $hazard->report_selesai,
+                'is_active' => $hasSubmitted,
+                'is_current' => ($hazard->status === 'menunggu verifikasi' || ($hazard->status === 'diproses' && $hazard->target_penyelesaian)),
+                'details' => $hasSubmitted
+                    ? 'Laporan "Keluar" dari PIC (Selesai diperbaiki pada '.$hazard->report_selesai->format('H:i').').'
+                    : ($hazard->target_penyelesaian
+                        ? 'Sedang dikerjakan. Target: '.\Carbon\Carbon::parse($hazard->target_penyelesaian)->format('d M Y')
+                        : 'Menunggu Anda melakukan perbaikan dan mengunggah bukti.'),
+            ];
+
+            // 3. Selesai (Tgl Verifikasi SHE Selesai)
+            $isSelesai = ($hazard->status === 'selesai');
             $timelineData[] = [
                 'status' => 'Selesai',
-                'date' => $hazard->report_selesai,
-                'is_active' => true,
-                'is_current' => true,
-                'details' => 'Tindak lanjut untuk laporan ini telah selesai.',
-            ];
-        } elseif ($hazard->status === 'ditolak') {
-            // Jika ditolak, ganti 'Diproses' dan 'Selesai' dengan 'Ditolak'
-            // Kita hapus dulu 'Diproses' dan placeholder 'Selesai'
-            array_pop($timelineData); // Hapus placeholder 'Diproses'
-
-            $timelineData[] = [
-                'status' => 'Ditolak',
-                'date' => $hazard->updated_at, // Asumsi tanggal ditolak adalah saat record di-update terakhir
-                'is_active' => true,
-                'is_current' => true,
-                'details' => 'Laporan ditolak. Alasan: '.($hazard->alasan_penolakan ?? 'Tidak ada alasan spesifik.'),
+                'date' => $isSelesai ? $hazard->updated_at : null,
+                'is_active' => $isSelesai,
+                'is_current' => $isSelesai,
+                'details' => $isSelesai
+                    ? 'Tim SHE telah memvalidasi perbaikan Anda. Laporan ditutup.'
+                    : 'Menunggu verifikasi akhir dari tim SHE setelah perbaikan selesai.',
             ];
         } else {
-            // Placeholder untuk status Selesai jika belum tercapai
+            // --- ALUR TIMELINE STANDAR (PELAPOR / UMUM) ---
+
+            // 1. Status: Laporan Dibuat (menunggu validasi)
             $timelineData[] = [
-                'status' => 'Selesai',
-                'date' => null,
-                'is_active' => false,
-                'is_current' => false,
-                'details' => 'Menunggu proses penanganan dari Tim SHE selesai.',
+                'status' => 'Laporan Dibuat',
+                'date' => $hazard->created_at,
+                'is_active' => true,
+                'is_current' => $hazard->status === 'menunggu validasi',
+                'details' => 'Laporan telah dikirim dan menunggu tinjauan dari Tim SHE.',
             ];
+
+            // 2. Status: Diproses oleh SHE
+            $isDiproses = in_array($hazard->status, ['diproses', 'menunggu verifikasi', 'selesai']);
+            $timelineData[] = [
+                'status' => 'Diproses',
+                'date' => $hazard->ditangani_pada,
+                'is_active' => $isDiproses,
+                'is_current' => $hazard->status === 'diproses',
+                'details' => $isDiproses
+                    ? 'Laporan sedang ditangani oleh PIC terkait.'
+                    : 'Menunggu laporan divalidasi dan diterima oleh Tim SHE.',
+            ];
+
+            // 3. Status: Selesai atau Ditolak
+            if ($hazard->status === 'selesai') {
+                $timelineData[] = [
+                    'status' => 'Selesai',
+                    'date' => $hazard->report_selesai,
+                    'is_active' => true,
+                    'is_current' => true,
+                    'details' => 'Tindak lanjut untuk laporan ini telah selesai diverifikasi.',
+                ];
+            } elseif ($hazard->status === 'ditolak') {
+                array_pop($timelineData); // Hapus 'Diproses'
+                $timelineData[] = [
+                    'status' => 'Ditolak',
+                    'date' => $hazard->updated_at,
+                    'is_active' => true,
+                    'is_current' => true,
+                    'details' => 'Laporan ditolak. Alasan: '.($hazard->alasan_penolakan ?? 'Tidak ada alasan spesifik.'),
+                ];
+            } else {
+                $timelineData[] = [
+                    'status' => 'Selesai',
+                    'date' => null,
+                    'is_active' => false,
+                    'is_current' => false,
+                    'details' => 'Menunggu proses penanganan dan verifikasi selesai.',
+                ];
+            }
         }
 
         return view('karyawan.hazards.show', compact('hazard', 'timelineData'));
@@ -220,8 +265,8 @@ class HazardController extends Controller
     public function update(Request $request, Hazard $hazard)
     {
         // 1. AUTHORIZATION CHECK
-        $isPicOrLeader = ($hazard->pic_id === Auth::id() || $hazard->leader_id === Auth::id());
-        if (! $isPicOrLeader) {
+        $isPic = ($hazard->pic_id === Auth::id());
+        if (! $isPic) {
             abort(403, 'Anda tidak memiliki akses untuk menindaklanjuti laporan ini.');
         }
 
@@ -230,7 +275,7 @@ class HazardController extends Controller
             'action' => 'required|string|in:set_deadline,complete',
             'target_penyelesaian' => 'nullable|date',
             'tindakan_perbaikan' => 'nullable|string|required_if:action,complete',
-            'foto_bukti_penyelesaian' => 'nullable|image|max:5120|required_if:action,complete',
+            'foto_bukti_penyelesaian' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240|required_if:action,complete',
         ]);
 
         // 3. HANDLE ACTIONS - SET DEADLINE
@@ -251,11 +296,25 @@ class HazardController extends Controller
             ];
 
             if ($request->hasFile('foto_bukti_penyelesaian')) {
-                $filePath = $request->file('foto_bukti_penyelesaian')->store('completion_photos', 'public');
+                $file = $request->file('foto_bukti_penyelesaian');
+                $filename = time().'_'.$file->getClientOriginalName();
+                $filePath = $file->storeAs('completion_photos', $filename, 'public');
                 $dataToUpdate['foto_bukti_penyelesaian'] = $filePath;
             }
 
             $hazard->update($dataToUpdate);
+
+            // Kirim notifikasi ke semua user SHE agar tahu ada laporan yang perlu diverifikasi
+            $sheUsers = \App\Models\User::where('role', 'she')->pluck('id');
+            foreach ($sheUsers as $sheUserId) {
+                Notification::create([
+                    'user_id' => $sheUserId,
+                    'report_id' => $hazard->id,
+                    'title' => 'Laporan #'.$hazard->id.' Menunggu Verifikasi',
+                    'message' => 'PIC telah menyelesaikan perbaikan. Silakan verifikasi laporan bahaya #'.$hazard->id.'.',
+                    'type' => 'info',
+                ]);
+            }
 
             return redirect()->route('karyawan.hazards.show', $hazard)
                 ->with('success', 'Laporan berhasil diperbarui. Menunggu verifikasi SHE.');

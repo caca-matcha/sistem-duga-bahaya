@@ -68,58 +68,76 @@
                                     Informasi Laporan Awal
                                 </h3>
                                 <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-4 shadow-sm">
-                                    <div class="grid grid-cols-2 gap-4">
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                                 Pelapor</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ $hazard->pelapor->name ?? 'N/A' }}</dd>
-                                            <dt
-                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-2">
-                                                NPK</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ $hazard->pelapor->npk ?? 'N/A' }}</dd>
+                                            <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                {{ $hazard->nama ?? ($hazard->pelapor->name ?? 'N/A') }}
+                                                @if(($hazard->pelapor->role ?? '') === 'magang')
+                                                    <span
+                                                        class="ml-1 text-[10px] text-gray-400 font-medium italic">({{ $hazard->pelapor->name }})</span>
+                                                @endif
+                                            </dd>
                                         </div>
                                         <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                NPK</dt>
+                                            <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                {{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                Departemen</dt>
+                                            <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                {{ $hazard->pelapor->department ?? '-' }}
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                                 Tanggal Observasi</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}
+                                            <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->translatedFormat('d M Y') }}
                                             </dd>
                                         </div>
                                     </div>
                                     <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                             Lokasi Lengkap</dt>
-                                        <dd class="text-base font-semibold text-gray-800 mt-0.5">
+                                        <dd class="text-sm font-bold text-gray-800 mt-0.5">
                                             {{ collect([$hazard->area_gedung, $hazard->area_name])->filter()->join(' -> ') }}
                                         </dd>
                                     </div>
                                     <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                                             Deskripsi Bahaya</dt>
-                                        <dd class="text-base text-gray-700 leading-relaxed italic">
-                                            "{{ $hazard->deskripsi_bahaya }}"</dd>
+                                        <dd class="text-sm font-bold text-gray-800 leading-relaxed">
+                                            {{ $hazard->deskripsi_bahaya }}
+                                        </dd>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-gray-200">
                                         <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                                 Faktor Penyebab</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ $faktor_penyebab ?? 'N/A' }}</dd>
+                                            <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                {{ $faktor_penyebab ?? 'N/A' }}
+                                            </dd>
                                         </div>
                                         <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                                 Kategori STOP6</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ $final_kategori_stop6 ?? 'N/A' }}</dd>
+                                            <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                {{ $final_kategori_stop6 ?? 'N/A' }}
+                                            </dd>
                                         </div>
                                     </div>
                                     <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ide
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Ide
                                             Penanggulangan</dt>
-                                        <dd class="text-base text-gray-700 leading-relaxed italic">
-                                            "{{ $hazard->ide_penanggulangan ?? 'N/A' }}"</dd>
+                                        <dd class="text-sm font-bold text-gray-800 leading-relaxed">
+                                            {{ $hazard->ide_penanggulangan ?? 'N/A' }}
+                                        </dd>
                                     </div>
                                 </div>
                             </section>
@@ -191,22 +209,15 @@
                                         <input type="hidden" name="final_kemungkinan_terjadi"
                                             value="{{ $final_kemungkinan_terjadi }}">
                                         <input type="hidden" name="faktor_penyebab" value="{{ $faktor_penyebab }}">
-<<<<<<< Updated upstream
                                         <input type="hidden" name="final_kategori_stop6"
                                             value="{{ $final_kategori_stop6 }}">
-
-=======
-                                        <input type="hidden" name="final_kategori_stop6" value="{{ $final_kategori_stop6 }}">
-                                        <input type="hidden" name="pic_id" value="{{ $pic_id }}">
-                                        <input type="hidden" name="leader_id" value="{{ $leader_id }}">
-                                        
->>>>>>> Stashed changes
                                         {{-- Upaya Penanggulangan --}}
                                         <div>
                                             <label
                                                 class="block text-xs font-black text-gray-700 uppercase tracking-wide">Upaya
                                                 Penanggulangan</label>
-                                            <p class="text-[11px] text-gray-500 italic mt-0.5 mb-3">Isi satu atau lebih
+                                            <p class="text-[11px] text-gray-500 italic mt-0.5 mb-3">Isi satu atau
+                                                lebih
                                                 upaya yang akan dilakukan berdasarkan hirarki.</p>
                                             @php
                                                 $options = ['Eliminasi', 'Substitusi', 'Rekayasa (Engineering)', 'Administrasi', 'APD'];
@@ -225,74 +236,36 @@
                                         </div>
 
 
-                                        {{-- Rencana Tindakan --}}
+
+                                        {{-- Rencana Tindakan (Instructions from SHE) --}}
                                         <div>
                                             <label
-                                                class="block text-xs font-black text-gray-700 uppercase tracking-wide">Rencana
-                                                Tindakan Perbaikan</label>
-                                            <textarea name="tindakan_perbaikan" rows="4"
-                                                placeholder="Deskripsikan rencana tindakan perbaikan yang akan dilakukan..."
+                                                class="block text-xs font-black text-gray-700 uppercase tracking-wide">Instruksi
+                                                Rencana Perbaikan</label>
+                                            <p class="text-[11px] text-gray-500 italic mt-0.5 mb-2">Berikan
+                                                instruksi detail kepada petugas yang ditunjuk tentang apa yang harus
+                                                diperbaiki.</p>
+                                            <textarea name="rencana_perbaikan" rows="4"
+                                                placeholder="Contoh: Tambahkan guard pada mesin, Pasang rambu peringatan, dll..."
                                                 class="mt-2 w-full text-sm bg-gray-50 rounded-lg border-gray-200 shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
                                                 required></textarea>
                                         </div>
 
-
-
-                                        {{-- Warning Target Penyelesaian --}}
-                                        <div class="p-3 bg-amber-50 border-l-4 border-amber-200 text-amber-700 mb-6"
-                                            role="alert">
-                                            <p class="font-bold text-sm">Penting:</p>
-                                            <p class="text-sm">Pastikan Target Penyelesaian ini realistis dan dapat
-                                                dipenuhi. Tanggal hari ini adalah
-                                                <strong>{{ \Carbon\Carbon::now()->format('d F Y') }}</strong>.</p>
-                                        </div>
-                                        {{-- Target Penyelesaian --}}
+                                        {{-- PIC Assignment --}}
                                         <div>
-                                            <label
-                                                class="block text-xs font-black text-gray-700 uppercase tracking-wide">Target
-                                                Penyelesaian</label>
-                                            <div class="grid grid-cols-2 gap-4 mt-2">
-                                                {{-- DROPDOWN DURASI --}}
-                                                <div>
-                                                    <label
-                                                        class="block text-[10px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-tight">Pilih
-                                                        Durasi Cepat</label>
-                                                    <select id="durasi"
-                                                        class="w-full text-sm rounded-md border-gray-300 shadow-sm">
-                                                        <option value="">Pilih Durasi</option>
-                                                        <optgroup label="Hari">
-                                                            <option value="hari_1">1 Hari</option>
-                                                            <option value="hari_2">2 Hari</option>
-                                                            <option value="hari_3">3 Hari</option>
-                                                            <option value="hari_4">4 Hari</option>
-                                                            <option value="hari_5">5 Hari</option>
-                                                            <option value="hari_6">6 Hari</option>
-                                                        </optgroup>
-                                                        <optgroup label="Minggu">
-                                                            <option value="minggu_1">1 Minggu</option>
-                                                            <option value="minggu_2">2 Minggu</option>
-                                                            <option value="minggu_3">3 Minggu</option>
-                                                        </optgroup>
-                                                        <optgroup label="Bulan">
-                                                            <option value="bulan_1">1 Bulan</option>
-                                                            <option value="bulan_2">2 Bulan</option>
-                                                            <option value="bulan_3">3 Bulan</option>
-                                                            <option value="bulan_4">4 Bulan</option>
-                                                            <option value="bulan_5">5 Bulan</option>
-                                                            <option value="bulan_6">6 Bulan</option>
-                                                        </optgroup>
-                                                    </select>
-                                                </div>
-                                                {{-- TANGGAL TARGET OTOMATIS --}}
-                                                <div>
-                                                    <label for="target_penyelesaian"
-                                                        class="block text-[10px] font-bold text-gray-500 uppercase mb-1 ml-1 tracking-tight">&nbsp;</label>
-                                                    <input type="date" name="target_penyelesaian"
-                                                        id="target_penyelesaian"
-                                                        class="w-full text-sm rounded-md border-gray-300 bg-gray-100 shadow-sm"
-                                                        required>
-                                                </div>
-                                            </div>
+                                            <label for="pic_id"
+                                                class="block text-xs font-black text-gray-700 uppercase tracking-wide">Orang
+                                                yang ditunjuk oleh SHE</label>
+                                            <p class="text-[11px] text-gray-500 italic mt-0.5 mb-2">Pilih petugas
+                                                yang akan melaksanakan perbaikan.</p>
+                                            <select id="pic_id" name="pic_id" class="tom-select-search" required>
+                                                <option value="">Pilih Petugas</option>
+                                                @foreach($users as $user)
+                                                    <option value="{{ $user->id }}">{{ $user->name }}
+                                                        {{ $user->npk ? '(' . $user->npk . ')' : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
 
                                         {{-- Checkbox Konfirmasi --}}
@@ -335,42 +308,6 @@
     {{-- SCRIPT --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const durasiSelect = document.getElementById('durasi');
-            const targetInput = document.getElementById('target_penyelesaian');
-
-            durasiSelect.addEventListener('change', function () {
-                const value = this.value;
-                let today = new Date();
-
-                if (!value) {
-                    // Jika user kembali ke "Pilih Durasi", jangan ubah input tanggal
-                    return;
-                }
-
-                let [jenis, jumlah] = value.split("_");
-                jumlah = parseInt(jumlah);
-
-                if (jenis === "hari") {
-                    today.setDate(today.getDate() + jumlah);
-                } else if (jenis === "minggu") {
-                    today.setDate(today.getDate() + (jumlah * 7));
-                } else if (jenis === "bulan") {
-                    today.setMonth(today.getMonth() + jumlah);
-                }
-
-                let year = today.getFullYear();
-                let month = String(today.getMonth() + 1).padStart(2, "0");
-                let day = String(today.getDate()).padStart(2, "0");
-
-                targetInput.value = `${year}-${month}-${day}`;
-
-                // Reset durasi select ke default untuk memungkinkan user memilih tanggal manual tanpa bingung
-            });
-
-            // Jika user memilih tanggal manual, pastikan select durasi tidak terpilih
-            targetInput.addEventListener('input', function () {
-                durasiSelect.value = '';
-            });
 
             const konfirmasiCheckbox = document.getElementById('konfirmasi_rencana');
             const submitButton = document.getElementById('submit_rencana');
@@ -386,4 +323,108 @@
             });
         });
     </script>
+
+    @push('styles')
+        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+        <style>
+            /* Custom Tom Select Styling - Premium Look */
+            .ts-wrapper {
+                border-radius: 0.75rem !important;
+            }
+
+            .ts-control {
+                background: linear-gradient(to bottom, #ffffff, #f9fafb) !important;
+                border: 2px solid #e5e7eb !important;
+                border-radius: 0.75rem !important;
+                padding: 0.625rem 1rem !important;
+                font-size: 0.875rem !important;
+                font-weight: 500 !important;
+                min-height: 44px !important;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .ts-control:hover {
+                border-color: #10b981 !important;
+            }
+
+            .ts-wrapper.focus .ts-control {
+                border-color: #10b981 !important;
+                box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
+                background: #ffffff !important;
+            }
+
+            .ts-control input {
+                font-size: 0.875rem !important;
+            }
+
+            .ts-control .item {
+                background: transparent !important;
+                color: #111827 !important;
+            }
+
+            .ts-dropdown {
+                border-radius: 0.75rem !important;
+                border: 2px solid #e5e7eb !important;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+                margin-top: 4px !important;
+                overflow: hidden !important;
+            }
+
+            .ts-dropdown .ts-dropdown-content {
+                max-height: 250px !important;
+                padding: 0.5rem !important;
+            }
+
+            .ts-dropdown .option {
+                padding: 0.625rem 1rem !important;
+                border-radius: 0.5rem !important;
+                margin-bottom: 2px !important;
+                font-size: 0.875rem !important;
+                transition: all 0.15s ease !important;
+            }
+
+            .ts-dropdown .option:hover {
+                background-color: #f0fdf4 !important;
+            }
+
+            .ts-dropdown .option.active {
+                background: linear-gradient(135deg, #10b981, #059669) !important;
+                color: #ffffff !important;
+                font-weight: 600 !important;
+            }
+
+            .ts-dropdown .no-results {
+                padding: 1rem !important;
+                text-align: center !important;
+                color: #6b7280 !important;
+            }
+
+            /* Search input styling */
+            .ts-control input::placeholder {
+                color: #9ca3af !important;
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.tom-select-search').forEach(function (el) {
+                    new TomSelect(el, {
+                        allowEmptyOption: true,
+                        placeholder: el.options[0]?.text || 'Pilih...',
+                        searchField: ['text'],
+                        sortField: { field: 'text', direction: 'asc' },
+                        render: {
+                            no_results: function (data, escape) {
+                                return '<div class="no-results">Tidak ditemukan: <strong>' + escape(data.input) + '</strong></div>';
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

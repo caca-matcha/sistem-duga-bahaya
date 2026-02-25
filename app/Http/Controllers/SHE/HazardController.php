@@ -19,7 +19,7 @@ class HazardController extends Controller
     // DASHBOARD: tampilkan semua laporan
     public function index(Request $request)
     {
-        $baseQuery = Hazard::query()->with('pelapor', 'ditanganiOleh', 'location');
+        $baseQuery = Hazard::query()->with('pelapor', 'ditanganiOleh', 'location', 'pic');
 
         // Apply Month and Year Filters
         $month = $request->input('month');
@@ -81,22 +81,26 @@ class HazardController extends Controller
 
         // If it's an AJAX request, return JSON with rendered partials
         if ($request->ajax()) {
+            $search = $request->search;
+
             return response()->json([
-                'menunggu_validasi_html' => view('she.hazards._table_menunggu_validasi_rows', compact('hazardsMenungguValidasi'))->render(),
+                'menunggu_validasi_html' => view('she.hazards._table_menunggu_validasi_rows', compact('hazardsMenungguValidasi', 'search'))->render(),
                 'menunggu_validasi_pagination' => $hazardsMenungguValidasi->links('vendor.pagination.custom')->toHtml(),
 
-                'diproses_html' => view('she.hazards._table_diproses_rows', compact('hazardsDiproses'))->render(),
+                'diproses_html' => view('she.hazards._table_diproses_rows', compact('hazardsDiproses', 'search'))->render(),
                 'diproses_pagination' => $hazardsDiproses->links('vendor.pagination.custom')->toHtml(),
 
-                'selesai_html' => view('she.hazards._table_selesai_rows', compact('hazardsSelesai'))->render(),
+                'selesai_html' => view('she.hazards._table_selesai_rows', compact('hazardsSelesai', 'search'))->render(),
                 'selesai_pagination' => $hazardsSelesai->links('vendor.pagination.custom')->toHtml(),
 
-                'semua_html' => view('she.hazards._table_semua_rows', compact('hazardsSemua'))->render(),
+                'semua_html' => view('she.hazards._table_semua_rows', compact('hazardsSemua', 'search'))->render(),
                 'semua_pagination' => $hazardsSemua->links('vendor.pagination.custom')->toHtml(),
             ]);
         }
 
-        return view('she.hazards.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai', 'hazardsSemua'));
+        $search = $request->search;
+
+        return view('she.hazards.index', compact('hazardsMenungguValidasi', 'hazardsDiproses', 'hazardsSelesai', 'hazardsSemua', 'search'));
     }
 
     /**
@@ -179,7 +183,7 @@ class HazardController extends Controller
     // DETAIL
     public function show(Hazard $hazard)
     {
-        $hazard->load(['pelapor', 'ditanganiOleh', 'map']);
+        $hazard->load(['pelapor', 'ditanganiOleh', 'map', 'pic']);
         Log::info('Hazard show: ', [
             'hazard_id' => $hazard->id,
             'hazard_map_id' => $hazard->map_id,
@@ -202,7 +206,7 @@ class HazardController extends Controller
             'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'final_kategori_stop6' => 'required|string|max:255',
             'pic_id' => 'nullable|exists:users,id',
-            'leader_id' => 'nullable|exists:users,id',
+
         ]);
 
         // Simpan data yang divalidasi ke session untuk dibawa ke step berikutnya
@@ -222,7 +226,7 @@ class HazardController extends Controller
             'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'final_kategori_stop6' => 'required|string|max:255',
             'pic_id' => 'nullable|exists:users,id',
-            'leader_id' => 'nullable|exists:users,id',
+
         ]);
 
         // Simpan data yang divalidasi ke session untuk dibawa ke step berikutnya
@@ -242,7 +246,7 @@ class HazardController extends Controller
             'final_kemungkinan_terjadi' => 'required|integer|in:1,2,3,4,5',
             'final_kategori_stop6' => 'required|string|max:255',
             'pic_id' => 'nullable|exists:users,id',
-            'leader_id' => 'nullable|exists:users,id',
+
         ]);
 
         // 2. Hitung Risk Score Baru
@@ -270,7 +274,7 @@ class HazardController extends Controller
             'risk_score' => $riskScore,
             'kategori_resiko' => $kategoriResiko,
             'pic_id' => $validated['pic_id'] ?? $hazard->pic_id,
-            'leader_id' => $validated['leader_id'] ?? $hazard->leader_id,
+
             'ditangani_oleh' => Auth::id(),
             'ditangani_pada' => now(),
             // Kosongkan rencana tindakan karena ini tanggung jawab PIC
@@ -278,14 +282,14 @@ class HazardController extends Controller
             'target_penyelesaian' => null,
         ]);
 
-        // 4. Notifikasi ke PIC/Leader
-        $targetUsers = collect([$hazard->pic_id, $hazard->leader_id])->filter()->unique();
+        // 4. Notifikasi ke PIC
+        $targetUsers = collect([$hazard->pic_id])->filter()->unique();
         foreach ($targetUsers as $userId) {
             Notification::create([
                 'user_id' => $userId,
                 'report_id' => $hazard->id,
                 'title' => 'Tugas Baru: Laporan Bahaya #'.$hazard->id,
-                'message' => 'Anda telah ditunjuk sebagai PIC/Leader untuk menindaklanjuti laporan ini. Silakan tentukan tenggat waktu penyelesaian.',
+                'message' => 'Anda telah ditunjuk sebagai PIC untuk menindaklanjuti laporan ini. Silakan tentukan tenggat waktu penyelesaian.',
                 'type' => 'info',
             ]);
         }
@@ -346,12 +350,9 @@ class HazardController extends Controller
         if (isset($validated['pic_id'])) {
             $hazard->pic_id = $validated['pic_id'];
         }
-        if (isset($validated['leader_id'])) {
-            $hazard->leader_id = $validated['leader_id'];
-        }
 
         unset($validated['final_tingkat_keparahan'], $validated['final_kemungkinan_terjadi'], $validated['final_kategori_stop6']);
-        unset($validated['pic_id'], $validated['leader_id']); // Unset to avoid mass assignment issues if not safely handled (though fillable protects it, clean up is good)
+        unset($validated['pic_id']); // Unset to avoid mass assignment issues if not safely handled (though fillable protects it, clean up is good)
         unset($validated['pic_penanggung_jawab']); // hapus jika ada
 
         /* ----------------------------------------------------------
@@ -371,7 +372,9 @@ class HazardController extends Controller
          * 4. HANDLE LOGIKA SELESAI (Status = selesai)
          * ---------------------------------------------------------- */
         if ($validated['status'] === 'selesai') {
-            $validated['report_selesai'] = now();
+            if (! $hazard->report_selesai) {
+                $validated['report_selesai'] = now();
+            }
 
             if ($request->hasFile('foto_bukti_penyelesaian')) {
                 if ($hazard->foto_bukti_penyelesaian) {
@@ -390,10 +393,11 @@ class HazardController extends Controller
         /* ----------------------------------------------------------
          * 5. UPDATE GENERAL (Status: diproses atau selesai)
          * ---------------------------------------------------------- */
+        $previousStatus = $hazard->status;
         $hazard->update($validated);
         $hazard->save(); // pastikan final values ikut tersimpan
 
-        // --- CREATE NOTIFICATION FOR THE ORIGINAL REPORTER ---
+        // --- CREATE NOTIFICATION FOR THE ORIGINAL REPORTER & PIC/LEADER ---
         if (isset($validated['status'])) {
             $notificationTitle = '';
             $notificationMessage = '';
@@ -401,14 +405,49 @@ class HazardController extends Controller
 
             switch ($validated['status']) {
                 case 'diproses':
-                    $notificationTitle = 'Laporan Anda Diproses';
-                    $notificationMessage = 'Laporan bahaya #'.$hazard->id.' sedang ditindaklanjuti oleh tim SHE.';
+                    if ($previousStatus === 'menunggu verifikasi') {
+                        // REJECTION CASE: Notify PIC
+                        $notificationTitle = 'Perbaikan Perlu Revisi';
+                        $notificationMessage = 'SHE meminta perbaikan ulang untuk Laporan #'.$hazard->id.'. Catatan: '.$hazard->feedback_verifikasi;
+                        $notificationType = 'warning';
+
+                        // Notify PIC if exists
+                        $notifiableUsers = array_filter([$hazard->pic_id]);
+                        foreach (array_unique($notifiableUsers) as $uid) {
+                            Notification::create([
+                                'user_id' => $uid,
+                                'report_id' => $hazard->id,
+                                'title' => $notificationTitle,
+                                'message' => $notificationMessage,
+                                'type' => $notificationType,
+                            ]);
+                        }
+
+                        // Also notify reporter about the delay
+                        $notificationTitle = 'Update Perbaikan Laporan';
+                        $notificationMessage = 'Laporan #'.$hazard->id.' sedang diperbaiki ulang oleh tim terkait.';
+                    } else {
+                        $notificationTitle = 'Laporan Anda Diproses';
+                        $notificationMessage = 'Laporan bahaya #'.$hazard->id.' sedang ditindaklanjuti oleh tim SHE.';
+                    }
                     $notificationType = 'info';
                     break;
                 case 'selesai':
                     $notificationTitle = 'Laporan Anda Selesai';
                     $notificationMessage = 'Laporan bahaya #'.$hazard->id.' telah diselesaikan. Terima kasih atas partisipasi Anda.';
                     $notificationType = 'success';
+
+                    // Also notify PIC that their work is done
+                    $notifiableUsers = array_filter([$hazard->pic_id]);
+                    foreach (array_unique($notifiableUsers) as $uid) {
+                        Notification::create([
+                            'user_id' => $uid,
+                            'report_id' => $hazard->id,
+                            'title' => 'Tugas Selesai',
+                            'message' => 'Laporan #'.$hazard->id.' telah diverifikasi dan dinyatakan selesai.',
+                            'type' => 'success',
+                        ]);
+                    }
                     break;
                 case 'ditolak':
                     $notificationTitle = 'Laporan Anda Ditolak';
@@ -500,10 +539,11 @@ class HazardController extends Controller
     // VIEW FORM SELESAI
     public function selesaiForm(Hazard $hazard)
     {
-        // Pengecekan stabilitas: Penyelesaian hanya bisa dilakukan jika status sudah 'diproses'.
-        if ($hazard->status !== 'diproses') {
+        // Pengecekan stabilitas: Penyelesaian bisa dilakukan dari status 'diproses' (SHE tandai selesai langsung)
+        // atau 'menunggu verifikasi' (SHE verifikasi hasil PIC).
+        if (! in_array($hazard->status, ['diproses', 'menunggu verifikasi'])) {
             return redirect()->route('she.hazards.show', $hazard)
-                ->with('error', 'Laporan harus berstatus DIPROSES untuk diselesaikan.');
+                ->with('error', 'Laporan harus berstatus DIPROSES atau MENUNGGU VERIFIKASI untuk diselesaikan.');
         }
 
         return view('she.hazards.selesai', compact('hazard'));
@@ -523,12 +563,13 @@ class HazardController extends Controller
         $final_tingkat_keparahan = $validatedData['final_tingkat_keparahan'];
         $final_kemungkinan_terjadi = $validatedData['final_kemungkinan_terjadi'];
         $faktor_penyebab = $validatedData['faktor_penyebab'];
-        $final_kategori_stop6 = $validatedData['final_kategori_stop6']; // Tambahkan ini
-        $pic_id = $validatedData['pic_id'] ?? null;
-        $leader_id = $validatedData['leader_id'] ?? null;
+        $final_kategori_stop6 = $validatedData['final_kategori_stop6'];
 
         // Hitung skor risiko di backend
         $final_risk_score = (int) $final_tingkat_keparahan * (int) $final_kemungkinan_terjadi;
+
+        // Get users for PIC/Leader dropdown
+        $users = \App\Models\User::orderBy('name')->get();
 
         return view('she.hazards.dengan_tindaklanjut', compact(
             'hazard',
@@ -536,9 +577,8 @@ class HazardController extends Controller
             'final_kemungkinan_terjadi',
             'final_risk_score',
             'faktor_penyebab',
-            'final_kategori_stop6', // Tambahkan ini
-            'pic_id',
-            'leader_id'
+            'final_kategori_stop6',
+            'users'
         ));
     }
 
@@ -614,57 +654,47 @@ class HazardController extends Controller
                 'Lokasi Spesifik',
                 'Detail Lokasi (Manual)',
                 'Deskripsi Bahaya',
-                'URL Foto Bukti (Awal)',
-                'Kategori STOP-6 (Awal)',
-                'Keparahan (Awal)',
-                'Kemungkinan (Awal)',
-                'Risk Score (Awal)',
-                'Kategori Risiko (Awal)',
+                'Kategori STOP6',
+                'Faktor Penyebab',
                 'Ide Penanggulangan',
-                'Ditangani Oleh',
-                'Tanggal Ditangani',
-                'Target Penyelesaian',
-                'Faktor Penyebab (SHE)',
-                'Keparahan (Final)',
-                'Kemungkinan (Final)',
-                'Risk Score (Final)',
-                'Kategori STOP-6 (Final)',
-                'Upaya Penanggulangan',
+                'Severity',
+                'Probability',
+                'Risk Score',
+                'Kategori Risiko',
+                'Status',
+                'Validator',
+                'Tgl Validasi',
                 'Tindakan Perbaikan',
-                'URL Foto Bukti (Penyelesaian)',
-                'Tanggal Selesai',
+                'Tgl Selesai',
             ];
+
             fputcsv($file, $columns);
 
             // Add data rows
             foreach ($hazards as $hazard) {
                 fputcsv($file, [
                     $hazard->id,
-                    ucfirst($hazard->status),
-                    $hazard->tgl_observasi ? $hazard->tgl_observasi->format('d/m/Y') : 'N/A',
-                    $hazard->pelapor?->name ?? $hazard->nama,
                     $hazard->NPK,
+                    $hazard->nama,
                     $hazard->dept,
-                    $hazard->area_gedung,
-                    $hazard->location?->name ?? $hazard->area_name,
+                    $hazard->position ?? '-',
+                    $hazard->tgl_observasi->format('d/m/Y'),
+                    $hazard->area_type,
+                    $hazard->area_name,
+                    $hazard->area_id,
                     $hazard->lokasi_detail_manual,
+                    $hazard->aktivitas_kerja,
                     $hazard->deskripsi_bahaya,
-                    $hazard->foto_bukti ? asset('storage/'.$hazard->foto_bukti) : 'N/A',
                     $hazard->kategori_stop6,
+                    $hazard->faktor_penyebab,
+                    $hazard->ide_penanggulangan,
                     $hazard->tingkat_keparahan,
                     $hazard->kemungkinan_terjadi,
-                    $hazard->tingkat_keparahan * $hazard->kemungkinan_terjadi, // Initial Risk Score
+                    $hazard->risk_score,
                     $hazard->kategori_resiko,
-                    $hazard->ide_penanggulangan,
-                    $hazard->ditanganiOleh?->name ?? 'N/A',
-                    $hazard->ditangani_pada ? \Carbon\Carbon::parse($hazard->ditangani_pada)->format('d/m/Y') : 'N/A',
-                    $hazard->target_penyelesaian ? \Carbon\Carbon::parse($hazard->target_penyelesaian)->format('d/m/Y') : 'N/A',
-                    $hazard->faktor_penyebab,
-                    $hazard->final_tingkat_keparahan ?? 'N/A',
-                    $hazard->final_kemungkinan_terjadi ?? 'N/A',
-                    $hazard->risk_score, // Final Risk Score
-                    $hazard->final_kategori_stop6 ?? 'N/A',
-                    is_array($hazard->upaya_penanggulangan) ? implode(', ', $hazard->upaya_penanggulangan) : $hazard->upaya_penanggulangan,
+                    $hazard->status,
+                    $hazard->ditanganiOleh->name ?? '-',
+                    $hazard->ditangani_pada ? $hazard->ditangani_pada->format('d/m/Y') : '-',
                     $hazard->tindakan_perbaikan,
                     $hazard->foto_bukti_penyelesaian ? asset('storage/'.$hazard->foto_bukti_penyelesaian) : 'N/A',
                     $hazard->report_selesai ? \Carbon\Carbon::parse($hazard->report_selesai)->format('d/m/Y') : 'N/A',

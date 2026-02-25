@@ -17,25 +17,7 @@ class Location extends Model
         'map_id',
         'created_by',
         'display_order',
-        'pic_id',
-        'leader_id',
     ];
-
-    /**
-     * Get the PIC associated with the location.
-     */
-    public function pic()
-    {
-        return $this->belongsTo(User::class, 'pic_id');
-    }
-
-    /**
-     * Get the Leader associated with the location.
-     */
-    public function leader()
-    {
-        return $this->belongsTo(User::class, 'leader_id');
-    }
 
     /**
      * Boot the model.

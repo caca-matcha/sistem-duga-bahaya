@@ -31,7 +31,17 @@
             <!-- Dynamic Controls & Filters -->
 
             <!-- Main Content Card -->
-            <div class="bg-white shadow-sm rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="bg-white shadow-sm rounded-2xl border border-gray-200 overflow-hidden" x-data="{ 
+                    openGroups: @js($locations->pluck('map_id')->unique()->map(fn($id) => (string) ($id ?? 'null'))->values()),
+                    toggleGroup(id) {
+                        id = String(id);
+                        if (this.openGroups.includes(id)) {
+                            this.openGroups = this.openGroups.filter(g => g !== id);
+                        } else {
+                            this.openGroups.push(id);
+                        }
+                    }
+                 }">
                 <div
                     class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
@@ -387,6 +397,12 @@
                         .then(response => {
                             tableBody.innerHTML = response.data.html;
                             locationCount.textContent = response.data.total;
+
+                            // Re-initialize Alpine for new rows
+                            if (window.Alpine) {
+                                window.Alpine.initTree(tableBody);
+                            }
+
                             // Update URL for bookmarking, etc.
                             window.history.pushState({ path: url }, '', url);
                         })

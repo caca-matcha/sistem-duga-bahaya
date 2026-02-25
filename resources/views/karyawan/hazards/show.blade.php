@@ -24,6 +24,35 @@
                 </a>
             </div>
         </div>
+
+        {{-- Sticky Warning Alert (Full Width) - Only for PIC (Processor) --}}
+        @if ($hazard->status === 'diproses' && Auth::id() == $hazard->pic_id)
+            <div class="mt-4 -mx-4 sm:-mx-6 lg:-mx-8 border-t border-red-100/50">
+                <div
+                    class="bg-gradient-to-r from-red-50/80 via-white to-amber-50/80 px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-4 group">
+                    <div
+                        class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-red-600 shadow-sm ring-4 ring-red-50 transition-transform group-hover:scale-110">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="text-[10px] font-black text-red-700 uppercase tracking-widest px-1.5 py-0.5 bg-red-100/50 rounded inline-block">Peringatan
+                                Tindak Lanjut</span>
+                            <span class="w-1 h-1 rounded-full bg-red-300"></span>
+                            <span class="text-[11px] font-bold text-red-900/40">Batas Waktu Terikat</span>
+                        </div>
+                        <p class="text-[13px] text-red-900 font-extrabold leading-tight mt-0.5">
+                            Mohon segera mengunggah bukti perbaikan sesuai dengan batas waktu yang telah ditetapkan untuk
+                            laporan di area Anda.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
     </x-slot>
 
     <!-- Style Kustom untuk Animasi Status (Ring Berkedip) -->
@@ -47,7 +76,7 @@
         }
     </style>
 
-    <div class="py-6 sm:py-12 bg-gray-50 min-h-screen">
+    <div class="pt-3 sm:pt-4 pb-6 sm:pb-12 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
             {{-- ===========================
@@ -70,9 +99,9 @@
                     </div>
                 </div>
 
+
                 <div class="w-full px-2">
                     <div class="flex flex-col md:flex-row justify-between relative">
-
                         <!-- Garis Penghubung (Background Line) - Desktop -->
                         <div
                             class="hidden md:block absolute top-6 left-0 right-0 h-0.5 bg-gray-100 rounded overflow-hidden">
@@ -135,13 +164,13 @@
                                 {{-- Indikator Bulat --}}
                                 <div
                                     class="relative flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full border-2 transition-all duration-300 {{ $colorClass }} {{ $ringClass }}">
-                                    @if ($item['status'] === 'Laporan Dibuat')
+                                    @if ($item['status'] === 'Laporan Dibuat' || $item['status'] === 'Laporan Masuk')
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                             </path>
                                         </svg>
-                                    @elseif ($item['status'] === 'Diproses')
+                                    @elseif ($item['status'] === 'Diproses' || $item['status'] === 'Proses / Keluar')
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
@@ -150,7 +179,8 @@
                                     @elseif ($item['status'] === 'Selesai')
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                d="M5 13l4 4L19 7"></path>
+                                                d="M5 13l4 4L19 7">
+                                            </path>
                                         </svg>
                                     @elseif ($item['status'] === 'Ditolak')
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,11 +199,11 @@
                                         <div class="flex items-center gap-1 mt-1">
                                             <span
                                                 class="text-xs text-gray-500 font-medium bg-gray-50 px-2 py-0.5 rounded border border-gray-100">
-                                                {{ \Carbon\Carbon::parse($item['date'])->format('d M y') }}
+                                                {{ \Carbon\Carbon::parse($item['date'])->translatedFormat('d M y') }}
                                             </span>
                                         </div>
                                         <span class="text-[10px] text-gray-400 mt-0.5">
-                                            {{ \Carbon\Carbon::parse($item['date'])->format('H:i') }} WIB
+                                            {{ \Carbon\Carbon::parse($item['date'])->translatedFormat('H:i') }} WIB
                                         </span>
                                     @else
                                         <div class="text-[11px] text-gray-300 mt-1 italic">Menunggu</div>
@@ -183,25 +213,6 @@
                         @endforeach
                     </div>
                 </div>
-
-                {{-- Alert Penolakan --}}
-                @if (isset($hazard) && $hazard->status == 'ditolak' && $hazard->alasan_penolakan)
-                    <div
-                        class="mt-10 bg-red-50 border border-red-200 rounded-xl p-5 flex items-start gap-4 animate-fade-in-up">
-                        <div class="p-2 bg-red-100 rounded-lg text-red-600 shrink-0">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-red-900">Laporan Dikembalikan/Ditolak</h4>
-                            <p class="text-sm text-red-700 mt-1 leading-relaxed">
-                                Alasan: <span class="font-semibold italic">"{{ $hazard->alasan_penolakan }}"</span>
-                            </p>
-                        </div>
-                    </div>
-                @endif
             </div>
 
             {{-- ===========================
@@ -243,19 +254,30 @@
                                     </div>
                                     <dl class="space-y-4">
                                         <div>
-                                            <dt class="text-xs text-gray-400 uppercase font-semibold">Nama Lengkap</dt>
-                                            <dd class="text-sm font-bold text-gray-800 mt-0.5">
-                                                {{ $hazard->pelapor->name ?? '-' }}
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                Nama Lengkap</dt>
+                                            <dd class="text-sm font-bold text-gray-800">
+                                                {{ $hazard->nama ?? ($hazard->pelapor->name ?? '-') }}
+                                                @if(($hazard->pelapor->role ?? '') === 'magang')
+                                                    <span class="text-gray-400 font-medium whitespace-nowrap">(Magang
+                                                        1)</span>
+                                                @endif
                                             </dd>
                                         </div>
                                         <div>
-                                            <dt class="text-sm text-gray-500">NPK</dt>
-                                            <dd class="text-base font-semibold text-gray-800">{{ $hazard->NPK }}</dd>
-                                            <div class="mt-3">
-                                                <dt class="text-sm text-gray-500">Departemen</dt>
-                                                <dd class="text-base font-semibold text-gray-800">{{ $hazard->dept }}
-                                                </dd>
-                                            </div>
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                NPK</dt>
+                                            <dd class="text-sm font-bold text-gray-800">{{ $hazard->NPK }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                Department</dt>
+                                            <dd class="text-sm font-bold text-gray-800">
+                                                {{ $hazard->dept ?? ($hazard->pelapor->department ?? '-') }}
+                                            </dd>
                                         </div>
                                     </dl>
                                 </div>
@@ -276,53 +298,50 @@
                                             Kategori</h4>
                                     </div>
                                     <dl class="space-y-4">
-                                        <div class="grid grid-cols-2 gap-2">
+                                        <div class="grid grid-cols-2 gap-4">
                                             <div>
-                                                <dt class="text-xs text-gray-400 uppercase font-semibold">Gedung</dt>
-                                                <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                <dt
+                                                    class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                    Gedung</dt>
+                                                <dd class="text-sm font-bold text-gray-800">
                                                     {{ $hazard->area_gedung }}
                                                 </dd>
                                             </div>
                                             <div>
-                                                <dt class="text-xs text-gray-400 uppercase font-semibold">Area</dt>
-                                                <dd class="text-sm font-bold text-gray-800 mt-0.5">
+                                                <dt
+                                                    class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                    Area</dt>
+                                                <dd class="text-sm font-bold text-gray-800">
                                                     {{ $hazard->area_name }}
                                                 </dd>
                                             </div>
                                         </div>
                                         @if ($hazard->lokasi_detail_manual)
                                             <div>
-                                                <dt class="text-xs text-gray-400 uppercase font-semibold">Detail Lokasi</dt>
-                                                <dd class="text-sm text-gray-600 mt-0.5 italic">
-                                                    "{{ $hazard->lokasi_detail_manual }}"</dd>
+                                                <dt
+                                                    class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                    Detail Lokasi</dt>
+                                                <dd class="text-sm font-bold text-gray-800">
+                                                    {{ str_replace('\"', '"', $hazard->lokasi_detail_manual) }}
+                                                </dd>
                                             </div>
                                         @endif
                                         <div class="pt-2 border-t border-gray-100">
-                                            <dt class="text-xs text-gray-400 uppercase font-semibold mb-2">Tanggal
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                Tanggal
                                                 Observasi</dt>
-                                            <dd class="flex items-center gap-2">
-                                                <div class="p-2 bg-teal-50 rounded-lg">
-                                                    <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                        </path>
-                                                    </svg>
-                                                </div>
-                                                <p class="text-sm font-bold text-gray-800">
-                                                    {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->locale('id')->translatedFormat('d F Y') }}
-                                                </p>
+                                            <dd class="text-sm font-bold text-gray-800">
+                                                {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->locale('id')->translatedFormat('d F Y') }}
                                             </dd>
                                         </div>
                                         <div class="pt-2 border-t border-gray-100">
-                                            <dt class="text-xs text-gray-400 uppercase font-semibold mb-1">Kategori
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                Kategori
                                                 STOP-6</dt>
-                                            <dd>
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-800 text-white shadow-sm">
-                                                    {{ $hazard->kategori_stop6 }}
-                                                </span>
+                                            <dd class="text-sm font-bold text-gray-800">
+                                                {{ $hazard->kategori_stop6 }}
                                             </dd>
                                         </div>
                                     </dl>
@@ -352,39 +371,41 @@
                                 <div
                                     class="flex-1 flex flex-col justify-center items-center p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
                                     <span
-                                        class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Keparahan</span>
+                                        class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Keparahan</span>
                                     <span
-                                        class="text-lg font-black text-gray-800">{{ $hazard->tingkat_keparahan }}</span>
+                                        class="text-base font-black text-gray-800">{{ $hazard->tingkat_keparahan }}</span>
                                 </div>
                                 <div
                                     class="flex-1 flex flex-col justify-center items-center p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
                                     <span
-                                        class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Kemungkinan</span>
+                                        class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Kemungkinan</span>
                                     <span
-                                        class="text-lg font-black text-gray-800">{{ $hazard->kemungkinan_terjadi }}</span>
+                                        class="text-base font-black text-gray-800">{{ $hazard->kemungkinan_terjadi }}</span>
                                 </div>
                             </div>
 
                             <div class="space-y-6">
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                    <h4
+                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
                                         Deskripsi Bahaya
                                     </h4>
                                     <div
                                         class="bg-white border-l-4 border-red-400 pl-4 py-2 text-gray-700 text-sm leading-relaxed">
-                                        {{ $hazard->deskripsi_bahaya }}
+                                        {{ str_replace('\"', '"', $hazard->deskripsi_bahaya) }}
                                     </div>
                                 </div>
 
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                    <h4
+                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
                                         Usulan Perbaikan (Pelapor)
                                     </h4>
                                     <div
                                         class="bg-white border-l-4 border-green-400 pl-4 py-2 text-gray-700 text-sm leading-relaxed">
-                                        {{ $hazard->ide_penanggulangan ?? 'Tidak ada ide penanggulangan.' }}
+                                        {{ str_replace('\"', '"', $hazard->ide_penanggulangan ?? 'Tidak ada ide penanggulangan.') }}
                                     </div>
                                 </div>
                             </div>
@@ -404,8 +425,8 @@
                                 // Deadline Compliance Logic
                                 $completionStatus = null;
                                 if ($hazard->status === 'selesai' && $hazard->report_selesai && $hazard->target_penyelesaian) {
-                                    $selesaiDate = \Carbon\Carbon::parse($hazard->report_selesai)->startOfDay();
-                                    $targetDate = \Carbon\Carbon::parse($hazard->target_penyelesaian)->startOfDay();
+                                    $selesaiDate = $hazard->report_selesai ?: $hazard->updated_at;
+                                    $targetDate = \Carbon\Carbon::parse($hazard->target_penyelesaian);
 
                                     if ($selesaiDate->lte($targetDate)) {
                                         $completionStatus = [
@@ -424,221 +445,244 @@
                             @endphp
 
                             @if ($hasSHEInput)
-                                <div x-data="{ expanded: true }" class="space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <h4 class="text-sm font-bold text-amber-900 flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full bg-amber-500 ring-2 ring-amber-200"></span>
-                                            Rencana Tindak Lanjut (SHE)
-                                        </h4>
+                                <div class="space-y-6">
+                                    {{-- CARD 1: RANCANGAN PERBAIKAN (SHE) --}}
+                                    <div x-data="{ expanded: true }" class="space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <h4
+                                                class="text-[10px] font-bold text-amber-600 uppercase tracking-wider flex items-center gap-2">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 font-black"></span>
+                                                Rencana Tindak Lanjut & Monitoring (SHE)
+                                            </h4>
 
-                                        <button @click="expanded = !expanded"
-                                            class="p-1 hover:bg-amber-100 rounded-lg text-amber-600 transition-colors"
-                                            title="Minimize/Expand">
-                                            <svg class="w-4 h-4 transition-transform duration-300"
-                                                :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    <div x-show="expanded" x-collapse
-                                        class="bg-gradient-to-br from-amber-50 to-white rounded-xl shadow-sm border border-amber-200 overflow-hidden relative">
-                                        {{-- Watermark --}}
-                                        <div
-                                            class="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-amber-100 rounded-full blur-xl opacity-50 pointer-events-none">
+                                            <button @click="expanded=!expanded"
+                                                class="p-1 hover:bg-amber-100 rounded-lg text-amber-600 transition-colors"
+                                                title="Minimize/Expand">
+                                                <svg class="w-4 h-4 transition-transform duration-300"
+                                                    :class="expanded ? 'rotate-180' : '' " fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </button>
                                         </div>
 
-                                        <div class="p-5 space-y-5 relative z-10">
-
-                                            {{-- Header Badges --}}
-                                            <div class="flex flex-wrap items-center justify-between gap-2">
-                                                <span
-                                                    class="text-[9px] uppercase font-bold tracking-widest bg-white/80 px-2 py-0.5 rounded text-amber-700 border border-amber-100 shadow-sm">
-                                                    Official Input
-                                                </span>
-
-                                                @if($completionStatus)
+                                        <div x-show="expanded" x-collapse
+                                            class="bg-gradient-to-br from-amber-50 to-white rounded-xl shadow-sm border border-amber-200 overflow-hidden relative">
+                                            <div class="p-5 space-y-5 relative z-10">
+                                                {{-- Header Badges --}}
+                                                <div class="flex flex-wrap items-center justify-between gap-2">
                                                     <span
-                                                        class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full {{ $completionStatus['type'] === 'success' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-red-100 text-red-700 border border-red-200' }}">
-                                                        {!! $completionStatus['icon'] !!}
-                                                        {{ $completionStatus['label'] }}
+                                                        class="text-[10px] uppercase font-bold tracking-wider bg-white/80 px-2.5 py-1 rounded text-amber-600 border border-amber-100 shadow-sm">
+                                                        Official Plan
                                                     </span>
-                                                @endif
-                                            </div>
 
-                                            {{-- Content Display --}}
-                                            @if($isBypass)
-                                                <div
-                                                    class="p-7 bg-white rounded-3xl border border-dashed border-amber-200 shadow-sm space-y-6 relative overflow-hidden group">
-                                                    {{-- Decorative background --}}
-                                                    <div class="absolute top-0 right-0 -tr-5 -mt-5 w-32 h-32 bg-amber-50 rounded-full blur-3xl opacity-60 transition-transform group-hover:scale-150 duration-1000"></div>
-
-                                                    <div class="flex items-start gap-6 relative z-10">
-                                                        <div class="p-3.5 bg-amber-100 rounded-2xl text-amber-600 shrink-0 border border-white shadow-sm ring-8 ring-amber-50/50">
-                                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                                    @if($hazard->target_penyelesaian)
+                                                        <span
+                                                            class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                                </path>
                                                             </svg>
-                                                        </div>
-                                                        <div class="flex-1">
-                                                            <div class="flex items-center justify-between mb-3">
-                                                                <p class="text-[10px] font-black text-amber-900 uppercase tracking-[0.2em] opacity-40">Alasan Penyelesaian Langsung</p>
-                                                                <span class="px-2.5 py-1 bg-amber-100/50 text-amber-700 text-[9px] font-black rounded-lg uppercase tracking-tighter border border-amber-200/50 shadow-sm">Verified Selesai</span>
-                                                            </div>
-                                                            
-                                                            {{-- Standard Monitoring Promise (Requested Alasan) --}}
-                                                            <p class="text-[15px] text-amber-950 font-extrabold leading-relaxed mb-4">
-                                                                SHE akan tetap pantau area yg terlapor secara berkala untuk memastikan upaya penanggulangan sudah dilakukan.
-                                                            </p>
-
-                                                            {{-- Additional Remark (Show only if unique/different from standard) --}}
-                                                            @if($hazard->tindakan_perbaikan && !str_contains($hazard->tindakan_perbaikan, 'SHE akan tetap pantau') && !str_contains($hazard->tindakan_perbaikan, 'Validasi tanpa tindak lanjut'))
-                                                                <div class="p-4 bg-amber-50/50 rounded-2xl border border-amber-100/30">
-                                                                    <span class="text-[9px] font-black text-amber-900/40 uppercase tracking-widest block mb-1">Catatan Tambahan:</span>
-                                                                    <p class="text-[13px] text-amber-900 font-bold leading-relaxed italic">
-                                                                        "{{ $hazard->tindakan_perbaikan }}"
-                                                                    </p>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                    @if ($upaya && is_array($upaya) && count($upaya) > 0)
-                                                        <div class="pt-6 border-t border-amber-100/50 relative z-10">
-                                                            <div class="flex items-center gap-2 mb-5">
-                                                                <div class="w-1.5 h-5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
-                                                                <p class="text-[11px] font-black text-gray-800 uppercase tracking-[0.15em]">Hirarki Pengendalian Terlaksana</p>
-                                                            </div>
-                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                @foreach ($upaya as $key => $value)
-                                                                    @if($value)
-                                                                        <div class="bg-gradient-to-br from-emerald-50/80 to-white p-5 rounded-3xl border border-emerald-100/50 shadow-sm flex gap-4 transition-all hover:shadow-md hover:border-emerald-200 group/item">
-                                                                            <div class="bg-emerald-100 text-emerald-600 p-2 rounded-2xl h-fit group-hover/item:bg-emerald-500 group-hover/item:text-white transition-all transform group-hover/item:rotate-6 shadow-sm">
-                                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                                                                </svg>
-                                                                            </div>
-                                                                            <div class="flex flex-col">
-                                                                                <span class="text-[9px] font-bold text-emerald-600/60 uppercase tracking-widest mb-1">{{ $key }}</span>
-                                                                                <span class="text-[13px] font-black text-gray-800 leading-tight">{{ $value }}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    @endif
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            {{-- Upaya Penanggulangan (Only if NOT bypass, to avoid duplication) --}}
-                                            @if (!$isBypass && $upaya && is_array($upaya) && count($upaya) > 0)
-                                                <div>
-                                                    <h5
-                                                        class="text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-2">
-                                                        Upaya Penanggulangan Existing</h5>
-                                                    <div class="flex flex-wrap gap-2">
-                                                        @foreach ($upaya as $key => $value)
-                                                            @if($value)
-                                                                <div
-                                                                    class="bg-white border border-amber-200 rounded-lg px-3 py-2 shadow-sm flex items-start gap-2 max-w-full group hover:border-amber-400 transition-colors">
-                                                                    <svg class="w-3 h-3 text-amber-500 mt-0.5 shrink-0"
-                                                                        fill="currentColor" viewBox="0 0 20 20">
-                                                                        <path fill-rule="evenodd"
-                                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                                            clip-rule="evenodd" />
-                                                                    </svg>
-                                                                    <div>
-                                                                        <span
-                                                                            class="block text-[10px] font-bold text-gray-700">{{ $key }}</span>
-                                                                        <span
-                                                                            class="block text-[11px] text-gray-600 mt-0.5 leading-tight">{{ $value }}</span>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @endif
-
-                                            {{-- Rencana Tindakan Perbaikan (Hanya jika bukan bypass) --}}
-                                            @if ($hazard->tindakan_perbaikan && !$isBypass)
-                                                <div class="space-y-4">
-                                                    {{-- Show monitoring promise for all completed reports if they have this technical string --}}
-                                                    @if(str_contains($hazard->tindakan_perbaikan, 'Validasi tanpa tindak lanjut'))
-                                                         <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3">
-                                                            <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                            </svg>
-                                                            <p class="text-[13px] text-amber-900 font-bold leading-relaxed">
-                                                                Laporan ini divalidasi dan diselesaikan langsung oleh SHE. Area akan dipantau secara berkala untuk memastikan keamanan tetap terjaga.
-                                                            </p>
-                                                         </div>
-                                                    @else
-                                                        <div>
-                                                            <h5 class="text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-2">Rencana Tindakan Perbaikan</h5>
-                                                            <p class="text-sm text-gray-700 leading-relaxed bg-white/50 p-4 rounded-xl border border-amber-100 shadow-sm italic font-medium">
-                                                                "{{ $hazard->tindakan_perbaikan }}"
-                                                            </p>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            @if($hazard->target_penyelesaian)
-                                                <div class="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-gray-500 font-bold uppercase tracking-tighter">Target:</span>
-                                                        <span class="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
+                                                            Target:
                                                             {{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->translatedFormat('d F Y') }}
                                                         </span>
-                                                    </div>
+                                                    @endif
                                                 </div>
-                                            @endif
+
+                                                {{-- Rencana Perbaikan SHE (The Plan) --}}
+                                                @if ($hazard->rencana_perbaikan || $isBypass)
+                                                    <div
+                                                        class="p-4 bg-white/60 rounded-xl border border-amber-100/50 shadow-sm italic font-medium">
+                                                        @if($isBypass)
+                                                            <p class="text-[13px] text-amber-900 font-bold leading-relaxed mb-2">
+                                                                SHE akan tetap pantau area yg terlapor secara berkala untuk
+                                                                memastikan keamanan tetap terjaga.
+                                                            </p>
+                                                        @endif
+                                                        @if($hazard->rencana_perbaikan)
+                                                            <p class="text-sm text-gray-700 leading-relaxed">
+                                                                "{{ str_replace('\"', '"', $hazard->rencana_perbaikan) }}"
+                                                            </p>
+                                                        @else
+                                                            <p class="text-[11px] text-gray-400 italic">Tidak ada catatan rencana
+                                                                tambahan.</p>
+                                                        @endif
+                                                    </div>
+                                                @endif
+
+                                                {{-- Upaya Penanggulangan Existing (Hierarchy) --}}
+                                                @if ($upaya && is_array($upaya) && count($upaya) > 0)
+                                                    <div>
+                                                        <h5
+                                                            class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                            Upaya Penanggulangan Existing</h5>
+                                                        <div class="flex flex-wrap gap-2">
+                                                            @foreach ($upaya as $key => $value)
+                                                                @if($value)
+                                                                    <div
+                                                                        class="bg-white border border-amber-200 rounded-lg px-3 py-2 shadow-sm flex items-start gap-2 max-w-full group hover:border-amber-400 transition-colors">
+                                                                        <svg class="w-3 h-3 text-amber-500 mt-0.5 shrink-0"
+                                                                            fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path fill-rule="evenodd"
+                                                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                                                clip-rule="evenodd" />
+                                                                        </svg>
+                                                                        <div>
+                                                                            <span
+                                                                                class="block text-[10px] font-bold text-gray-700">{{ $key }}</span>
+                                                                            <span
+                                                                                class="block text-[11px] text-gray-600 mt-0.5 leading-tight">{{ $value }}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
+
+                                    {{-- CARD 2: HASIL PENYELESAIAN (PIC) --}}
+                                    @if (($hazard->tindakan_perbaikan || $hazard->foto_bukti_penyelesaian) && $hazard->status === 'selesai')
+                                        <div x-data="{ expanded: true }" class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <h4
+                                                    class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 font-black"></span>
+                                                    Laporan Penyelesaian (PIC)
+                                                </h4>
+                                                <button @click="expanded=!expanded"
+                                                    class="p-1 hover:bg-emerald-100 rounded-lg text-emerald-600 transition-colors">
+                                                    <svg class="w-4 h-4 transition-transform duration-300"
+                                                        :class="expanded ? 'rotate-180' : '' " fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            <div x-show="expanded" x-collapse
+                                                class="bg-gradient-to-br from-emerald-50 to-white rounded-xl shadow-sm border border-emerald-200 overflow-hidden relative">
+                                                <div class="p-5 space-y-5 relative z-10">
+                                                    {{-- Header Badges --}}
+                                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                                        <span
+                                                            class="text-[10px] uppercase font-bold tracking-wider bg-white/80 px-2.5 py-1 rounded text-emerald-600 border border-emerald-100 shadow-sm">
+                                                            PIC Achievement
+                                                        </span>
+
+                                                        @if($completionStatus)
+                                                            <span
+                                                                class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full {{ $completionStatus['type'] === 'success' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-red-100 text-red-700 border border-red-200' }}">
+                                                                {!! $completionStatus['icon'] !!}
+                                                                {{ $completionStatus['label'] }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+
+                                                    {{-- Tindakan Perbaikan PIC --}}
+                                                    <div class="space-y-4">
+                                                        <div>
+                                                            <h5
+                                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                                Tindakan Yang Telah Dilakukan</h5>
+                                                            @if($hazard->tindakan_perbaikan)
+                                                                <div
+                                                                    class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100 font-bold text-emerald-950 text-sm italic leading-relaxed shadow-inner">
+                                                                    "{{ str_replace(['\"', 'Validasi tanpa tindak lanjut'], ['"', 'Penyelesaian sesuai arahan SHE.'], $hazard->tindakan_perbaikan) }}"
+                                                                </div>
+                                                            @else
+                                                                <p class="text-xs text-gray-400 italic">Menunggu input tindakan
+                                                                    perbaikan...</p>
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Feedback Verifikasi SHE (Khusus PIC) --}}
+                                                        @if($hazard->feedback_verifikasi && auth()->id() === $hazard->pic_id)
+                                                            <div
+                                                                class="p-3 bg-white rounded-lg border border-emerald-100 flex items-start gap-3">
+                                                                <div class="p-1.5 bg-emerald-100 text-emerald-600 rounded-md">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                                        viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2"
+                                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                        </path>
+                                                                    </svg>
+                                                                </div>
+                                                                <div>
+                                                                    <span
+                                                                        class="text-[9px] font-black text-emerald-700/60 uppercase block mb-0.5">Feedback
+                                                                        Verifikasi:</span>
+                                                                    <p class="text-xs text-gray-700 font-medium">
+                                                                        "{{ str_replace('\"', '"', $hazard->feedback_verifikasi) }}"
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
 
-
-                            {{-- Target Date Alert (Moved to be less prominent if redundant, or keep here) --}}
-                            @if ($hazard->status === 'diproses' && $hazard->target_penyelesaian)
+                            {{-- Target Date Alert --}}
+                            @if ($hazard->status === 'diproses')
                                 @php
-                                    $dueDate = \Carbon\Carbon::parse($hazard->target_penyelesaian);
-                                    $daysRemaining = now()->diffInDays($dueDate, false);
+                                    $dueDate = $hazard->target_penyelesaian ? \Carbon\Carbon::parse($hazard->target_penyelesaian) : null;
+                                    $daysRemaining = $dueDate ? ceil(now()->floatDiffInDays($dueDate, false)) : null;
 
-                                    $alertColor = 'bg-red-50 border-red-200 text-red-800';
-                                    if ($daysRemaining < 0)
-                                        $alertColor = 'bg-red-50 border-red-200 text-red-800';
-                                    elseif ($daysRemaining <= 3)
-                                        $alertColor = 'bg-orange-50 border-orange-200 text-orange-800';
+                                    // Default colors for \"Not Set\"
+                                    $alertColor = 'bg-blue-50 border-blue-200 text-blue-800';
+
+                                    if ($dueDate) {
+                                        if ($daysRemaining < 0) {
+                                            $alertColor = 'bg-red-50 border-red-200 text-red-800';
+                                        } elseif ($daysRemaining <= 3) {
+                                            $alertColor = 'bg-orange-50 border-orange-200 text-orange-800';
+                                        } else {
+                                            $alertColor = 'bg-blue-50 border-blue-200 text-blue-800';
+                                        }
+                                    }
                                 @endphp
-                                <div class="mt-4 p-4 rounded-xl border {{ $alertColor }} flex items-start gap-3">
+                                <div class="mt-4 p-4 rounded-xl border {{ $alertColor }} flex items-start gap-3 shadow-sm">
                                     <svg class="w-5 h-5 mt-0.5 shrink-0 opacity-75" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <div>
-                                        <p class="text-xs font-bold uppercase opacity-75">Target Penyelesaian</p>
-                                        <p class="font-bold text-base">{{ $dueDate->format('d F Y') }}</p>
-                                        <p class="text-xs mt-1 font-medium">
-                                            @if ($daysRemaining < 0)
-                                                Terlambat {{ abs($daysRemaining) }} hari
-                                            @elseif ($daysRemaining === 0)
-                                                Hari ini
-                                            @else
-                                                {{ $daysRemaining }} hari lagi
-                                            @endif
-                                        </p>
+                                        <p class="text-[10px] font-bold uppercase opacity-60">Target Penyelesaian</p>
+                                        @if($dueDate)
+                                            <p class="font-black text-lg leading-tight">
+                                                {{ $dueDate->translatedFormat('d F Y') }}
+                                            </p>
+                                            <p class="text-[11px] mt-1 font-bold">
+                                                @if ($daysRemaining < 0)
+                                                    🔴 Terlambat {{ abs($daysRemaining) }} hari
+                                                @elseif ($daysRemaining == 0)
+                                                    🟠 Hari ini
+                                                @else
+                                                    🔵 {{ $daysRemaining }} hari lagi
+                                                @endif
+                                            </p>
+                                        @else
+                                            <p class="font-bold text-base text-gray-400 italic">Belum ditentukan</p>
+                                        @endif
                                     </div>
                                 </div>
                             @endif
                         </div>
                     </div>
-                </div>
+                </div> {{-- KOLOM KIRI END --}}
 
                 {{-- KOLOM KANAN (SIDEBAR) --}}
                 <div class="space-y-6">
@@ -653,12 +697,24 @@
                             </div>
                             <div class="p-4">
                                 @if ($hazard->foto_bukti)
+                                    @php
+                                        $initialFilePath = $hazard->foto_bukti;
+                                        $initialDisplayName = basename($initialFilePath);
+                                        if (strpos($initialDisplayName, '_') !== false) {
+                                            $parts = explode('_', $initialDisplayName, 2);
+                                            if (is_numeric($parts[0])) {
+                                                $initialDisplayName = $parts[1];
+                                            }
+                                        }
+                                    @endphp
                                     <div
-                                        class="group relative rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shadow-inner aspect-video">
+                                        class="group relative aspect-video rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
                                         <img src="{{ route('files.public', ['path' => $hazard->foto_bukti]) }}"
                                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 cursor-zoom-in"
                                             onclick="window.open(this.src, '_blank')"
-                                            onerror="this.onerror=null; this.src='https://placehold.co/600x400/CCCCCC/666666?text=Foto+Bukti+Tidak+Ditemukan';"
+                                            onerror="this.onerror=null;
+                                                                                                                                                                                                                                    this.src='https://placehold.co/600x400/CCCCCC/666666?text=Foto+Bukti+Tidak+Ditemukan'
+                                                                                                                                                                                                                                    ;"
                                             alt="Bukti Hazard">
                                         <div
                                             class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
@@ -666,6 +722,18 @@
                                                 class="opacity-0 group-hover:opacity-100 bg-black/60 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm transition-opacity">
                                                 Klik untuk perbesar
                                             </span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 px-1 flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                                                </path>
+                                            </svg>
+                                            <span
+                                                class="text-[10px] text-gray-400 font-medium truncate italic leading-none">{{ $initialDisplayName }}</span>
                                         </div>
                                     </div>
                                 @else
@@ -755,58 +823,210 @@
                     @endif
 
                     {{-- FORM TINDAK LANJUT PIC/LEADER --}}
-                    @if(in_array(Auth::id(), [$hazard->pic_id, $hazard->leader_id]) && $hazard->status === 'diproses')
+                    @if(Auth::id() === $hazard->pic_id && $hazard->status === 'diproses')
                         <div class="bg-white rounded-2xl shadow-sm border border-blue-200 overflow-hidden mb-6">
-                            <div class="px-5 py-3 border-b border-blue-100 bg-blue-50/50 flex justify-between items-center text-blue-800">
+                            <div
+                                class="px-5 py-3 border-b border-blue-100 bg-blue-50/50 flex justify-between items-center text-blue-800">
                                 <h3 class="font-bold text-sm flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                        </path>
                                     </svg>
-                                    Tindak Lanjut (PIC/Leader)
+                                    Tindak Lanjut (PIC)
                                 </h3>
                             </div>
                             <div class="p-5 space-y-6">
+                                {{-- Revision Notes from SHE --}}
+                                @if($hazard->feedback_verifikasi && $hazard->status === 'diproses' && auth()->id() === $hazard->pic_id)
+                                    <div
+                                        class="mb-2 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm animate-pulse-subtle">
+                                        <div class="flex items-start gap-3">
+                                            <div class="p-2 bg-amber-100 rounded-lg text-amber-600">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                    </path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-bold text-amber-800 uppercase tracking-tight">Catatan
+                                                    Revisi dari SHE</h4>
+                                                <p class="text-sm text-amber-700 mt-1 leading-relaxed italic">
+                                                    "{{ $hazard->feedback_verifikasi }}"</p>
+                                                <p class="text-[10px] text-amber-500 mt-2 font-medium">Mohon perbaiki tindakan
+                                                    dan upload ulang bukti foto sesuai arahan di atas.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                                 {{-- 1. SET DEADLINE FORM --}}
                                 @if(!$hazard->target_penyelesaian)
-                                    <form action="{{ route('karyawan.hazards.update', $hazard) }}" method="POST" class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                    <form action="{{ route('karyawan.hazards.update', $hazard) }}" method="POST"
+                                        class="bg-blue-50 p-4 rounded-xl border border-blue-100">
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" name="action" value="set_deadline">
                                         <div class="mb-3">
-                                            <label class="block text-xs font-bold text-blue-800 uppercase mb-1">Tetapkan Target Penyelesaian</label>
-                                            <p class="text-xs text-blue-600 mb-2">Mohon tentukan kapan perbaikan ini akan diselesaikan.</p>
-                                            <input type="date" name="target_penyelesaian" required min="{{ date('Y-m-d') }}" class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                            <label class="block text-xs font-bold text-blue-800 uppercase mb-1">Tetapkan Target
+                                                Penyelesaian</label>
+                                            <p class="text-xs text-blue-600 mb-2">Mohon tentukan kapan perbaikan ini akan
+                                                diselesaikan.</p>
+                                            <input type="date" name="target_penyelesaian" required min="{{ date('Y-m-d') }}"
+                                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
                                         </div>
-                                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition">
+                                        <button type="submit"
+                                            class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition">
                                             Simpan Tanggal
                                         </button>
                                     </form>
                                 @else
-                                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm">
+                                    <div
+                                        class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm">
                                         <span class="text-blue-800 font-bold">Target Penyelesaian:</span>
-                                        <span class="font-mono font-bold text-blue-600">{{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->translatedFormat('d F Y') }}</span>
+                                        <span
+                                            class="font-mono font-bold text-blue-600">{{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->translatedFormat('d F Y') }}</span>
                                     </div>
 
                                     {{-- 2. COMPLETE TASK FORM --}}
-                                    <form action="{{ route('karyawan.hazards.update', $hazard) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                    <form
+                                        x-data="{ 
+                                                                                                                                                                                                                        filePreview: null, 
+                                                                                                                                                                                                                        fileName: '', 
+                                                                                                                                                                                                                        fileType: '',
+                                                                                                                                                                                                                        handleFile(e) {
+                                                                                                                                                                                                                            const file = e.target.files[0];
+                                                                                                                                                                                                                            if (!file) {
+                                                                                                                                                                                                                                this.resetFile();
+                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                            this.fileName = file.name;
+                                                                                                                                                                                                                            this.fileType = file.type;
+
+                                                                                                                                                                                                                            if (file.type.startsWith('image/')) {
+                                                                                                                                                                                                                                const reader = new FileReader();
+                                                                                                                                                                                                                                reader.onload = (e) => this.filePreview = e.target.result;
+                                                                                                                                                                                                                                reader.readAsDataURL(file);
+                                                                                                                                                                                                                            } else {
+                                                                                                                                                                                                                                this.filePreview = null;
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                        },
+                                                                                                                                                                                                                        resetFile() {
+                                                                                                                                                                                                                            this.filePreview = null;
+                                                                                                                                                                                                                            this.fileName = '';
+                                                                                                                                                                                                                            this.fileType = '';
+                                                                                                                                                                                                                            $refs.fileInput.value = '';
+                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                    }"
+                                        action="{{ route('karyawan.hazards.update', $hazard) }}" method="POST"
+                                        enctype="multipart/form-data" class="space-y-4">
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" name="action" value="complete">
-                                        
+
                                         <div>
-                                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tindakan Perbaikan yang Dilakukan</label>
-                                            <textarea name="tindakan_perbaikan" rows="3" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Jelaskan perbaikan apa saja yang telah dilakukan..."></textarea>
+                                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tindakan
+                                                Perbaikan yang Dilakukan</label>
+                                            <textarea name="tindakan_perbaikan" rows="3" required
+                                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                placeholder="Jelaskan perbaikan apa saja yang telah dilakukan..."></textarea>
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Foto Bukti Perbaikan</label>
-                                            <input type="file" name="foto_bukti_penyelesaian" required accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition">
-                                            <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max 5MB)</p>
+                                            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Bukti
+                                                Perbaikan</label>
+
+                                            {{-- Custom File Upload Area --}}
+                                            <div class="relative group">
+                                                <input type="file" name="foto_bukti_penyelesaian" x-ref="fileInput" required
+                                                    @change="handleFile($event)" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+
+                                                <div
+                                                    class="flex items-center gap-4 p-3 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl group-hover:border-blue-400 transition-colors">
+                                                    <div
+                                                        class="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                                            </path>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <p class="text-sm font-bold text-gray-700 truncate"
+                                                            x-text="fileName || 'Pilih File atau Tarik ke Sini'"></p>
+                                                        <p
+                                                            class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
+                                                            Format: JPG, PNG, PDF, DOC (MAX 10MB)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Dynamic Preview Section --}}
+                                            <template x-if="fileName">
+                                                <div
+                                                    class="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 shadow-inner relative overflow-hidden group/preview">
+                                                    <button type="button" @click="resetFile()"
+                                                        class="absolute top-2 right-2 p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm z-20">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </button>
+
+                                                    <div class="flex flex-col items-center">
+                                                        {{-- Image Preview --}}
+                                                        <template x-if="filePreview">
+                                                            <div
+                                                                class="w-full aspect-video rounded-xl overflow-hidden border border-white shadow-md mb-3">
+                                                                <img :src="filePreview" class="w-full h-full object-cover">
+                                                            </div>
+                                                        </template>
+
+                                                        {{-- Document Preview --}}
+                                                        <template x-if="!filePreview">
+                                                            <div
+                                                                class="w-full py-8 flex flex-col items-center justify-center bg-white rounded-xl border border-gray-100 shadow-sm mb-3">
+                                                                <div
+                                                                    class="p-4 bg-blue-50 text-blue-600 rounded-2xl mb-3 shadow-sm">
+                                                                    <svg class="w-10 h-10" fill="none" stroke="currentColor"
+                                                                        viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2"
+                                                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                                                        </path>
+                                                                    </svg>
+                                                                </div>
+                                                                <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest"
+                                                                    x-text="'DOKUMEN ' + fileType.split('/').pop().toUpperCase()">
+                                                                </p>
+                                                            </div>
+                                                        </template>
+
+                                                        <div
+                                                            class="w-full px-4 py-2 bg-white rounded-lg border border-gray-100 shadow-sm flex items-center justify-between">
+                                                            <span class="text-[13px] font-black text-gray-800 truncate pr-4"
+                                                                x-text="fileName"></span>
+                                                            <span
+                                                                class="shrink-0 px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-black rounded border border-green-200 uppercase">SIAP
+                                                                UNGGAH</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
 
                                         <div class="pt-4 border-t border-gray-100">
-                                            <button type="submit" class="w-full bg-green-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-green-700 shadow-lg shadow-green-200 transition flex justify-center items-center gap-2">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            <button type="submit"
+                                                class="w-full bg-green-600 text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-green-700 shadow-lg shadow-green-200 transition flex justify-center items-center gap-2">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M5 13l4 4L19 7"></path>
+                                                </svg>
                                                 Selesaikan Laporan
                                             </button>
                                         </div>
@@ -816,8 +1036,60 @@
                         </div>
                     @endif
 
+                    {{-- STATUS: MENUNGGU VERIFIKASI (Untuk PIC) --}}
+                    @if(Auth::id() === $hazard->pic_id && $hazard->status === 'menunggu verifikasi')
+                        <div class="bg-white rounded-2xl shadow-sm border border-blue-200 overflow-hidden mb-6">
+                            <div class="px-5 py-4 bg-blue-50/50 border-b border-blue-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-blue-100 text-blue-600 rounded-xl">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-blue-900 text-sm">Laporan Sedang Diverifikasi</h3>
+                                        <p class="text-[10px] text-blue-600 font-medium uppercase tracking-wider">Menunggu
+                                            Tinjauan Tim SHE</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 italic text-sm text-gray-600">
+                                    "Anda telah mengirimkan bukti perbaikan. Harap tunggu tim SHE melakukan verifikasi akhir
+                                    sebelum laporan ini dinyatakan selesai."
+                                </div>
+
+                                <div class="space-y-3">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tindakan Anda:
+                                    </p>
+                                    <div class="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                        <p class="text-sm text-gray-800 leading-relaxed font-medium capitalize">
+                                            {{ $hazard->tindakan_perbaikan }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                @if($hazard->foto_bukti_penyelesaian)
+                                    <div class="space-y-3">
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bukti Dikirim:
+                                        </p>
+                                        <div
+                                            class="relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 max-w-sm">
+                                            <img src="{{ route('files.public', ['path' => $hazard->foto_bukti_penyelesaian]) }}"
+                                                class="w-full aspect-video object-cover">
+                                            <div
+                                                class="absolute inset-0 bg-blue-900/10 transition-opacity opacity-0 group-hover:opacity-100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Informasi Penyelesaian (Status Logs) --}}
-                    @if (isset($hazard) && ($hazard->ditangani_oleh || $hazard->ditangani_pada || $hazard->report_selesai))
+                    @if (isset($hazard) && ($hazard->ditangani_oleh || $hazard->ditangani_pada || $hazard->report_selesai || $hazard->target_penyelesaian))
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                             <div class="px-5 py-3 border-b border-gray-100 bg-red-50/30">
                                 <h3 class="font-bold text-red-900 text-sm">Log Penyelesaian</h3>
@@ -845,7 +1117,7 @@
                                         </li>
                                     @endif
 
-                                    @if ($hazard->report_selesai)
+                                    @if ($hazard->status === 'selesai' && $hazard->report_selesai)
                                         <li class="p-4 hover:bg-gray-50 transition-colors">
                                             <div class="flex items-start gap-3">
                                                 <div class="mt-0.5 p-1.5 bg-green-100 text-green-600 rounded-full shrink-0">
@@ -857,7 +1129,25 @@
                                                 <div>
                                                     <p class="text-xs text-gray-400 uppercase font-bold">Waktu Penyelesaian</p>
                                                     <p class="text-sm font-semibold text-gray-800">
-                                                        {{ \Carbon\Carbon::parse($hazard->report_selesai)->format('d M Y, H:i') }}
+                                                        {{ \Carbon\Carbon::parse($hazard->report_selesai)->translatedFormat('d M Y, H:i') }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    @elseif ($hazard->target_penyelesaian)
+                                        <li class="p-4 hover:bg-gray-50 transition-colors">
+                                            <div class="flex items-start gap-3">
+                                                <div class="mt-0.5 p-1.5 bg-blue-100 text-blue-600 rounded-full shrink-0">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                        </path>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-400 uppercase font-bold">Target Penyelesaian</p>
+                                                    <p class="text-sm font-semibold text-gray-800">
+                                                        {{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->translatedFormat('d M Y') }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -868,8 +1158,8 @@
                         </div>
                     @endif
 
-                </div>
-            </div>
+                </div> {{-- KOLOM KANAN END --}}
+            </div> {{-- GRID END --}}
         </div>
     </div>
 </x-app-layout>

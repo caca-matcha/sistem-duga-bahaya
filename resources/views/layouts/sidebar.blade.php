@@ -54,9 +54,11 @@
     <!-- Sidebar -->
     <aside x-bind:class="{
             'w-64': !sidebarMinimized,
-            'w-0 lg:w-20': sidebarMinimized
+            'w-0 lg:w-20': sidebarMinimized,
+            'border-r border-gray-200': !sidebarMinimized || (sidebarMinimized && window.innerWidth >= 1024),
+            'border-none': sidebarMinimized && window.innerWidth < 1024
         }"
-        class="fixed lg:sticky lg:top-0 inset-y-0 left-0 z-[70] flex flex-col bg-white border-r border-gray-200 h-screen transition-[width] duration-500 ease-in-out">
+        class="fixed lg:sticky lg:top-0 inset-y-0 left-0 z-[70] flex flex-col bg-white h-screen transition-[width] duration-500 ease-in-out overflow-hidden">
 
         <!-- BRAND / LOGO SECTION -->
         <div
@@ -144,9 +146,9 @@
 
                     <div class="{{ $iconBoxCommon }} {{ request()->routeIs('she.maps.*') ? $iconBoxActive : $iconBoxInactive }}"
                         :class="sidebarMinimized ? '' : 'mr-3'">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M15 19l-6-2.1 -5.2 2.6c-.4.2-.9.1-1.2-.2C2.1 19 2 18.6 2 18.2V5.6c0-.4.2-.7.5-.9.3-.2.7-.3 1.1-.1L9 7.1l6-2.1 5.2 2.6c.4.2.9.1 1.2-.2.4-.3.5-.7.5-1.1v12.6c0 .4-.2.7-.5.9-.3.2-.7.3-1.1.1L15 19z" />
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 6.75V15m6-6v8.25m.75 3.3-5.625-2.25L5.25 17.25V6.75L10.125 4.5l5.625 2.25L20.625 4.5V15l-4.875 2.25z" />
                         </svg>
                     </div>
 
@@ -168,7 +170,25 @@
                         </svg>
                     </div>
 
+
                     <span x-show="!sidebarMinimized" class="text-[13px] whitespace-nowrap">Master Lokasi</span>
+                </a>
+
+                {{-- Company Data --}}
+                <a href="{{ route('she.company-data.index') }}" @click="sidebarOpen = false"
+                    class="{{ $linkCommon }} {{ request()->routeIs('she.company-data.*') ? $linkActive : $linkInactive }}"
+                    :class="sidebarMinimized ? 'justify-center mx-auto' : 'px-2'"
+                    :title="sidebarMinimized ? 'Company Data' : ''">
+
+                    <div class="{{ $iconBoxCommon }} {{ request()->routeIs('she.company-data.*') ? $iconBoxActive : $iconBoxInactive }}"
+                        :class="sidebarMinimized ? '' : 'mr-3'">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
+                        </svg>
+                    </div>
+
+                    <span x-show="!sidebarMinimized" class="text-[13px] whitespace-nowrap">Company Data</span>
                 </a>
 
                 <p x-show="!sidebarMinimized"
@@ -206,9 +226,9 @@
 
                     <div class="{{ $iconBoxCommon }} {{ request()->routeIs('supervisor.maps.*') ? $iconBoxActive : $iconBoxInactive }}"
                         :class="sidebarMinimized ? '' : 'mr-3'">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M15 19l-6-2.1 -5.2 2.6c-.4.2-.9.1-1.2-.2C2.1 19 2 18.6 2 18.2V5.6c0-.4.2-.7.5-.9.3-.2.7-.3 1.1-.1L9 7.1l6-2.1 5.2 2.6c.4.2.9.1 1.2-.2.4-.3.5-.7.5-1.1v12.6c0 .4-.2.7-.5.9-.3.2-.7.3-1.1.1L15 19z" />
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 6.75V15m6-6v8.25m.75 3.3-5.625-2.25L5.25 17.25V6.75L10.125 4.5l5.625 2.25L20.625 4.5V15l-4.875 2.25z" />
                         </svg>
                     </div>
 
@@ -232,8 +252,8 @@
                     <span x-show="!sidebarMinimized" class="text-[13px] whitespace-nowrap">Laporan</span>
                 </a>
 
-                {{-- ================= ROLE: KARYAWAN ================= --}}
-            @elseif(strtolower(Auth::user()->role) == 'karyawan')
+                {{-- ================= ROLE: KARYAWAN / MAGANG ================= --}}
+            @elseif(in_array(strtolower(Auth::user()->role), ['karyawan', 'magang']))
                 <p x-show="!sidebarMinimized"
                     class="px-3 text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-2 mt-2">Menu Karyawan
                 </p>
@@ -281,9 +301,9 @@
 
                     <div class="{{ $iconBoxCommon }} {{ request()->routeIs('karyawan.maps.*') ? $iconBoxActive : $iconBoxInactive }}"
                         :class="sidebarMinimized ? '' : 'mr-3'">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M15 19l-6-2.1 -5.2 2.6c-.4.2-.9.1-1.2-.2C2.1 19 2 18.6 2 18.2V5.6c0-.4.2-.7.5-.9.3-.2.7-.3 1.1-.1L9 7.1l6-2.1 5.2 2.6c.4.2.9.1 1.2-.2.4-.3.5-.7.5-1.1v12.6c0 .4-.2.7-.5.9-.3.2-.7.3-1.1.1L15 19z" />
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 6.75V15m6-6v8.25m.75 3.3-5.625-2.25L5.25 17.25V6.75L10.125 4.5l5.625 2.25L20.625 4.5V15l-4.875 2.25z" />
                         </svg>
                     </div>
 

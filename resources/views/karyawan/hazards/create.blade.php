@@ -74,23 +74,41 @@
                     </div>
                     <div class="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Nama Pelapor</label>
-                            <input type="text" disabled value="{{ auth()->user()->name }}"
-                                class="w-full rounded-xl border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed shadow-sm font-medium">
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Nama Pelapor <span
+                                    class="text-red-500">*</span></label>
+                            @if(auth()->user()->hasRole('magang'))
+                                <input type="text" name="nama" value="{{ old('nama', auth()->user()->name) }}" required
+                                    class="w-full rounded-xl border-gray-300 shadow-sm input-focus font-medium">
+                            @else
+                                <input type="text" disabled value="{{ auth()->user()->name }}"
+                                    class="w-full rounded-xl border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed shadow-sm font-medium">
+                                <input type="hidden" name="nama" value="{{ auth()->user()->name }}">
+                            @endif
                         </div>
                         <div>
                             <label for="NPK" class="block text-xs font-bold text-gray-700 mb-1.5">NPK <span
                                     class="text-red-500">*</span></label>
-                            <input type="text" disabled value="{{ auth()->user()->npk ?? 'N/A' }}"
-                                class="w-full rounded-xl border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed shadow-sm font-medium">
-                            <input type="hidden" name="NPK" value="{{ auth()->user()->npk }}">
+                            @if(auth()->user()->hasRole('magang'))
+                                <input type="text" name="NPK" value="{{ old('NPK', auth()->user()->npk ?? 'N/A') }}"
+                                    required class="w-full rounded-xl border-gray-300 shadow-sm input-focus font-medium">
+                            @else
+                                <input type="text" disabled value="{{ auth()->user()->npk ?? 'N/A' }}"
+                                    class="w-full rounded-xl border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed shadow-sm font-medium">
+                                <input type="hidden" name="NPK" value="{{ auth()->user()->npk }}">
+                            @endif
                         </div>
                         <div>
-                            <label for="dept" class="block text-xs font-bold text-gray-700 mb-1.5">Departemen <span
+                            <label for="dept" class="block text-xs font-bold text-gray-700 mb-1.5">Department <span
                                     class="text-red-500">*</span></label>
-                            <input type="text" disabled value="{{ auth()->user()->department ?? 'N/A' }}"
-                                class="w-full rounded-xl border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed shadow-sm font-medium">
-                            <input type="hidden" name="dept" value="{{ auth()->user()->department }}">
+                            @if(auth()->user()->hasRole('magang'))
+                                <input type="text" name="dept"
+                                    value="{{ old('dept', auth()->user()->department ?? 'N/A') }}" required
+                                    class="w-full rounded-xl border-gray-300 shadow-sm input-focus font-medium">
+                            @else
+                                <input type="text" disabled value="{{ auth()->user()->department ?? 'N/A' }}"
+                                    class="w-full rounded-xl border-gray-300 bg-gray-50 text-gray-600 cursor-not-allowed shadow-sm font-medium">
+                                <input type="hidden" name="dept" value="{{ auth()->user()->department }}">
+                            @endif
                         </div>
                     </div>
                 </div>

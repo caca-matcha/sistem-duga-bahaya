@@ -38,8 +38,8 @@ Route::middleware(['auth'])->get('/dashboard', function () {
         return redirect()->route('she.dashboard');
     }
 
-    // REDIRECT KE DASHBOARD KARYAWAN
-    if ($user->role === 'karyawan') {
+    // REDIRECT KE DASHBOARD KARYAWAN / MAGANG
+    if (in_array($user->role, ['karyawan', 'magang'])) {
         return redirect()->route('karyawan.dashboard');
     }
 
@@ -59,6 +59,9 @@ Route::middleware(['auth', 'role:she'])
         Route::get('hazards', [SHEHazardController::class, 'index'])->name('hazards.index');
         Route::get('hazards/export-excel-bulk', [SHEHazardController::class, 'exportExcelBulk'])->name('hazards.exportExcelBulk');
         Route::get('hazards/{hazard}', [SHEHazardController::class, 'show'])->name('hazards.show');
+
+        // COMPANY DATA ROUTE
+        Route::get('company-data', [App\Http\Controllers\SHE\CompanyDataController::class, 'index'])->name('company-data.index');
 
         // ===========================================
         // 🚀 PENAMBAHAN ROUTE FORM BARU UNTUK SHE
@@ -100,6 +103,7 @@ Route::middleware(['auth', 'role:she'])
         Route::resource('maps', MapController::class);
         Route::get('maps/{map}/employee-view', [MapController::class, 'viewEmployeeMode'])->name('maps.employee-view');
 
+        Route::get('users/export', [UserController::class, 'export'])->name('users.export');
         Route::post('users/import', [UserController::class, 'import'])->name('users.import');
         Route::resource('users', UserController::class);
 

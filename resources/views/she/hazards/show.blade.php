@@ -72,82 +72,103 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-800">Informasi Pelapor & Lokasi</h3>
                         </div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                                {{-- Kolom Kiri: Orang --}}
-                                <div class="space-y-4">
-                                    <div>
-                                        <label
-                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nama
-                                            Pelapor</label>
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
-                                                {{ substr($hazard->pelapor->name ?? 'U', 0, 2) }}
-                                            </div>
-                                            <div>
-                                                <div class="font-bold text-gray-900">
-                                                    {{ $hazard->pelapor->name ?? 'N/A' }}
-                                                </div>
-                                                <div class="text-xs text-gray-500">NPK: {{ $hazard->NPK }}</div>
-                                            </div>
-                                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Informasi
+                                    Pelapor</label>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="h-12 w-12 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-base shadow-sm flex-shrink-0">
+                                        {{ substr($hazard->nama ?? ($hazard->pelapor->name ?? 'U'), 0, 2) }}
                                     </div>
                                     <div>
-                                        <label
-                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Departemen</label>
-                                        <div
-                                            class="text-sm font-medium text-gray-800 bg-gray-50 px-3 py-2 rounded-md border border-gray-100 inline-block">
-                                            {{ $hazard->dept }}
+                                        <div class="font-bold text-gray-900 text-lg leading-tight">
+                                            {{ $hazard->nama ?? ($hazard->pelapor->name ?? 'N/A') }}
+                                            @if(($hazard->pelapor->role ?? '') === 'magang')
+                                                <span
+                                                    class="ml-1 text-sm text-gray-400 font-medium italic whitespace-nowrap">(Magang
+                                                    1)</span>
+                                            @endif
                                         </div>
-                                    </div>
-                                    <label
-                                        class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Tanggal
-                                        Observasi</label>
-                                    <div class="flex items-center text-gray-700 font-medium">
-                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->translatedFormat('l, d F Y') }}
+                                        <div class="text-sm text-gray-500 font-medium tracking-tight mt-1">
+                                            {{ $hazard->dept ?? ($hazard->pelapor->department ?? '-') }}
+                                            <span class="mx-2 text-gray-300">•</span>
+                                            NPK: {{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Kolom Kanan: Lokasi --}}
-                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 space-y-3">
-                                <div>
-                                    <label class="text-xs text-gray-500 block">Lokasi Lengkap</label>
-                                    <span
-                                        class="font-semibold text-gray-900">{{ collect([$hazard->area_gedung, $hazard->area_name])->filter()->join(' -> ') }}</span>
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Tanggal
+                                    Observasi</label>
+                                <div class="text-base font-bold text-gray-800">
+                                    {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->translatedFormat('l, d F Y') }}
                                 </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="text-xs text-gray-500 block">Tipe Area</label>
-                                        <span class="text-sm font-medium text-gray-800">{{ $hazard->area_type }}</span>
-                                    </div>
-                                    <div>
-                                        <label class="text-xs text-gray-500 block">Kode Line</label>
-                                        <span class="text-sm font-medium text-gray-800">{{ $hazard->area_id }}</span>
-                                    </div>
-                                </div>
-                                @if($hazard->lokasi_detail_manual)
-                                    <div class="pt-2 mt-2 border-t border-gray-200">
-                                        <label class="text-xs text-yellow-600 font-bold block mb-1 flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                            Lokasi Spesifik
-                                        </label>
-                                        <p class="text-sm text-gray-700 italic">"{{ $hazard->lokasi_detail_manual }}"
-                                        </p>
-                                    </div>
-                                @endif
                             </div>
+
+                            @if($hazard->pic_id)
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-3">PIC
+                                        / Penanggung Jawab</label>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="h-10 w-10 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm shadow-sm flex-shrink-0">
+                                            {{ substr($hazard->pic->name ?? 'P', 0, 2) }}
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-gray-900 text-sm leading-tight">
+                                                {{ $hazard->pic->name ?? 'N/A' }}
+                                            </div>
+                                            <div class="text-[10px] text-gray-500 font-medium tracking-tight mt-0.5">
+                                                {{ $hazard->pic->department ?? '-' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Kolom Kanan: Lokasi --}}
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 space-y-3">
+                            <div>
+                                <label
+                                    class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Lokasi
+                                    Lengkap</label>
+                                <span
+                                    class="font-bold text-sm text-gray-800">{{ collect([$hazard->area_gedung, $hazard->area_name])->filter()->join(' -> ') }}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Tipe
+                                        Area</label>
+                                    <span class="text-sm font-bold text-gray-800">{{ $hazard->area_type }}</span>
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Kode
+                                        Line</label>
+                                    <span class="text-sm font-bold text-gray-800">{{ $hazard->area_id }}</span>
+                                </div>
+                            </div>
+                            @if($hazard->lokasi_detail_manual)
+                                <div class="pt-2 mt-2 border-t border-gray-200">
+                                    <label class="text-xs text-yellow-600 font-bold block mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        Lokasi Spesifik
+                                    </label>
+                                    <p class="text-sm text-gray-700 italic">"{{ $hazard->lokasi_detail_manual }}"
+                                    </p>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -167,52 +188,60 @@
                             <div class="flex flex-wrap gap-4">
                                 <div
                                     class="bg-white border border-gray-200 rounded-lg p-3 flex-1 min-w-[200px] shadow-sm">
-                                    <span class="text-xs text-gray-500 uppercase font-bold">Faktor Penyebab</span>
-                                    <div class="font-semibold text-gray-800 mt-1">{{ $hazard->faktor_penyebab }}</div>
+                                    <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Faktor
+                                        Penyebab</span>
+                                    <div class="font-bold text-gray-800 mt-1 text-sm">
+                                        {{ str_replace('\"', '"', $hazard->faktor_penyebab) }}
+                                    </div>
                                 </div>
                                 <div
                                     class="bg-white border border-gray-200 rounded-lg p-3 flex-1 min-w-[200px] shadow-sm">
-                                    <span class="text-xs text-gray-500 uppercase font-bold">Kategori STOP6</span>
-                                    <div class="font-semibold text-gray-800 mt-1">{{ $hazard->kategori_stop6 }}</div>
+                                    <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Kategori
+                                        STOP6</span>
+                                    <div class="font-bold text-gray-800 mt-1 text-sm">
+                                        {{ str_replace('\"', '"', $hazard->kategori_stop6) }}
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- Deskripsi --}}
                             <div class="space-y-2">
-                                <label class="text-sm font-bold text-gray-700">Deskripsi Bahaya</label>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Deskripsi
+                                    Bahaya</label>
                                 <div
-                                    class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 leading-relaxed text-sm">
-                                    {{ $hazard->deskripsi_bahaya }}
+                                    class="bg-gray-50 border border-gray-100 rounded-lg p-4 text-gray-800 leading-relaxed text-sm font-bold">
+                                    {{ str_replace('\"', '"', $hazard->deskripsi_bahaya) }}
                                 </div>
                             </div>
 
                             {{-- Usulan --}}
                             <div class="space-y-2">
-                                <label class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                <label
+                                    class="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                                     Usulan Penanggulangan
                                     <span
-                                        class="text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Saran
+                                        class="text-[9px] font-bold text-indigo-500/50 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Saran
                                         Pelapor</span>
                                 </label>
                                 <div
-                                    class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-blue-900 leading-relaxed text-sm">
-                                    {{ $hazard->ide_penanggulangan ?? '-' }}
+                                    class="bg-blue-50/50 border border-blue-100 rounded-lg p-4 text-blue-900 leading-relaxed text-sm font-bold">
+                                    {{ str_replace('\"', '"', $hazard->ide_penanggulangan ?? '-') }}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- SECTION 3: HASIL VALIDASI (Only if Validated) --}}
+                    {{-- SECTION 3: RENCANA PERBAIKAN (SHE) (Only if Validated) --}}
                     @if($hazard->status != 'menunggu validasi')
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative mb-6">
                             {{-- Color Strip --}}
                             <div
-                                class="absolute top-0 left-0 bottom-0 w-1 {{ $hazard->status == 'ditolak' ? 'bg-red-500' : 'bg-green-500' }}">
+                                class="absolute top-0 left-0 bottom-0 w-1 {{ $hazard->status == 'ditolak' ? 'bg-red-500' : 'bg-amber-500' }}">
                             </div>
 
                             <div
                                 class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 pl-7 flex justify-between items-center">
-                                <h3 class="text-lg font-bold text-gray-800">Tindakan & Validasi SHE</h3>
+                                <h3 class="text-lg font-bold text-gray-800">Rencana Perbaikan (SHE)</h3>
                                 @if($hazard->ditangani_oleh)
                                     <div class="text-xs text-right">
                                         <span class="text-gray-500 block">Validator</span>
@@ -231,23 +260,25 @@
                                         </svg>
                                         <div>
                                             <h4 class="font-bold text-red-800 mb-1">Laporan Ditolak</h4>
-                                            <p class="text-sm text-red-700">{{ $hazard->alasan_penolakan }}</p>
+                                            <p class="text-sm text-red-700">
+                                                {{ str_replace('\"', '"', $hazard->alasan_penolakan) }}
+                                            </p>
                                         </div>
                                     </div>
                                 @else
                                     <div class="space-y-6">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
-                                                <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Tindakan
+                                                <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Rencana
                                                     Perbaikan</label>
                                                 <div
-                                                    class="p-3 bg-green-50 rounded border border-green-100 text-sm text-green-900 min-h-[80px]">
-                                                    {{ $hazard->tindakan_perbaikan }}
+                                                    class="p-3 bg-amber-50 rounded border border-amber-100 text-sm text-amber-900 min-h-[80px] font-bold">
+                                                    {{ str_replace('\"', '"', $hazard->rencana_perbaikan ?? '-') }}
                                                 </div>
                                             </div>
                                             <div>
                                                 <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Upaya
-                                                    Terpilih</label>
+                                                    Penanggulangan</label>
                                                 <div class="p-3 bg-white rounded border border-gray-200 text-sm min-h-[80px]">
                                                     @php
                                                         $upaya = is_array($hazard->upaya_penanggulangan) ? $hazard->upaya_penanggulangan : (empty($hazard->upaya_penanggulangan) ? [] : ['lain-lain' => $hazard->upaya_penanggulangan]);
@@ -267,22 +298,55 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        @if($hazard->status == 'selesai')
-                                            <div
-                                                class="flex items-center gap-2 text-green-700 bg-green-50 p-3 rounded-lg border border-green-200 justify-center">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                <span class="font-bold text-sm">Laporan Selesai & Ditutup pada
-                                                    {{ \Carbon\Carbon::parse($hazard->report_selesai)->format('d M Y') }}</span>
-                                            </div>
-                                        @endif
                                     </div>
                                 @endif
                             </div>
                         </div>
+
+                        {{-- SEPARATOR CARD: HASIL PERBAIKAN (PIC) --}}
+                        @if($hazard->status != 'ditolak' && ($hazard->tindakan_perbaikan || $hazard->foto_bukti_penyelesaian))
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative mb-6">
+                                {{-- Color Strip --}}
+                                <div class="absolute top-0 left-0 bottom-0 w-1 bg-green-500"></div>
+
+                                <div
+                                    class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 pl-7 flex justify-between items-center">
+                                    <h3 class="text-lg font-bold text-gray-800">Hasil Perbaikan (PIC)
+                                    </h3>
+                                    @if($hazard->report_selesai)
+                                        <div class="text-xs text-right">
+                                            <span class="text-gray-500 block">Selesai pada</span>
+                                            <span
+                                                class="font-bold text-gray-700">{{ \Carbon\Carbon::parse($hazard->report_selesai)->translatedFormat('d F Y') }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="p-6 pl-7">
+                                    <div class="space-y-6">
+                                        <div>
+                                            <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Tindakan
+                                                Perbaikan yang Dilakukan</label>
+                                            <div
+                                                class="p-3 bg-green-50 rounded border border-green-100 text-sm text-green-900 min-h-[80px] font-bold">
+                                                {{ str_replace(['\"', 'Validasi tanpa tindak lanjut'], ['"', 'Penyelesaian sesuai arahan SHE.'], $hazard->tindakan_perbaikan ?? '-') }}
+                                            </div>
+                                        </div>
+
+                                        @if($hazard->feedback_verifikasi)
+                                            <div>
+                                                <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Feedback
+                                                    Verifikasi SHE</label>
+                                                <div
+                                                    class="p-3 bg-blue-50 rounded border border-blue-100 text-sm text-blue-900 font-medium">
+                                                    "{{ str_replace('\"', '"', $hazard->feedback_verifikasi) }}"
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -303,6 +367,16 @@
                             </div>
                             <div class="p-4">
                                 @if ($hazard->foto_bukti)
+                                    @php
+                                        $initialFilePath = $hazard->foto_bukti;
+                                        $initialDisplayName = basename($initialFilePath);
+                                        if (strpos($initialDisplayName, '_') !== false) {
+                                            $parts = explode('_', $initialDisplayName, 2);
+                                            if (is_numeric($parts[0])) {
+                                                $initialDisplayName = $parts[1];
+                                            }
+                                        }
+                                    @endphp
                                     <div
                                         class="group relative rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
                                         <img src="{{ route('files.public', ['path' => $hazard->foto_bukti]) }}"
@@ -314,8 +388,19 @@
                                             class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none">
                                         </div>
                                     </div>
-                                    <p class="text-xs text-center text-gray-400 mt-2">Klik foto untuk melihat ukuran penuh
-                                    </p>
+                                    <div class="mt-3 px-1 flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                                                </path>
+                                            </svg>
+                                            <span
+                                                class="text-[10px] text-gray-400 font-medium truncate italic">{{ $initialDisplayName }}</span>
+                                        </div>
+                                        <p class="text-[9px] text-gray-400 whitespace-nowrap">* Klik untuk perbesar</p>
+                                    </div>
                                 @else
                                     <div
                                         class="h-48 flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl text-gray-400">
@@ -459,37 +544,45 @@
                                         Tandai Selesai
                                     </a>
                                 @elseif ($hazard->status == 'menunggu verifikasi')
-                                    <div class="grid grid-cols-2 gap-3 w-full">
+                                    <div class="space-y-3 w-full">
+                                        {{-- Verifikasi Selesai: ke form selesai (bukan langsung submit) --}}
+                                        <a href="{{ route('she.hazards.selesaiForm', $hazard) }}"
+                                            class="w-full flex justify-center items-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-sm transition shadow-md">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Verifikasi Selesai
+                                        </a>
+
+                                        {{-- Revisi: kembalikan ke PIC dengan feedback --}}
                                         <form action="{{ route('she.hazards.updateStatus', $hazard) }}" method="POST"
-                                            class="w-full">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="selesai">
-                                            <button type="submit"
-                                                class="w-full flex justify-center items-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-sm transition shadow-md"
-                                                onclick="return confirm('Apakah Anda yakin verifikasi pekerjaan ini selesai?')">
-                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                Verifikasi Selesai
-                                            </button>
-                                        </form>
-                                        <form action="{{ route('she.hazards.updateStatus', $hazard) }}" method="POST"
-                                            class="w-full">
+                                            class="w-full space-y-2" x-data="{ showRevisi: false }">
                                             @csrf
                                             @method('PUT')
                                             <input type="hidden" name="status" value="diproses">
-                                            <button type="submit"
-                                                class="w-full flex justify-center items-center px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold text-sm transition shadow-md"
-                                                onclick="return confirm('Kembalikan ke PIC untuk revisi?')">
+                                            <input type="hidden" name="_from_verification" value="1">
+
+                                            <button type="button" @click="showRevisi = !showRevisi"
+                                                class="w-full flex justify-center items-center px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold text-sm transition shadow-md">
                                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
                                                     </path>
                                                 </svg>
-                                                Revisi (Kembali ke PIC)
+                                                Minta Revisi ke PIC
                                             </button>
+
+                                            <div x-show="showRevisi" x-collapse class="space-y-2 pt-1">
+                                                <textarea name="feedback_verifikasi" rows="3" required
+                                                    class="w-full rounded-lg border-gray-300 text-sm focus:ring-orange-500 focus:border-orange-500"
+                                                    placeholder="Jelaskan apa yang perlu diperbaiki oleh PIC..."></textarea>
+                                                <button type="submit"
+                                                    class="w-full px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-bold transition"
+                                                    onclick="return confirm('Kembalikan ke PIC untuk revisi?')">
+                                                    Kirim Permintaan Revisi
+                                                </button>
+                                            </div>
                                         </form>
                                     </div>
                                 @endif
@@ -561,7 +654,7 @@
                                             </h4>
                                             @if($step['date'])
                                                 <span
-                                                    class="text-xs text-gray-500 block mt-0.5">{{ \Carbon\Carbon::parse($step['date'])->format('d M Y, H:i') }}</span>
+                                                    class="text-xs text-gray-500 block mt-0.5">{{ \Carbon\Carbon::parse($step['date'])->translatedFormat('d M Y, H:i') }}</span>
                                             @else
                                                 <span class="text-xs text-gray-400 italic block mt-0.5">Menunggu...</span>
                                             @endif
@@ -576,7 +669,7 @@
                     @if($hazard->status == 'diproses' && $hazard->target_penyelesaian)
                         @php
                             $target = \Carbon\Carbon::parse($hazard->target_penyelesaian);
-                            $diff = now()->diffInDays($target, false);
+                            $diff = ceil(now()->floatDiffInDays($target, false));
                             $isLate = $diff < 0;
                         @endphp
                         <div
@@ -584,9 +677,12 @@
                             <span
                                 class="text-xs font-bold uppercase {{ $isLate ? 'text-red-600' : 'text-blue-600' }}">Target
                                 Penyelesaian</span>
-                            <div class="font-bold text-gray-800 text-lg mt-1">{{ $target->format('d M Y') }}</div>
-                            <div class="text-xs mt-1 {{ $isLate ? 'text-red-700 font-bold' : 'text-blue-700' }}">
-                                {{ $isLate ? 'Terlambat ' . abs(round($diff)) . ' Hari' : round($diff) . ' Hari Lagi' }}
+                            <div class="font-bold text-gray-800 text-lg mt-1 text-center">
+                                {{ $target->translatedFormat('d M Y') }}
+                            </div>
+                            <div
+                                class="text-xs mt-1 {{ $isLate ? 'text-red-700 font-bold' : 'text-blue-700' }} text-center">
+                                {{ $isLate ? 'Terlambat ' . abs($diff) . ' Hari' : $diff . ' Hari Lagi' }}
                             </div>
                         </div>
                     @endif

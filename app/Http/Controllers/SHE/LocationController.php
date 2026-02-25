@@ -64,10 +64,8 @@ class LocationController extends Controller
     public function create()
     {
         $maps = Map::where('type', 'Gedung')->get();
-        // Get potential PICs and Leaders (currently all users except maybe SHE, but let's just use all for now as roles are not strictly defined)
-        $users = \App\Models\User::orderBy('name')->get();
 
-        return view('she.locations.create', compact('maps', 'users'));
+        return view('she.locations.create', compact('maps'));
     }
 
     /**
@@ -80,8 +78,6 @@ class LocationController extends Controller
             'location_id_string' => 'required|string|max:255|unique:locations,location_id_string',
             'type' => 'required|string|max:255|in:Area', // Type must be Area
             'map_id' => 'required|exists:maps,id', // Map ID is now required
-            'pic_id' => 'nullable|exists:users,id',
-            'leader_id' => 'nullable|exists:users,id',
         ]);
 
         $maxOrder = Location::where('map_id', $validatedData['map_id'])->max('display_order') ?? 0;
@@ -93,8 +89,6 @@ class LocationController extends Controller
             'map_id' => $validatedData['map_id'],
             'display_order' => $maxOrder + 1,
             'created_by' => auth()->id(),
-            'pic_id' => $validatedData['pic_id'] ?? null,
-            'leader_id' => $validatedData['leader_id'] ?? null,
         ]);
 
         return redirect()->route('she.locations.index')->with('success', 'Lokasi berhasil ditambahkan!');
@@ -114,9 +108,8 @@ class LocationController extends Controller
     public function edit(Location $location)
     {
         $maps = Map::where('type', 'Gedung')->get();
-        $users = \App\Models\User::orderBy('name')->get();
 
-        return view('she.locations.edit', compact('location', 'maps', 'users'));
+        return view('she.locations.edit', compact('location', 'maps'));
     }
 
     /**
@@ -129,8 +122,6 @@ class LocationController extends Controller
             'location_id_string' => 'required|string|max:255|unique:locations,location_id_string,'.$location->id,
             'type' => 'required|string|max:255|in:Area', // Type must be Area
             'map_id' => 'required|exists:maps,id', // Map ID is now required
-            'pic_id' => 'nullable|exists:users,id',
-            'leader_id' => 'nullable|exists:users,id',
         ]);
 
         $location->update([
@@ -138,8 +129,6 @@ class LocationController extends Controller
             'location_id_string' => $validatedData['location_id_string'],
             'type' => $validatedData['type'],
             'map_id' => $validatedData['map_id'],
-            'pic_id' => $validatedData['pic_id'] ?? null,
-            'leader_id' => $validatedData['leader_id'] ?? null,
         ]);
 
         return redirect()->route('she.locations.index')->with('success', 'Lokasi berhasil diperbarui!');

@@ -188,7 +188,7 @@
             <!-- Modern Footer Links -->
             <div
                 class="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-4 text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-gray-600">
-                <p>&copy; 2024 SIDUBA - Sistem Duga Bahaya</p>
+                <p>&copy; 2025 SIDUBA - Sistem Duga Bahaya</p>
             </div>
         </div>
     </div>

@@ -60,7 +60,7 @@
                             <p class="font-bold">Perhatian</p>
                             @if ($daysRemaining > 0)
                                 <p>Target penyelesaian untuk laporan ini akan jatuh tempo dalam <strong>{{ $daysRemaining }}
-                                        hari</strong> lagi (pada tanggal {{ $dueDate->format('d M Y') }}).</p>
+                                        hari</strong> lagi (pada tanggal {{ $dueDate->translatedFormat('d M Y') }}).</p>
                             @else
                                 <p>Target penyelesaian untuk laporan ini jatuh tempo <strong>hari ini</strong>.</p>
                             @endif
@@ -70,7 +70,7 @@
                             <p class="font-bold">Terlambat</p>
                             <p>Target penyelesaian untuk laporan ini telah melewati batas waktu sejauh
                                 <strong>{{ abs($daysRemaining) }} hari</strong> (seharusnya selesai pada
-                                {{ $dueDate->format('d M Y') }}).
+                                {{ $dueDate->translatedFormat('d M Y') }}).
                             </p>
                         </div>
                     @endif
@@ -111,19 +111,30 @@
                                     Informasi Laporan Awal
                                 </h3>
                                 <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-4 shadow-sm">
-                                    <div class="grid grid-cols-2 gap-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                                Pelapor</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ $hazard->pelapor->name ?? 'N/A' }} ({{ $hazard->NPK }})
-                                            </dd>
-                                        </div>
-                                        <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                                Tanggal Observasi</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                                Informasi Pelapor</dt>
+                                            <dd class="flex items-center gap-4">
+                                                <div
+                                                    class="h-12 w-12 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-base shadow-sm flex-shrink-0">
+                                                    {{ substr($hazard->nama ?? ($hazard->pelapor->name ?? 'U'), 0, 2) }}
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-gray-900 text-lg leading-tight">
+                                                        {{ $hazard->nama ?? ($hazard->pelapor->name ?? 'N/A') }}
+                                                        @if(($hazard->pelapor->role ?? '') === 'magang')
+                                                            <span
+                                                                class="ml-1 text-sm text-gray-400 font-medium italic">({{ $hazard->pelapor->name }})</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-sm text-gray-500 font-medium tracking-tight mt-1">
+                                                        {{ $hazard->pelapor->department ?? '-' }}
+                                                        <span class="mx-2 text-gray-300">•</span>
+                                                        NPK: {{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}
+                                                    </div>
+                                                </div>
                                             </dd>
                                         </div>
                                     </div>
@@ -224,39 +235,7 @@
                                             </select>
                                         </div>
 
-                                        {{-- PIC & Leader Assignment --}}
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <label for="pic_id"
-                                                    class="block text-xs font-black text-gray-700 uppercase tracking-wide">PIC
-                                                    (Eksekutor)</label>
-                                                <select id="pic_id" name="pic_id" class="tom-select-search">
-                                                    <option value="">Pilih PIC</option>
-                                                    @foreach($users as $user)
-                                                        <option value="{{ $user->id }}" @selected(old('pic_id', $hazard->pic_id) == $user->id)>{{ $user->name }}
-                                                            {{ $user->npk ? '(' . $user->npk . ')' : '' }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <p class="text-[10px] text-gray-400 mt-1">Kosongkan jika belum
-                                                    ditentukan.</p>
-                                            </div>
-                                            <div>
-                                                <label for="leader_id"
-                                                    class="block text-xs font-black text-gray-700 uppercase tracking-wide">Leader
-                                                    (Pengawas Area)</label>
-                                                <select id="leader_id" name="leader_id" class="tom-select-search">
-                                                    <option value="">Pilih Leader</option>
-                                                    @foreach($users as $user)
-                                                        <option value="{{ $user->id }}" @selected(old('leader_id', $hazard->leader_id) == $user->id)>{{ $user->name }}
-                                                            {{ $user->npk ? '(' . $user->npk . ')' : '' }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <p class="text-[10px] text-gray-400 mt-1">Kosongkan jika belum
-                                                    ditentukan.</p>
-                                            </div>
-                                        </div>
+
 
                                         {{-- Faktor Penyebab --}}
                                         <div>
@@ -313,13 +292,9 @@
                                         </div>
 
                                         {{-- BUTTON ACTION --}}
-                                        <div <div
+                                        <div
                                             class="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6 border-t border-gray-100">
-                                            <button type="submit" name="action" value="forward_to_pic"
-                                                formaction="{{ route('she.hazards.forwardToPic', $hazard) }}"
-                                                class="w-full inline-flex justify-center items-center px-5 py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-200/50 transition-all hover:bg-emerald-700 active:scale-95">
-                                                Teruskan ke PIC
-                                            </button>
+
                                             <button type="submit" name="action" value="dengan_tindak_lanjut"
                                                 class="w-full inline-flex justify-center items-center px-5 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-200/50 transition-all hover:bg-indigo-700 active:scale-95">
                                                 Validasi dengan Rencana
@@ -379,7 +354,7 @@
                 disp.style.color = getTextColor(bgColor);
             }
 
-        sev.addEventListener('change', calc);
+            sev.addEventListener('change', calc);
             prob.addEventListener('change', calc);
             calc(); // Initial calculation on page load
         });
@@ -392,6 +367,7 @@
             .ts-wrapper {
                 border-radius: 0.75rem !important;
             }
+
             .ts-control {
                 background: linear-gradient(to bottom, #ffffff, #f9fafb) !important;
                 border: 2px solid #e5e7eb !important;
@@ -400,35 +376,42 @@
                 font-size: 0.875rem !important;
                 font-weight: 500 !important;
                 min-height: 44px !important;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
                 transition: all 0.2s ease !important;
             }
+
             .ts-control:hover {
                 border-color: #10b981 !important;
             }
+
             .ts-wrapper.focus .ts-control {
                 border-color: #10b981 !important;
                 box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
                 background: #ffffff !important;
             }
+
             .ts-control input {
                 font-size: 0.875rem !important;
             }
+
             .ts-control .item {
                 background: transparent !important;
                 color: #111827 !important;
             }
+
             .ts-dropdown {
                 border-radius: 0.75rem !important;
                 border: 2px solid #e5e7eb !important;
-                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15) !important;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
                 margin-top: 4px !important;
                 overflow: hidden !important;
             }
+
             .ts-dropdown .ts-dropdown-content {
                 max-height: 250px !important;
                 padding: 0.5rem !important;
             }
+
             .ts-dropdown .option {
                 padding: 0.625rem 1rem !important;
                 border-radius: 0.5rem !important;
@@ -436,19 +419,23 @@
                 font-size: 0.875rem !important;
                 transition: all 0.15s ease !important;
             }
+
             .ts-dropdown .option:hover {
                 background-color: #f0fdf4 !important;
             }
+
             .ts-dropdown .option.active {
                 background: linear-gradient(135deg, #10b981, #059669) !important;
                 color: #ffffff !important;
                 font-weight: 600 !important;
             }
+
             .ts-dropdown .no-results {
                 padding: 1rem !important;
                 text-align: center !important;
                 color: #6b7280 !important;
             }
+
             /* Search input styling */
             .ts-control input::placeholder {
                 color: #9ca3af !important;
@@ -459,15 +446,15 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll('.tom-select-search').forEach(function(el) {
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.tom-select-search').forEach(function (el) {
                     new TomSelect(el, {
                         allowEmptyOption: true,
                         placeholder: el.options[0]?.text || 'Pilih...',
                         searchField: ['text'],
                         sortField: { field: 'text', direction: 'asc' },
                         render: {
-                            no_results: function(data, escape) {
+                            no_results: function (data, escape) {
                                 return '<div class="no-results">Tidak ditemukan: <strong>' + escape(data.input) + '</strong></div>';
                             }
                         }

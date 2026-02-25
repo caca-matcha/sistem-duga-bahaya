@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 | Mereka menangani semua fungsionalitas yang dapat diakses oleh karyawan.
 |
 */
-Route::middleware(['auth', 'role:karyawan']) // Middleware diubah menjadi hanya 'karyawan'
+Route::middleware(['auth', 'role:karyawan,magang']) // Middleware diubah menjadi 'karyawan' dan 'magang'
     ->prefix('karyawan')
     ->name('karyawan.')
     ->group(function () {

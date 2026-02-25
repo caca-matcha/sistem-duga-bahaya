@@ -1,6 +1,6 @@
-# ParseError - Internal Server Error
+# Symfony\Component\ErrorHandler\Error\FatalError - Internal Server Error
 
-syntax error, unexpected token "endif", expecting end of file
+Maximum execution time of 60 seconds exceeded
 
 PHP 8.2.4
 Laravel 12.49.0
@@ -8,147 +8,47 @@ Laravel 12.49.0
 
 ## Stack Trace
 
-0 - resources\views\karyawan\hazards\show.blade.php:805
-1 - vendor\laravel\framework\src\Illuminate\Filesystem\Filesystem.php:124
-2 - vendor\laravel\framework\src\Illuminate\View\Engines\PhpEngine.php:57
-3 - vendor\laravel\framework\src\Illuminate\View\Engines\CompilerEngine.php:76
-4 - vendor\laravel\framework\src\Illuminate\View\View.php:208
-5 - vendor\laravel\framework\src\Illuminate\View\View.php:191
-6 - vendor\laravel\framework\src\Illuminate\View\View.php:160
-7 - vendor\laravel\framework\src\Illuminate\Http\Response.php:78
-8 - vendor\laravel\framework\src\Illuminate\Http\Response.php:34
-9 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:939
-10 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:906
-11 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:821
-12 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
-13 - app\Http\Middleware\RoleMiddleware.php:33
-14 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-15 - vendor\laravel\boost\src\Middleware\InjectBoost.php:22
-16 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-17 - vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php:50
-18 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-19 - vendor\laravel\framework\src\Illuminate\Auth\Middleware\Authenticate.php:63
-20 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-21 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken.php:87
-22 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-23 - vendor\laravel\framework\src\Illuminate\View\Middleware\ShareErrorsFromSession.php:48
-24 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-25 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:120
-26 - vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:63
-27 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-28 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse.php:36
-29 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-30 - vendor\laravel\framework\src\Illuminate\Cookie\Middleware\EncryptCookies.php:74
-31 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-32 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
-33 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:821
-34 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:800
-35 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:764
-36 - vendor\laravel\framework\src\Illuminate\Routing\Router.php:753
-37 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:200
-38 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
-39 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
-40 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php:31
-41 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-42 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
-43 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php:51
-44 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-45 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php:27
-46 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-47 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php:109
-48 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-49 - vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php:61
-50 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-51 - vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php:58
-52 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-53 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks.php:22
-54 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-55 - vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePathEncoding.php:26
-56 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
-57 - vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
-58 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:175
-59 - vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:144
-60 - vendor\laravel\framework\src\Illuminate\Foundation\Application.php:1220
-61 - public\index.php:20
-62 - vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php:23
+0 - vendor\composer\ClassLoader.php:429
 
 ## Request
 
-GET /karyawan/hazards/151
+POST /login
 
 ## Headers
 
 * **host**: 127.0.0.1:8000
 * **connection**: keep-alive
-* **sec-ch-ua**: "Not(A:Brand";v="8", "Chromium";v="144", "Microsoft Edge";v="144"
+* **content-length**: 78
+* **cache-control**: max-age=0
+* **sec-ch-ua**: "Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"
 * **sec-ch-ua-mobile**: ?0
 * **sec-ch-ua-platform**: "Windows"
+* **origin**: http://127.0.0.1:8000
+* **content-type**: application/x-www-form-urlencoded
 * **upgrade-insecure-requests**: 1
-* **user-agent**: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+* **user-agent**: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36
 * **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
 * **sec-fetch-site**: same-origin
 * **sec-fetch-mode**: navigate
 * **sec-fetch-user**: ?1
 * **sec-fetch-dest**: document
-* **referer**: http://127.0.0.1:8000/karyawan
+* **referer**: http://127.0.0.1:8000/login
 * **accept-encoding**: gzip, deflate, br, zstd
-* **accept-language**: en-US,en;q=0.9
-* **cookie**: XSRF-TOKEN=eyJpdiI6ImdPcGJScnBPYktwclFueElTSHR3WVE9PSIsInZhbHVlIjoiWWxna1dzUmp6T1JxWGtkcGNkNzUyRk5EWEZLekFNdnF4NUVqU3JHSi9zdC9hMEVtek9hZUZtRi9WNHF3UkF1S0VCbVVtTC9HZzRnMnIvUzQwdjRhZ2M1UGpmQmpsTUIwWjJZYk1XTGc5N3RIS1E3NDJubFhUZFJ1STdDQjZZTDIiLCJtYWMiOiI2MTFkODU0OGJiOTM5NTdiMjE3OGQ4YzAzYWQ5YzVjYjNmOWYwM2UwZDE0NDU4NTUyOWNmNmMyNDBlYjgxZGEyIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Im5QWXFuRk1wcGx6SkRpSnE4NjJ4aWc9PSIsInZhbHVlIjoiN3JRdUVXampEc1ZtamVpZzdYMGZjWmdNcWVJK2xWMEJjR240OFBQZDRmbStBTUtJMXd4QThMeGlSK1VBbmZmN3RiampGek5zc0VXcWU4TmpoK05Zd3piWnhMbEJvaWl3YmpKZStIQ1lVNUZMTFRhcUVGNHZ2Y1N0V2szMzBqWHUiLCJtYWMiOiIyNGMwZThlYmE0NmU1ZjRmYTE2Yzk5MGExYzcxYTlhNjljMTJjZjY1NzJlM2Y4YTFhY2ZmMzAwYmZiMWY1NDM1IiwidGFnIjoiIn0%3D
+* **accept-language**: en-US,en;q=0.9,id;q=0.8
+* **cookie**: XSRF-TOKEN=eyJpdiI6IkJKUFl6WUp1a1MwQWY2WmZ4ejFPMUE9PSIsInZhbHVlIjoiZTQyTyt5ZkloNUZzTU1YWTJKb2U2KytKNjZiTkU2Q2dGZ3hmL3YydVRqTmV3T0tzT2FxM1ZUM09Cc25ZZ3I3VU9WQ3NUeDRla0V6RlJxZGZWTFlqK2d3MGRrNnVkUTFjSTdVNk1IcXJoYW1iSFY4bjM1R3pCb05FTWVKaEdJN0UiLCJtYWMiOiI4ZTMyNTVhODkxYTE5NDZkMTUyYTcwOTM4MGRiMWY0Yzc4OTJiMjYxMzU3ZWEwOTRjNzEwMmYzOTA5OTRkYTc4IiwidGFnIjoiIn0%3D; siduba-session=eyJpdiI6IjJpVmNnY2dNMjF2amZTRmkvSktpRkE9PSIsInZhbHVlIjoicVFUT2hQRitmUi9XUVd3SnQ5VjI3TDdKMmZXQ2s5N0RsY2VUUTZRT21UZkw0aGd5cGFpTit5Tjh0Uk9MRnhpaUhUOGZlZGxmaHVvaVpwVUZQb2lRKzJtd3kvdXdpQ042Yi81K0FkU1dvN3MvWDlKWVlEZ3Y4Nk1uVDQxMkNQTGoiLCJtYWMiOiI1NGFkOWU5ZGYyNDU4MDY5MmJmNDUzZjAwNWIzMmJkZGU4MjY3MTE5NmUyZGIwYmFmZDdmY2Y5OGM1NjViNGQ5IiwidGFnIjoiIn0%3D
 
 ## Route Context
 
-controller: App\Http\Controllers\Karyawan\HazardController@show
-route name: karyawan.hazards.show
-middleware: web, auth, role:karyawan
+controller: App\Http\Controllers\Auth\AuthenticatedSessionController@store
+middleware: web, guest
 
 ## Route Parameters
 
-{
-    "hazard": {
-        "id": 151,
-        "user_id": 2295,
-        "map_id": 20,
-        "cell_id": null,
-        "nama": "Bagas Ardhi Pratama",
-        "NPK": "11195854",
-        "dept": "HRMS",
-        "tgl_observasi": "2026-01-25T17:00:00.000000Z",
-        "area_gedung": "Gedung C",
-        "area_id": "ADM_GC",
-        "location_id": 72,
-        "lokasi_detail_manual": "a",
-        "area_name": "ADM",
-        "area_type": "Area",
-        "deskripsi_bahaya": "a",
-        "foto_bukti": null,
-        "kategori_stop6": "A",
-        "faktor_penyebab": "Unsafe Action",
-        "upaya_penanggulangan": null,
-        "tingkat_keparahan": 3,
-        "kemungkinan_terjadi": 1,
-        "risk_score": 3,
-        "kategori_resiko": "Low",
-        "ide_penanggulangan": "a",
-        "final_tingkat_keparahan": 3,
-        "final_kemungkinan_terjadi": 1,
-        "tindakan_perbaikan": "Validasi tanpa tindak lanjut.",
-        "foto_bukti_penyelesaian": null,
-        "target_penyelesaian": "2026-01-25T17:00:00.000000Z",
-        "final_kategori_stop6": "A",
-        "status": "selesai",
-        "alasan_penolakan": null,
-        "report_selesai": "2026-01-26 16:45:35",
-        "ditangani_oleh": 2961,
-        "ditangani_pada": "2026-01-26 16:45:35",
-        "created_at": "2026-01-26T09:44:56.000000Z",
-        "updated_at": "2026-01-26T09:45:35.000000Z"
-    }
-}
+No route parameter data available.
 
 ## Database Queries
 
-* mysql - select * from `sessions` where `id` = 'Es0Hpd7fI20rTTAkJH60oQ0HrCMvUFLzXhsuCmpE' limit 1 (467.37 ms)
-* mysql - select * from `users` where `id` = 2295 limit 1 (73.29 ms)
-* mysql - select * from `hazards` where `id` = '151' limit 1 (52.57 ms)
-* mysql - select * from `users` where `users`.`id` in (2295) (177.05 ms)
-* mysql - select * from `users` where `users`.`id` in (2961) (110.51 ms)
+* mysql - select * from `sessions` where `id` = '9T8tAs0FVIpNbT6HsIpKntQUzQwC9QwFNOica88b' limit 1 (330.29 ms)
+* mysql - select * from `cache` where `key` in ('siduba-cache-11230156|127.0.0.1') (42.22 ms)
+* mysql - select * from `users` where `npk` = '11230156' limit 1 (36.06 ms)
+* mysql - delete from `sessions` where `id` = '9T8tAs0FVIpNbT6HsIpKntQUzQwC9QwFNOica88b' (58.15 ms)

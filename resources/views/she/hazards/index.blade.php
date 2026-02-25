@@ -1,6 +1,16 @@
 <x-app-layout>
     @section('page-title', '')
 
+    <style>
+        mark.highlight {
+            background-color: #fef08a;
+            color: #854d0e;
+            padding: 0 1px;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+    </style>
+
     <!-- Header dengan Glassmorphism Effect -->
     <!-- Header Standardized -->
     <x-slot name="header">
@@ -357,7 +367,13 @@
                                                 ID & Tanggal</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                NPK</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Pelapor</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Deskripsi Bahaya</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status</th>
@@ -409,6 +425,9 @@
                                                 ID & Tanggal</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                NPK</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Pelapor</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -422,63 +441,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-baru" class="bg-white divide-y divide-gray-200">
-                                        @forelse ($hazardsMenungguValidasi as $hazard)
-                                            <tr class="hover:bg-gray-50 transition-colors"
-                                                :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-                                                <template x-if="selectionMode">
-                                                    <td class="p-4">
-                                                        <input type="checkbox" x-model="selectedHazards"
-                                                            value="{{ $hazard->id }}"
-                                                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                                    </td>
-                                                </template>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-bold text-indigo-600">#{{ $hazard->id }}
-                                                    </div>
-                                                    <div class="text-xs text-gray-500">
-                                                        {{ $hazard->tgl_observasi->format('d M Y') }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $hazard->nama }}
-                                                    </div>
-                                                    <div class="text-xs text-gray-500">{{ $hazard->dept }}</div>
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <div class="text-sm text-gray-900 line-clamp-2 max-w-xs">
-                                                        {{ $hazard->deskripsi_bahaya }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                                                                                                                        {{ $hazard->risk_score >= 15 ? 'bg-red-100 text-red-800' : ($hazard->risk_score >= 8 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
-                                                        {{ $hazard->risk_score }}
-                                                    </span>
-                                                    <div class="text-xs text-gray-500 mt-1">
-                                                        {{ $hazard->kategori_resiko }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <a href="{{ route('she.hazards.show', $hazard) }}"
-                                                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
-                                                        Review
-                                                        <svg class="ml-1.5 -mr-0.5 h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                            stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M9 5l7 7-7 7" />
-                                                        </svg>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 italic"
-                                                    x-bind:colspan="selectionMode ? 7 : 6">
-                                                    Tidak ada laporan baru yang menunggu validasi.
-                                                </td>
-                                            </tr>
-                                        @endforelse
+                                        @include('she.hazards._table_menunggu_validasi_rows', ['hazardsMenungguValidasi' => $hazardsMenungguValidasi])
                                     </tbody>
                                 </table>
                             </div>
@@ -516,10 +479,16 @@
                                                 ID & Tanggal</th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                NPK</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Pelapor</th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 PIC / Penanggung Jawab</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Deskripsi Bahaya</th>
                                             <th
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status</th>
@@ -532,81 +501,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-diproses" class="bg-white divide-y divide-gray-200">
-                                        @forelse ($hazardsDiproses as $hazard)
-                                            <tr class="hover:bg-gray-50"
-                                                :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-                                                <template x-if="selectionMode">
-                                                    <td class="p-4">
-                                                        <input type="checkbox" x-model="selectedHazards"
-                                                            value="{{ $hazard->id }}"
-                                                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                                    </td>
-                                                </template>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-bold text-gray-500">#{{ $hazard->id }}
-                                                    </div>
-                                                    <div class="text-xs text-gray-500">
-                                                        {{ $hazard->tgl_observasi->format('d M Y') }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $hazard->nama }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div
-                                                            class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
-                                                            {{ substr($hazard->ditanganiOleh?->name ?? '?', 0, 2) }}
-                                                        </div>
-                                                        <div class="ml-3">
-                                                            <div class="text-sm font-medium text-gray-900">
-                                                                {{ $hazard->ditanganiOleh?->name ?? 'Belum ditentukan' }}
-                                                            </div>
-                                                            <div class="text-xs text-gray-500">SHE Team</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                    @if($hazard->status === 'menunggu verifikasi')
-                                                        <span
-                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                            <svg class="mr-1.5 h-2 w-2 text-purple-400" fill="currentColor"
-                                                                viewBox="0 0 8 8">
-                                                                <circle cx="4" cy="4" r="3" />
-                                                            </svg>
-                                                            Menunggu Verifikasi
-                                                        </span>
-                                                    @else
-                                                        <span
-                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                            <svg class="mr-1.5 h-2 w-2 text-blue-400" fill="currentColor"
-                                                                viewBox="0 0 8 8">
-                                                                <circle cx="4" cy="4" r="3" />
-                                                            </svg>
-                                                            Diproses
-                                                        </span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                    <div class="text-sm text-gray-900 font-bold">
-                                                        {{ $hazard->risk_score }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <a href="{{ route('she.hazards.show', $hazard) }}"
-                                                        class="text-indigo-600 hover:text-indigo-900 font-semibold transition-colors">Lihat
-                                                        Detail</a>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td class="px-6 py-10 text-center text-sm text-gray-500 italic"
-                                                    x-bind:colspan="selectionMode ? 7 : 6">
-                                                    Tidak ada laporan yang sedang diproses.
-                                                </td>
-                                            </tr>
-                                        @endforelse
+                                        @include('she.hazards._table_diproses_rows', ['hazardsDiproses' => $hazardsDiproses])
                                     </tbody>
                                 </table>
                             </div>
@@ -644,7 +539,16 @@
                                                 ID & Tanggal</th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                NPK</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Pelapor</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Deskripsi Bahaya</th>
+                                            <th
+                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Risiko (B/A)</th>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status Akhir</th>
@@ -657,94 +561,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-selesai" class="bg-white divide-y divide-gray-200">
-                                        @forelse ($hazardsSelesai as $hazard)
-                                            <tr class="hover:bg-gray-50"
-                                                :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
-                                                <template x-if="selectionMode">
-                                                    <td class="p-4">
-                                                        <input type="checkbox" x-model="selectedHazards"
-                                                            value="{{ $hazard->id }}"
-                                                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                                    </td>
-                                                </template>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-bold text-gray-500">#{{ $hazard->id }}
-                                                    </div>
-                                                    <div class="text-xs text-gray-500">
-                                                        {{ $hazard->tgl_observasi->format('d M Y') }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $hazard->nama }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    @if($hazard->status == 'selesai')
-                                                        <span
-                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                                                            <svg class="mr-1.5 h-3 w-3 text-green-500" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
-                                                            Selesai
-                                                        </span>
-                                                    @else
-                                                        <span
-                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-                                                            <svg class="mr-1.5 h-3 w-3 text-red-500" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                            </svg>
-                                                            Ditolak
-                                                        </span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $hazard->ditangani_pada ? \Carbon\Carbon::parse($hazard->ditangani_pada)->format('d M Y') : '-' }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <div class="flex items-center justify-end space-x-2">
-                                                        <a href="{{ route('she.hazards.show', $hazard) }}"
-                                                            class="text-gray-400 hover:text-indigo-600 transition-colors"
-                                                            title="Lihat Detail">
-                                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                                                stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                            </svg>
-                                                        </a>
-                                                        <form action="{{ route('she.hazards.destroy', $hazard) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini secara permanen?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit"
-                                                                class="text-gray-400 hover:text-red-600 transition-colors"
-                                                                title="Hapus Laporan">
-                                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                                                    stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                </svg>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td class="px-6 py-10 text-center text-sm text-gray-500 italic"
-                                                    x-bind:colspan="selectionMode ? 6 : 5">
-                                                    Belum ada riwayat laporan selesai.
-                                                </td>
-                                            </tr>
-                                        @endforelse
+                                        @include('she.hazards._table_selesai_rows', ['hazardsSelesai' => $hazardsSelesai])
                                     </tbody>
                                 </table>
                             </div>

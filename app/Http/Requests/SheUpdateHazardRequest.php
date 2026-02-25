@@ -24,11 +24,12 @@ class SheUpdateHazardRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Status yang diperbolehkan dalam update (Status 'baru' hanya ada di awal, tidak dikirim di request update)
+        // Status yang diperbolehkan dalam update
         $allowedStatus = ['diproses', 'ditolak', 'selesai'];
 
-        // Tentukan status saat ini untuk validasi bersyarat
-        $status = $this->input('status');
+        // Tentukan apakah ini aksi "revisi" dari status 'menunggu verifikasi'
+        // (yaitu SHE mengembalikan ke PIC setelah PIC sudah kirim bukti)
+        $isFromVerification = $this->boolean('_from_verification');
 
         return [
             // Status wajib diubah oleh SHE.
@@ -38,16 +39,17 @@ class SheUpdateHazardRequest extends FormRequest
             'alasan_penolakan' => 'required_if:status,ditolak|nullable|string|max:1000',
 
             // --- VALIDASI PENERIMAAN/PROSES (Status = diproses) ---
+            // Hanya wajib jika bukan aksi revisi dari menunggu verifikasi
 
-            // Wajib jika diproses (Verifikasi Final Risk Matrix)
-            'final_tingkat_keparahan' => 'required_if:status,diproses|nullable|integer|in:1,3,5',
-            'final_kemungkinan_terjadi' => 'required_if:status,diproses|nullable|integer|in:1,2,3,4,5',
-            'final_kategori_stop6' => 'required_if:status,diproses|nullable|string|max:50',
+            // Wajib jika diproses DAN bukan dari verifikasi
+            'final_tingkat_keparahan' => ($isFromVerification ? 'nullable' : 'required_if:status,diproses').'|nullable|integer|in:1,3,5',
+            'final_kemungkinan_terjadi' => ($isFromVerification ? 'nullable' : 'required_if:status,diproses').'|nullable|integer|in:1,2,3,4,5',
+            'final_kategori_stop6' => ($isFromVerification ? 'nullable' : 'required_if:status,diproses').'|nullable|string|max:50',
 
-            // Data Penanganan Lanjutan (Wajib jika status = diproses)
-            'tindakan_perbaikan' => 'required_if:status,diproses|nullable|string',
-            'target_penyelesaian' => 'required_if:status,diproses|nullable|date|after_or_equal:today',
-            'faktor_penyebab' => 'required_if:status,diproses|nullable|string|max:100',
+            'rencana_perbaikan' => ($isFromVerification ? 'nullable' : 'required_if:status,diproses').'|nullable|string',
+            'feedback_verifikasi' => 'nullable|string|max:1000',
+            'target_penyelesaian' => 'nullable|date|after_or_equal:today',
+            'faktor_penyebab' => ($isFromVerification ? 'nullable' : 'required_if:status,diproses').'|nullable|string|max:100',
 
             // Upaya Penanggulangan (Array dari Checkbox yang dipilih)
             'upaya_penanggulangan' => 'nullable|array',
@@ -56,7 +58,6 @@ class SheUpdateHazardRequest extends FormRequest
             // --- FIELD UMUM (TIDAK BERGANTUNG STATUS) ---
             'kategori_stop6' => 'nullable|string|max:50',
             'pic_id' => 'nullable|exists:users,id',
-            'leader_id' => 'nullable|exists:users,id',
 
             // --- FIELD SELESAI (Status = selesai) ---
             'foto_bukti_penyelesaian' => [
@@ -81,12 +82,6 @@ class SheUpdateHazardRequest extends FormRequest
                 'mimes:jpg,jpeg,png,pdf,doc,docx',
                 'max:10240',
             ],
-
-            // Kolom di bawah ini dihapus karena nilainya dihitung di Controller atau diisi otomatis oleh Auth::id()
-            // risk_score, kategori_resiko (dihitung)
-            // ditangani_oleh (otomatis di Controller)
-            // pic_penanggung_jawab (dihapus/diganti ditangani_oleh)
-            // tingkat_keparahan / kemungkinan_terjadi (data awal karyawan, tidak boleh diedit)
         ];
     }
 
@@ -114,7 +109,9 @@ class SheUpdateHazardRequest extends FormRequest
             'faktor_penyebab' => 'Faktor Penyebab Kecelakaan',
             'upaya_penanggulangan' => 'Upaya Penanggulangan',
             'upaya_penanggulangan.*' => 'Detail Upaya Penanggulangan',
-            'tindakan_perbaikan' => 'Tindakan Perbaikan',
+            'tindakan_perbaikan' => 'Tindakan Perbaikan (PIC)',
+            'rencana_perbaikan' => 'Instruksi Rencana Perbaikan (SHE)',
+            'feedback_verifikasi' => 'Feedback Verifikasi (SHE)',
             'target_penyelesaian' => 'Target Penyelesaian',
             'alasan_penolakan' => 'Alasan Penolakan',
             'aktivitas_kerja' => 'Aktivitas',

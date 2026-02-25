@@ -24,7 +24,8 @@
                         Verifikasi & Tandai Selesai <span class="text-gray-400 font-normal">| Laporan
                             #{{ $hazard->id }}</span>
                     </h2>
-                    <p class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[11px] text-gray-400">
+                    <p
+                        class="text-gray-500 font-medium mt-1 tracking-tight uppercase tracking-wider text-[11px] text-gray-400">
                         Arsip laporan bahaya yang telah divalidasi dan diselesaikan.</p>
                 </div>
             </div>
@@ -59,65 +60,86 @@
                                     Informasi Laporan Awal
                                 </h3>
                                 <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-4 shadow-sm">
-                                    <div class="grid grid-cols-2 gap-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {{-- Pelapor --}}
                                         <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                                Pelapor</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ $hazard->pelapor->name ?? 'N/A' }} ({{ $hazard->NPK }})
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                                Informasi Pelapor</dt>
+                                            <dd class="flex items-center gap-4">
+                                                <div
+                                                    class="h-12 w-12 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-base shadow-sm flex-shrink-0">
+                                                    {{ substr($hazard->nama ?? ($hazard->pelapor->name ?? 'U'), 0, 2) }}
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-gray-900 text-lg leading-tight">
+                                                        {{ $hazard->nama ?? ($hazard->pelapor->name ?? 'N/A') }}
+                                                        @if(($hazard->pelapor->role ?? '') === 'magang')
+                                                            <span class="ml-1 text-sm text-gray-400 font-medium italic whitespace-nowrap">(Magang 1)</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-sm text-gray-500 font-medium tracking-tight mt-1">
+                                                        {{ $hazard->dept ?? ($hazard->pelapor->department ?? '-') }}
+                                                        <span class="mx-2 text-gray-300">•</span>
+                                                        NPK: {{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}
+                                                    </div>
+                                                </div>
                                             </dd>
                                         </div>
-                                        <div>
-                                            <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                                Departemen</dt>
-                                            <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                                {{ $hazard->dept }}
+
+                                        {{-- Tanggal Observasi --}}
+                                        <div class="md:text-right pt-2 md:pt-8">
+                                            <dt
+                                                class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                                Tanggal Observasi</dt>
+                                            <dd class="text-sm font-bold text-gray-800">
+                                                {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->translatedFormat('l, d F Y') }}
                                             </dd>
                                         </div>
                                     </div>
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                            Tanggal Observasi</dt>
-                                        <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                            {{ \Carbon\Carbon::parse($hazard->tgl_observasi)->format('d M Y') }}
-                                        </dd>
-                                    </div>
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+
+                                    {{-- Detail Lokasi --}}
+                                    <div class="pt-3 border-t border-gray-100">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                                             Detail Lokasi</dt>
-                                        <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                            {{ collect([$hazard->area_gedung, $hazard->area_type, $hazard->area_name])->filter()->join(' -> ') }}
-                                            <span class="block text-xs text-gray-500 mt-1">ID Lokasi:
+                                        <dd class="text-sm font-bold text-gray-800">
+                                            {{ collect([$hazard->area_gedung, $hazard->area_name])->filter()->join(' -> ') }}
+                                            <span class="text-[10px] text-gray-400 font-medium ml-2 uppercase">ID:
                                                 {{ $hazard->area_id }}</span>
                                         </dd>
                                     </div>
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+                                    <div class="pt-3 border-t border-gray-100">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                                             Deskripsi Bahaya</dt>
-                                        <dd class="text-base text-gray-700 leading-relaxed italic">
-                                            "{{ $hazard->deskripsi_bahaya }}"</dd>
+                                        <dd class="text-sm text-gray-700 leading-relaxed font-medium">
+                                            {{ $hazard->deskripsi_bahaya }}
+                                        </dd>
                                     </div>
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+                                    <div class="pt-3 border-t border-gray-100">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                                             Kategori STOP6</dt>
-                                        <dd class="text-base font-semibold text-gray-800 mt-0.5">
+                                        <dd class="text-sm font-bold text-gray-800">
                                             {{ $hazard->final_kategori_stop6 }}
                                         </dd>
                                     </div>
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
+                                    <div class="pt-3 border-t border-gray-100">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                                             Cara Penanggulangan (Ide Awal)</dt>
-                                        <dd class="text-base text-gray-700 leading-relaxed italic">
-                                            "{{ $hazard->ide_penanggulangan ?? 'N/A' }}"</dd>
-                                    </div>
-                                    <div class="pt-3 border-t border-gray-200">
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">
-                                            Tindakan Perbaikan (Rencana SHE)</dt>
-                                        <dd class="text-base font-semibold text-gray-800 mt-0.5">
-                                            {{ $hazard->tindakan_perbaikan ?? 'N/A' }}
+                                        <dd class="text-sm text-gray-700 leading-relaxed font-medium">
+                                            {{ $hazard->ide_penanggulangan ?? 'N/A' }}
                                         </dd>
                                     </div>
-                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-2">
+
+                                    <div class="pt-3 border-t border-gray-100">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                            Instruksi Rencana Perbaikan (SHE)</dt>
+                                        <dd class="text-sm font-bold text-blue-800">
+                                            {{ $hazard->rencana_perbaikan ?? 'N/A' }}
+                                        </dd>
+                                    </div>
+
+                                    <div class="pt-3 border-t border-gray-100">
+                                        <dt class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                                             Upaya Terpilih (Hirarki Pengendalian)</dt>
                                         <dd class="flex flex-wrap gap-2 mt-1">
                                             @if($hazard->upaya_penanggulangan && count($hazard->upaya_penanggulangan) > 0)
@@ -144,7 +166,7 @@
                         {{-- SISI KANAN: FORM VERIFIKASI SELESAI --}}
                         <div class="space-y-8">
                             <form method="POST" action="{{ route('she.hazards.updateStatus', $hazard) }}"
-                                enctype="multipart/form-data" class="space-y-6">
+                                class="space-y-6">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="status" value="selesai">
@@ -180,7 +202,9 @@
                                                 <select id="final_kemungkinan_terjadi" name="final_kemungkinan_terjadi"
                                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 text-sm">
                                                     @foreach ([1 => '1 - Sangat Jarang', 2 => '2 - Jarang', 3 => '3 - Kadang-Kadang', 4 => '4 - Sering', 5 => '5 - Sangat Sering'] as $value => $label)
-                                                        <option value="{{ $value }}" {{ (old('final_kemungkinan_terjadi', $hazard->final_kemungkinan_terjadi) == $value) ? 'selected' : '' }}>{{ $label }}</option>
+                                                        <option value="{{ $value }}" {{ (old('final_kemungkinan_terjadi', $hazard->final_kemungkinan_terjadi) == $value) ? 'selected' : '' }}>
+                                                            {{ $label }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -197,81 +221,122 @@
                                             </span>
                                         </div>
 
-                                        {{-- Foto Bukti --}}
-                                        <div class="pt-2">
+                                        {{-- Deskripsi Tindakan PIC --}}
+                                        <div class="pt-4 border-t border-gray-100">
+                                            <label
+                                                class="block text-xs font-black text-gray-700 uppercase tracking-wide mb-2">Tindakan
+                                                Yang Telah Dilakukan (PIC)</label>
+                                            <div
+                                                class="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl italic text-sm text-gray-700 font-medium">
+                                                "{{ $hazard->tindakan_perbaikan ?? 'Tidak ada deskripsi tindakan.' }}"
+                                            </div>
+                                        </div>
+
+                                        {{-- Bukti Penyelesaian dari PIC --}}
+                                        <div class="pt-4 border-t border-gray-100">
                                             <label
                                                 class="block text-xs font-black text-gray-700 uppercase tracking-wide mb-3">Bukti
-                                                Penyelesaian</label>
+                                                Penyelesaian (Dari Orang yang ditunjuk oleh SHE)</label>
 
                                             @if ($hazard->foto_bukti_penyelesaian)
                                                 @php
-                                                    $extension = pathinfo($hazard->foto_bukti_penyelesaian, PATHINFO_EXTENSION);
+                                                    $path = $hazard->foto_bukti_penyelesaian;
+                                                    $extension = pathinfo($path, PATHINFO_EXTENSION);
                                                     $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png']);
+                                                    $targetDate = $hazard->target_penyelesaian ? \Carbon\Carbon::parse($hazard->target_penyelesaian) : null;
+                                                    $actualDate = $hazard->report_selesai ? \Carbon\Carbon::parse($hazard->report_selesai) : now();
+                                                    $isOverdue = $targetDate && $actualDate->gt($targetDate);
                                                 @endphp
-                                                <div
-                                                    class="mb-4 p-2 bg-gray-50 border border-gray-200 rounded-xl inline-block">
-                                                    <a href="{{ route('files.public', ['path' => $hazard->foto_bukti_penyelesaian]) }}"
-                                                        target="_blank" class="block group relative">
-                                                        @if($isImage)
-                                                            <img src="{{ route('files.public', ['path' => $hazard->foto_bukti_penyelesaian]) }}"
-                                                                alt="Foto Bukti"
-                                                                class="rounded-lg object-cover w-40 h-40 transition group-hover:opacity-90">
-                                                        @else
-                                                            <div
-                                                                class="w-40 h-40 flex flex-col items-center justify-center bg-white rounded-lg border border-dashed border-gray-300 transition group-hover:bg-gray-50">
-                                                                <svg class="w-12 h-12 text-gray-400" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                                                    </path>
-                                                                </svg>
-                                                                <span
-                                                                    class="mt-2 text-[10px] font-bold text-gray-500 uppercase">{{ $extension }}
-                                                                    File</span>
+
+                                                <div class="flex flex-col gap-4">
+                                                    {{-- Display Evidence --}}
+                                                    <div
+                                                        class="p-3 bg-gray-50 border border-gray-200 rounded-xl inline-block w-full">
+                                                        <a href="{{ route('files.public', ['path' => $path]) }}"
+                                                            target="_blank" class="group flex items-center gap-4">
+                                                            @if($isImage)
+                                                                <img src="{{ route('files.public', ['path' => $path]) }}"
+                                                                    class="w-20 h-20 object-cover rounded-lg border border-gray-300">
+                                                            @else
+                                                                <div
+                                                                    class="w-20 h-20 flex items-center justify-center bg-white rounded-lg border border-gray-300">
+                                                                    <span
+                                                                        class="text-xs font-bold text-gray-500 uppercase">{{ $extension }}</span>
+                                                                </div>
+                                                            @endif
+                                                            <div>
+                                                                <p class="text-sm font-bold text-gray-800">Bukti Tersedia
+                                                                </p>
+                                                                <p class="text-xs text-blue-600 group-hover:underline">Klik
+                                                                    untuk melihat detail</p>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+
+                                                    {{-- Timeline & Overdue Warning --}}
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border {{ $isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-100' }}">
+                                                        <div class="{{ $targetDate ? '' : 'text-gray-400' }}">
+                                                            <dt
+                                                                class="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none mb-1">
+                                                                Orang yang ditunjuk oleh SHE:
+                                                                {{ $hazard->pic->name ?? '-' }}
+                                                            </dt>
+                                                            <dt
+                                                                class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                                                Target
+                                                            </dt>
+                                                            <dd
+                                                                class="text-sm font-bold {{ $targetDate ? 'text-gray-800' : 'italic text-gray-400' }}">
+                                                                {{ $targetDate ? $targetDate->translatedFormat('d M Y') : 'Belum ditentukan petugas' }}
+                                                            </dd>
+                                                        </div>
+                                                        <div>
+                                                            <dt
+                                                                class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                                                Realisasi
+                                                            </dt>
+                                                            <dd
+                                                                class="text-sm font-bold {{ $isOverdue ? 'text-red-600' : 'text-green-600' }}">
+                                                                {{ $actualDate->translatedFormat('d M Y') }}
+                                                            </dd>
+                                                        </div>
+                                                        @if($isOverdue)
+                                                            <div class="col-span-2 pt-2 border-t border-red-200">
+                                                                <div class="flex items-center text-red-700 gap-2">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                        viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2"
+                                                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                        </path>
+                                                                    </svg>
+                                                                    <span class="text-xs font-bold uppercase">Melewati Batas
+                                                                        Waktu!</span>
+                                                                </div>
                                                             </div>
                                                         @endif
-                                                        <div
-                                                            class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                                                            <span
-                                                                class="bg-black/50 text-white text-[10px] px-2 py-1 rounded">Lihat
-                                                                Detail</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <p class="text-[10px] text-gray-400 mb-2">* Upload file baru untuk mengganti
-                                                    file di atas.</p>
-                                            @endif
-
-                                            <div class="flex items-start gap-4">
-                                                <div class="flex-1">
-                                                    <input type="file" id="foto_bukti_penyelesaian"
-                                                        name="foto_bukti_penyelesaian"
-                                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                                                        onchange="previewFile(event)"
-                                                        class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition-all">
-                                                    <p id="file_name_display"
-                                                        class="mt-1 text-[10px] text-gray-500 italic hidden"></p>
-                                                    @error('foto_bukti_penyelesaian')
-                                                        <p class="text-[10px] text-red-600 mt-1 font-bold">{{ $message }}
-                                                        </p>
-                                                    @enderror
-                                                </div>
-                                                <div id="preview_container" class="hidden">
-                                                    <img id="image_preview" src="#" alt="Preview"
-                                                        class="rounded-lg shadow-md border border-green-200 object-cover w-20 h-20 hidden">
-                                                    <div id="file_icon_preview"
-                                                        class="w-20 h-20 flex flex-col items-center justify-center bg-green-50 rounded-lg border border-green-200 hidden">
-                                                        <svg class="w-8 h-8 text-green-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                                            </path>
-                                                        </svg>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @else
+                                                <div
+                                                    class="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
+                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                                        </path>
+                                                    </svg>
+                                                    <div>
+                                                        <p class="font-bold text-sm">File belum diupload oleh Petugas</p>
+                                                        <p class="text-xs">Mohon hubungi petugas
+                                                            <strong>({{ $hazard->pic->name ?? 'N/A' }})</strong> untuk
+                                                            melengkapi bukti.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </section>
@@ -332,35 +397,7 @@
 
     @push('scripts')
         <script>
-            function previewFile(event) {
-                const file = event.target.files[0];
-                const previewContainer = document.getElementById('preview_container');
-                const imagePreview = document.getElementById('image_preview');
-                const fileIconPreview = document.getElementById('file_icon_preview');
-                const fileNameDisplay = document.getElementById('file_name_display');
 
-                if (file) {
-                    fileNameDisplay.textContent = file.name;
-                    fileNameDisplay.classList.remove('hidden');
-                    previewContainer.classList.remove('hidden');
-
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function () {
-                            imagePreview.src = reader.result;
-                            imagePreview.classList.remove('hidden');
-                            fileIconPreview.classList.add('hidden');
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        imagePreview.classList.add('hidden');
-                        fileIconPreview.classList.remove('hidden');
-                    }
-                } else {
-                    fileNameDisplay.classList.add('hidden');
-                    previewContainer.classList.add('hidden');
-                }
-            }
 
             document.addEventListener('DOMContentLoaded', () => {
                 const sev = document.getElementById('final_tingkat_keparahan');

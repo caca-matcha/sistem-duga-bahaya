@@ -75,7 +75,7 @@
                                         <td class="p-2 border">#{{ $hazard->id }}</td>
                                         <td class="p-2 border">{{ $hazard->nama }}</td>
                                         <td class="p-2 border">{{ Str::limit($hazard->deskripsi_bahaya, 40) }}</td>
-                                        <td class="p-2 border">{{ $hazard->tgl_observasi->format('d/m/Y') }}</td>
+                                        <td class="p-2 border">{{ $hazard->tgl_observasi->translatedFormat('d/m/Y') }}</td>
                                         {{-- KOLOM SKOR RESIKO BARU DENGAN WARNA --}}
                                         <td class="p-2 border text-center">
                                           <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
@@ -117,7 +117,7 @@
                                 <th class="p-2 border">ID</th>
                                 <th class="p-2 border">Pelapor</th>
                                 <th class="p-2 border">Status</th>
-                                <th class="p-2 border">PIC</th>
+                                <th class="p-2 border">Orang yang ditunjuk oleh SHE</th>
                                 <th class="p-2 border">Skor Resiko</th>
                                 <th class="p-2 border">Kategori Resiko</th>
                                 <th class="p-2 border">Aksi</th>
@@ -209,7 +209,7 @@
                                         </span>
                                     </td>
                                     <td class="p-2 border">
-                                        {{ $hazard->report_selesai ? \Carbon\Carbon::parse($hazard->report_selesai)->format('d/m/Y H:i') : '-' }}
+                                        {{ $hazard->report_selesai ? \Carbon\Carbon::parse($hazard->report_selesai)->translatedFormat('d/m/Y H:i') : '-' }}
                                     </td>
                                     <td class="p-2 border text-center">
                                         <a href="{{ route('she.hazards.show', $hazard) }}" 

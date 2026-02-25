@@ -25,6 +25,7 @@ class StoreHazardRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'nama' => 'required_if:role,magang|nullable|string|max:255',
             'NPK' => 'required|string|max:20',
             'dept' => 'required|string|max:100',
             'tgl_observasi' => 'required|date|before_or_equal:today',
@@ -69,7 +70,7 @@ class StoreHazardRequest extends FormRequest
     {
         return [
             'NPK' => 'Nomor Pokok Karyawan (NPK)',
-            'dept' => 'Departemen',
+            'dept' => 'Department',
             'tgl_observasi' => 'Tanggal Observasi',
             'location_id' => 'Lokasi Kejadian',
             'lokasi_detail_manual' => 'Detail Tambahan Lokasi',

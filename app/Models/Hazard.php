@@ -20,6 +20,7 @@ class Hazard extends Model
         'nama',
         'NPK',
         'dept',
+        'position',
         'tgl_observasi',
         'location_id',
         'area_gedung',
@@ -45,7 +46,7 @@ class Hazard extends Model
         'report_selesai',
         'target_penyelesaian',
         'pic_id',
-        'leader_id',
+        'pic_id',
 
         // --- FIELDS BARU SHE ---
         'faktor_penyebab',
@@ -55,6 +56,8 @@ class Hazard extends Model
         'final_tingkat_keparahan',
         'final_kemungkinan_terjadi',
         'final_kategori_stop6',
+        'rencana_perbaikan',
+        'feedback_verifikasi',
         'tindakan_perbaikan',
         'foto_bukti_penyelesaian',
     ];
@@ -67,6 +70,8 @@ class Hazard extends Model
         //  	'catatan_penanggulangan' => 'json',
         'tgl_observasi' => 'date',
         'target_penyelesaian' => 'date',
+        'ditangani_pada' => 'datetime',
+        'report_selesai' => 'datetime',
     ];
 
     /**
@@ -93,14 +98,6 @@ class Hazard extends Model
     public function pic(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pic_id');
-    }
-
-    /**
-     * Relasi ke User (Leader) yang bertanggung jawab.
-     */
-    public function leader(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'leader_id');
     }
 
     /**

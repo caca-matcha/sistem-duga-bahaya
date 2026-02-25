@@ -23,12 +23,13 @@
                                         class="p-4 hover:bg-red-50 transition-colors flex items-center justify-between">
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-medium text-gray-900 line-clamp-1">
-                                                {{ $hazard->deskripsi_bahaya }}</p>
+                                                {{ $hazard->deskripsi_bahaya }}
+                                            </p>
                                             <p class="text-xs text-red-600 mt-1">
                                                 ID: {{ $hazard->id }} &bull; Area: {{ $hazard->area_gedung }} &bull;
                                                 Terlambat:
                                                 {{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->diffForHumans() }}
-                                                ({{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->format('d M Y') }})
+                                                ({{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->translatedFormat('d M Y') }})
                                             </p>
                                         </div>
                                         <svg class="w-5 h-5 text-red-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor"
@@ -59,12 +60,13 @@
                                         class="p-4 hover:bg-yellow-50 transition-colors flex items-center justify-between">
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-medium text-gray-900 line-clamp-1">
-                                                {{ $hazard->deskripsi_bahaya }}</p>
+                                                {{ $hazard->deskripsi_bahaya }}
+                                            </p>
                                             <p class="text-xs text-yellow-600 mt-1">
                                                 ID: {{ $hazard->id }} &bull; Area: {{ $hazard->area_gedung }} &bull;
                                                 Jatuh Tempo:
                                                 {{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->diffForHumans() }}
-                                                ({{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->format('d M Y') }})
+                                                ({{ \Carbon\Carbon::parse($hazard->target_penyelesaian)->translatedFormat('d M Y') }})
                                             </p>
                                         </div>
                                         <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 ml-4" fill="none"

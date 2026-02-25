@@ -2,39 +2,52 @@
 @forelse ($locations as $location)
     @if ($location->map_id !== $currentMapId)
         @php $currentMapId = $location->map_id; @endphp
-        <tr class="bg-gradient-to-r from-gray-50/95 to-white border-y border-gray-100 no-drag">
+        <tr class="bg-gradient-to-r from-gray-50/95 to-white border-y border-gray-100 no-drag cursor-pointer group/header"
+            @click="toggleGroup('{{ $location->map_id ?? 'null' }}')">
             <td colspan="7" class="px-5 py-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="flex flex-col items-center gap-1">
-                            <div class="w-1 h-4 bg-red-600 rounded-full"></div>
-                            <div class="w-1 h-1 bg-red-600/20 rounded-full"></div>
-                        </div>
-                        <div class="flex items-center gap-3.5">
-                            <div class="relative group/building">
-                                <div
-                                    class="absolute -inset-1 bg-red-500/10 rounded-xl blur-sm opacity-0 group-hover/building:opacity-100 transition duration-500">
-                                </div>
-                                <div
-                                    class="relative p-2 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                </div>
+                        <div class="flex items-center gap-3">
+                            {{-- Toggle Arrow --}}
+                            <div class="p-1 rounded-lg bg-white border border-gray-200 text-gray-400 group-hover/header:text-red-600 group-hover/header:border-red-100 transition-all shadow-sm"
+                                :class="openGroups.includes('{{ $location->map_id ?? 'null' }}') ? 'rotate-0' : '-rotate-90'">
+                                <svg class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
-                            <div class="flex flex-col">
-                                <span
-                                    class="text-[11px] font-bold text-red-600/60 uppercase tracking-widest leading-none mb-1.5">Building
-                                    Area</span>
-                                <span class="text-[17px] font-black text-gray-900 uppercase tracking-tight leading-none">
-                                    {{ $location->map?->name ?? 'TANPA MAPPING' }}
-                                </span>
+
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="w-1 h-4 bg-red-600 rounded-full"></div>
+                                <div class="w-1 h-1 bg-red-600/20 rounded-full"></div>
+                            </div>
+                            <div class="flex items-center gap-3.5">
+                                <div class="relative group/building">
+                                    <div
+                                        class="absolute -inset-1 bg-red-500/10 rounded-xl blur-sm opacity-0 group-hover/building:opacity-100 transition duration-500">
+                                    </div>
+                                    <div
+                                        class="relative p-2 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-[11px] font-bold text-red-600/60 uppercase tracking-widest leading-none mb-1.5">Building
+                                        Area</span>
+                                    <span class="text-[17px] font-black text-gray-900 uppercase tracking-tight leading-none">
+                                        {{ $location->map?->name ?? 'TANPA MAPPING' }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     @if($location->map_id)
-                        <a href="{{ route('she.locations.create', ['map_id' => $location->map_id]) }}"
+                        <a href="{{ route('she.locations.create', ['map_id' => $location->map_id]) }}" @click.stop
                             class="inline-flex items-center gap-2.5 px-4 py-2 bg-white border border-gray-200 rounded-xl text-[11px] font-black text-red-600 uppercase tracking-widest hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-sm active:scale-95 group/btn">
                             <svg class="w-4 h-4 transition-transform group-hover/btn:scale-110" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -47,8 +60,10 @@
             </td>
         </tr>
     @endif
-    <tr class="hover:bg-red-50/[0.03] transition-colors group cursor-default" data-id="{{ $location->id }}"
-        data-map-id="{{ $location->map_id }}">
+    <tr class="hover:bg-red-50/[0.03] transition-all group cursor-default" data-id="{{ $location->id }}"
+        data-map-id="{{ $location->map_id }}" x-show="openGroups.includes('{{ $location->map_id ?? 'null' }}')"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0">
         <td class="px-3 py-2 align-middle">
             <div class="flex items-center gap-1.5">
                 <!-- Drag Handle -->
@@ -84,9 +99,9 @@
                 class="flex items-center gap-1.5 text-sm text-gray-500 font-semibold group-hover:text-gray-700 transition-colors">
                 <div
                     class="w-5 h-5 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-400 transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 6.75V15m6-6v8.25m.75 3.3-5.625-2.25L5.25 17.25V6.75L10.125 4.5l5.625 2.25L20.625 4.5V15l-4.875 2.25z" />
                     </svg>
                 </div>
                 {{ $location->map?->name ?? '-' }}
