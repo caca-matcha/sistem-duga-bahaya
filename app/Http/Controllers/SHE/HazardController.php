@@ -254,14 +254,10 @@ class HazardController extends Controller
         $kategoriResiko = 'Low';
         if ($riskScore <= 4) {
             $kategoriResiko = 'Low';
-        } elseif ($riskScore <= 9) {
+        } elseif ($riskScore <= 12) {
             $kategoriResiko = 'Medium';
-        } elseif ($riskScore <= 15) {
-            $kategoriResiko = 'Medium-High';
-        } elseif ($riskScore <= 20) {
-            $kategoriResiko = 'High';
         } else {
-            $kategoriResiko = 'Extreme';
+            $kategoriResiko = 'High';
         }
 
         // 3. Update Hazard
@@ -321,14 +317,10 @@ class HazardController extends Controller
             $risk = $validated['risk_score'];
             if ($risk <= 4) {
                 $validated['kategori_resiko'] = 'Low';
-            } elseif ($risk <= 9) {
+            } elseif ($risk <= 12) {
                 $validated['kategori_resiko'] = 'Medium';
-            } elseif ($risk <= 15) {
-                $validated['kategori_resiko'] = 'Medium-High';
-            } elseif ($risk <= 20) {
-                $validated['kategori_resiko'] = 'High';
             } else {
-                $validated['kategori_resiko'] = 'Extreme';
+                $validated['kategori_resiko'] = 'High';
             }
         }
 

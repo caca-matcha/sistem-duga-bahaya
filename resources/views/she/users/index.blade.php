@@ -143,7 +143,7 @@
                                         </svg>
                                     </div>
                                     <input type="text" name="search" value="{{ request('search') }}"
-                                        placeholder="Search name or NPK..."
+                                        placeholder="Search name, NPK, unit, or dept..."
                                         class="block w-full pl-10 pr-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-red-500 focus:ring-red-500/10">
                                 </div>
                             </div>
@@ -155,9 +155,10 @@
                                 <select name="role"
                                     class="block w-full py-2 pl-3 pr-10 border border-gray-300 bg-white rounded-lg text-sm focus:ring-red-500/10 focus:border-red-500">
                                     <option value="">All Roles</option>
-                                    @foreach(['karyawan', 'she', 'supervisor', 'magang'] as $role)
+                                    @foreach(['karyawan', 'she', 'magang'] as $role)
                                         <option value="{{ $role }}" {{ request('role') == $role ? 'selected' : '' }}>
-                                            {{ strtoupper($role) }}</option>
+                                            {{ strtoupper($role) }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -200,6 +201,9 @@
                                         Unit & Dept</th>
                                     <th scope="col"
                                         class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                        Organization Unit</th>
+                                    <th scope="col"
+                                        class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                         Role</th>
                                     <th scope="col"
                                         class="px-4 py-3 text-right text-[11px] font-bold text-gray-500 uppercase tracking-wider">
@@ -239,20 +243,26 @@
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             <div class="text-xs font-semibold text-gray-700 leading-none mb-1">
-                                                {{ $user->position ?? '-' }}</div>
-                                            <div class="text-[11px] text-gray-400">
-                                                {!! $highlight($user->email ?? '-', $search) !!}</div>
+                                                {{ $user->position ?? '-' }}
+                                            </div>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap">
-                                            <div class="text-xs font-semibold text-gray-800 leading-none mb-1">
-                                                {{ $user->division ?? '-' }}</div>
-                                            <div class="text-[11px] text-gray-400">{{ $user->department ?? '-' }}</div>
+                                            <div class="text-[11px] font-semibold text-gray-800 leading-none mb-1">
+                                                {!! $highlight($user->division ?? '-', $search) !!}
+                                            </div>
+                                            <div class="text-[11px] font-medium text-gray-600 mb-0.5">
+                                                {!! $highlight($user->department ?? '-', $search) !!}
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap">
+                                            <div class="text-[11px] font-semibold text-gray-800 leading-none mb-1">
+                                                {!! $highlight($user->organization_unit ?? '-', $search) !!}
+                                            </div>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             @php
                                                 $roleClasses = [
                                                     'she' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                                                    'supervisor' => 'bg-amber-100 text-amber-700 border-amber-200',
                                                     'magang' => 'bg-gray-100 text-gray-600 border-gray-200',
                                                     'karyawan' => 'bg-blue-100 text-blue-700 border-blue-200',
                                                 ][$user->role] ?? 'bg-gray-100 text-gray-600 border-gray-200';

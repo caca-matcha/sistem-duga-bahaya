@@ -52,9 +52,9 @@
                     </div>
                 </div>
 
-                {{-- INFORMASI LAPORAN (Compact) --}}
-                <div class="p-4">
-                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-8">
+                <div class="p-6 sm:p-8">
+                    {{-- INFORMASI LAPORAN (Compact) --}}
+                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 mb-8 sm:mb-10">
                         <h3
                             class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">
                             Ringkasan Laporan Awal</h3>
@@ -63,20 +63,27 @@
                             <div>
                                 <label
                                     class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pelapor</label>
-                                <div class="flex items-center gap-2 mt-1">
+                                <div class="flex items-center gap-3 mt-1">
                                     <div
-                                        class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
+                                        class="w-8 h-8 rounded-full bg-gray-200 flex flex-shrink-0 items-center justify-center text-xs font-bold text-gray-600">
                                         {{ substr($hazard->pelapor->name ?? 'U', 0, 1) }}
                                     </div>
-                                    <span class="text-base font-medium text-gray-900">
-                                        {{ $hazard->nama ?? ($hazard->pelapor->name ?? 'N/A') }}
-                                        @if(($hazard->pelapor->role ?? '') === 'magang')
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-900 leading-none mb-1">
+                                            {{ $hazard->nama ?? ($hazard->pelapor->name ?? 'N/A') }}
+                                            @if(($hazard->pelapor->role ?? '') === 'magang')
+                                                <span
+                                                    class="ml-1 text-[10px] text-gray-400 font-medium italic">({{ $hazard->pelapor->name }})</span>
+                                            @endif
+                                        </span>
+                                        <div
+                                            class="flex items-center gap-1.5 mt-0.5 text-[10px] font-semibold tracking-wide text-gray-500 uppercase">
+                                            <span>{{ $hazard->pelapor->department ?? '-' }}</span>
+                                            <span class="text-gray-300">•</span>
                                             <span
-                                                class="ml-1 text-[10px] text-gray-400 font-medium italic">({{ $hazard->pelapor->name }})</span>
-                                        @endif
-                                    </span>
-                                    <span class="text-sm text-gray-400 font-bold uppercase tracking-wider">Department:
-                                        {{ $hazard->pelapor->department ?? '-' }}</span>
+                                                class="text-gray-400 font-medium tracking-normal bg-gray-100 px-1 rounded">{{ $hazard->pelapor->npk ?? '-' }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -101,85 +108,86 @@
                             </p>
                         </div>
                     </div>
-                </div>
 
-                {{-- ERROR MESSAGE --}}
-                @if ($errors->any())
-                    <div class="mb-6 p-4 bg-red-50 text-red-700 border-l-4 border-red-500 rounded-r-md">
-                        <div class="flex">
-                            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <ul class="list-disc list-inside text-sm">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                    {{-- ERROR MESSAGE --}}
+                    @if ($errors->any())
+                        <div class="mb-6 p-4 bg-red-50 text-red-700 border-l-4 border-red-500 rounded-r-md">
+                            <div class="flex">
+                                <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <ul class="list-disc list-inside text-sm">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
 
-                {{-- FORM PENOLAKAN --}}
-                <form method="POST" action="{{ route('she.hazards.updateStatus', $hazard) }}">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="status" value="ditolak">
+                    {{-- FORM PENOLAKAN --}}
+                    <form method="POST" action="{{ route('she.hazards.updateStatus', $hazard) }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="status" value="ditolak">
 
-                    <div class="space-y-6">
-                        <div>
-                            <label for="alasan_penolakan" class="block text-sm font-bold text-gray-800 mb-2">
-                                Alasan Penolakan <span class="text-red-500">*</span>
-                            </label>
-                            <p class="text-xs text-gray-500 mb-3">Mohon jelaskan secara rinci mengapa laporan
-                                ini
-                                tidak dapat diproses lebih lanjut agar pelapor memahami keputusannya.</p>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="alasan_penolakan" class="block text-sm font-bold text-gray-800 mb-2">
+                                    Alasan Penolakan <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-xs text-gray-500 mb-3">Mohon jelaskan secara rinci mengapa laporan
+                                    ini
+                                    tidak dapat diproses lebih lanjut agar pelapor memahami keputusannya.</p>
 
-                            <div class="relative">
-                                <textarea id="alasan_penolakan" name="alasan_penolakan" rows="5"
-                                    class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition-all p-4 bg-white"
-                                    placeholder="Contoh: Laporan duplikat, kondisi bukan merupakan bahaya K3, atau informasi lokasi tidak valid..."
-                                    required>{{ old('alasan_penolakan') }}</textarea>
+                                <div class="relative">
+                                    <textarea id="alasan_penolakan" name="alasan_penolakan" rows="5"
+                                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition-all p-4 bg-white"
+                                        placeholder="Contoh: Laporan duplikat, kondisi bukan merupakan bahaya K3, atau informasi lokasi tidak valid..."
+                                        required>{{ old('alasan_penolakan') }}</textarea>
 
-                                {{-- Optional: Icon penjelas di pojok kanan bawah textarea --}}
-                                <div class="absolute bottom-3 right-3 text-gray-300">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {{-- Optional: Icon penjelas di pojok kanan bawah textarea --}}
+                                    <div class="absolute bottom-3 right-3 text-gray-300">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                @error('alasan_penolakan')
+                                    <p class="text-sm text-red-600 mt-2 flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div class="border-t border-gray-100 pt-6 flex items-center justify-end gap-3">
+                                <a href="{{ route('she.hazards.show', $hazard) }}"
+                                    class="px-5 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:ring-4 focus:ring-gray-100 transition-all">
+                                    Batal
+                                </a>
+
+                                <button type="submit"
+                                    onclick="return confirm('Apakah Anda yakin ingin menolak laporan ini?')"
+                                    class="inline-flex items-center px-6 py-2.5 bg-red-600 border border-transparent rounded-xl text-sm font-bold text-white shadow-lg shadow-red-200 hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-100 transition-all">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
                                         </path>
                                     </svg>
-                                </div>
+                                    Konfirmasi Tolak Laporan
+                                </button>
                             </div>
-                            @error('alasan_penolakan')
-                                <p class="text-sm text-red-600 mt-2 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
                         </div>
-
-                        <div class="border-t border-gray-100 pt-6 flex items-center justify-end gap-3">
-                            <a href="{{ route('she.hazards.show', $hazard) }}"
-                                class="px-5 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:ring-4 focus:ring-gray-100 transition-all">
-                                Batal
-                            </a>
-
-                            <button type="submit"
-                                onclick="return confirm('Apakah Anda yakin ingin menolak laporan ini?')"
-                                class="inline-flex items-center px-6 py-2.5 bg-red-600 border border-transparent rounded-xl text-sm font-bold text-white shadow-lg shadow-red-200 hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-100 transition-all">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
-                                    </path>
-                                </svg>
-                                Konfirmasi Tolak Laporan
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
 

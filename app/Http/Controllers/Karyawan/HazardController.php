@@ -272,7 +272,7 @@ class HazardController extends Controller
 
         // 2. VALIDATION
         $validated = $request->validate([
-            'action' => 'required|string|in:set_deadline,complete',
+            'kategori_resiko' => ['required', 'string', 'in:Low,Medium,High,Belum Dihitung'],
             'target_penyelesaian' => 'nullable|date',
             'tindakan_perbaikan' => 'nullable|string|required_if:action,complete',
             'foto_bukti_penyelesaian' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240|required_if:action,complete',

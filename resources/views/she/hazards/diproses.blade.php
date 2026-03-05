@@ -129,10 +129,13 @@
                                                                 class="ml-1 text-sm text-gray-400 font-medium italic">({{ $hazard->pelapor->name }})</span>
                                                         @endif
                                                     </div>
-                                                    <div class="text-sm text-gray-500 font-medium tracking-tight mt-1">
-                                                        {{ $hazard->pelapor->department ?? '-' }}
-                                                        <span class="mx-2 text-gray-300">•</span>
-                                                        NPK: {{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}
+                                                    <div
+                                                        class="flex items-center gap-1.5 mt-0.5 text-sm text-gray-500 font-medium tracking-tight">
+                                                        <span
+                                                            class="uppercase">{{ $hazard->pelapor->department ?? '-' }}</span>
+                                                        <span class="text-gray-300">•</span>
+                                                        <span
+                                                            class="text-gray-400">{{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}</span>
                                                     </div>
                                                 </div>
                                             </dd>

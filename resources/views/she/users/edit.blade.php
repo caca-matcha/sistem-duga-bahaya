@@ -68,18 +68,6 @@
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                                <input type="email" name="email" id="email"
-                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition duration-150"
-                                    value="{{ old('email', $user->email) }}" required>
-                                @error('email')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
                             <div>
                                 <label for="position"
                                     class="block text-sm font-semibold text-gray-700 mb-1">Position</label>
@@ -139,7 +127,8 @@
                             </div>
                             <div>
                                 <label for="password_confirmation"
-                                    class="block text-sm font-semibold text-gray-700 mb-1">Confirm New Password</label>
+                                    class="block text-sm font-semibold text-gray-700 mb-1">Confirm New
+                                    Password</label>
                                 <input type="password" name="password_confirmation" id="password_confirmation"
                                     class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition duration-150">
                             </div>
@@ -151,8 +140,6 @@
                                 class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm transition duration-150"
                                 required>
                                 <option value="karyawan" @selected(old('role', $user->role) == 'karyawan')>Karyawan
-                                </option>
-                                <option value="supervisor" @selected(old('role', $user->role) == 'supervisor')>Supervisor
                                 </option>
                                 <option value="she" @selected(old('role', $user->role) == 'she')>SHE (Admin)</option>
                                 <option value="magang" @selected(old('role', $user->role) == 'magang')>Magang</option>

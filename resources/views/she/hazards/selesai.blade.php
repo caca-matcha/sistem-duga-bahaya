@@ -75,13 +75,18 @@
                                                     <div class="font-bold text-gray-900 text-lg leading-tight">
                                                         {{ $hazard->nama ?? ($hazard->pelapor->name ?? 'N/A') }}
                                                         @if(($hazard->pelapor->role ?? '') === 'magang')
-                                                            <span class="ml-1 text-sm text-gray-400 font-medium italic whitespace-nowrap">(Magang 1)</span>
+                                                            <span
+                                                                class="ml-1 text-sm text-gray-400 font-medium italic whitespace-nowrap">(Magang
+                                                                1)</span>
                                                         @endif
                                                     </div>
-                                                    <div class="text-sm text-gray-500 font-medium tracking-tight mt-1">
-                                                        {{ $hazard->dept ?? ($hazard->pelapor->department ?? '-') }}
-                                                        <span class="mx-2 text-gray-300">•</span>
-                                                        NPK: {{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}
+                                                    <div
+                                                        class="flex items-center gap-1.5 mt-0.5 text-sm text-gray-500 font-medium tracking-tight">
+                                                        <span
+                                                            class="uppercase">{{ $hazard->dept ?? ($hazard->pelapor->department ?? '-') }}</span>
+                                                        <span class="text-gray-300">•</span>
+                                                        <span
+                                                            class="text-gray-400 font-medium">{{ $hazard->NPK ?? ($hazard->pelapor->npk ?? '-') }}</span>
                                                     </div>
                                                 </div>
                                             </dd>

@@ -23,8 +23,9 @@ class UserController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('email', 'LIKE', "%{$search}%")
-                    ->orWhere('npk', 'LIKE', "%{$search}%");
+                    ->orWhere('npk', 'LIKE', "%{$search}%")
+                    ->orWhere('department', 'LIKE', "%{$search}%")
+                    ->orWhere('organization_unit', 'LIKE', "%{$search}%");
             });
         }
 
@@ -37,7 +38,6 @@ class UserController extends Controller
             'total' => $query->count(),
             'karyawan' => (clone $query)->where('role', 'karyawan')->count(),
             'she' => (clone $query)->where('role', 'she')->count(),
-            'supervisor' => (clone $query)->where('role', 'supervisor')->count(),
             'magang' => (clone $query)->where('role', 'magang')->count(),
         ];
 
@@ -58,8 +58,9 @@ class UserController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('email', 'LIKE', "%{$search}%")
-                    ->orWhere('npk', 'LIKE', "%{$search}%");
+                    ->orWhere('npk', 'LIKE', "%{$search}%")
+                    ->orWhere('department', 'LIKE', "%{$search}%")
+                    ->orWhere('organization_unit', 'LIKE', "%{$search}%");
             });
         }
 
@@ -82,7 +83,6 @@ class UserController extends Controller
                 'JOB_FAMILY' => $user->job_family,
                 'POSITION' => $user->position,
                 'ROLE' => $user->role,
-                'EMAIL' => $user->email,
             ];
         });
 
@@ -117,7 +117,6 @@ class UserController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
             'npk' => $request->npk,
             'position' => $request->position,
             'division' => $request->division,
@@ -154,7 +153,6 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'npk' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
             'position' => ['nullable', 'string', 'max:255'],
             'division' => ['nullable', 'string', 'max:255'],
@@ -167,7 +165,6 @@ class UserController extends Controller
 
         $updateData = [
             'name' => $request->name,
-            'email' => $request->email,
             'npk' => $request->npk,
             'position' => $request->position,
             'division' => $request->division,
@@ -257,7 +254,7 @@ class UserController extends Controller
 
                 // Support optional ROLE column from JSON
                 $roleFromJson = isset($employee['ROLE']) ? strtolower($employee['ROLE']) : null;
-                $allowedRoles = ['karyawan', 'she', 'supervisor', 'magang'];
+                $allowedRoles = ['karyawan', 'she', 'magang'];
 
                 // If user exists, update details.
                 $user = User::where('npk', $npk)->first();
@@ -273,7 +270,6 @@ class UserController extends Controller
                     $userData['npk'] = $npk;
                     $userData['password'] = Hash::make($npk);
                     $userData['role'] = ($roleFromJson && in_array($roleFromJson, $allowedRoles)) ? $roleFromJson : 'karyawan';
-                    $userData['email'] = null; // No email in JSON
                     User::create($userData);
                     $count++;
                 }

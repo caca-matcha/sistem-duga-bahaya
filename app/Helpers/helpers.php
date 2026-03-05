@@ -77,9 +77,9 @@ if (! function_exists('getTextColor')) {
             return '#FFFFFF'; // White text for gray default background
         }
         // Heuristik: Warna gelap untuk skor rendah/menengah (hijau/kuning), putih untuk skor tinggi (merah)
-        if ($score <= 10) { // Low to Medium
+        if ($score <= 12) { // Low to Medium
             return '#1f2937'; // Dark gray/black text
-        } else { // Medium-High to Extreme
+        } else { // High
             return '#FFFFFF'; // White text
         }
     }
