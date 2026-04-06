@@ -13,8 +13,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">Maps
-                            Management</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">Manajemen
+                            Peta</h2>
                         <p class="text-gray-400 font-medium mt-1.5 tracking-tight uppercase text-[12px]">
                             Kelola layout peta risiko untuk pabrik dan gedung operasional.</p>
                     </div>
@@ -24,7 +24,7 @@
                     class="hidden lg:flex items-center gap-4 px-5 py-2.5 bg-white/30 backdrop-blur-sm border border-white/20 rounded-2xl">
                     <div class="flex items-center gap-2">
                         <span class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Editor Active</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Editor Aktif</span>
                     </div>
                 </div>
             </div>

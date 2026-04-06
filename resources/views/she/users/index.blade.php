@@ -12,7 +12,7 @@
                     </div>
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize leading-none">
-                            User Management</h2>
+                            Manajemen Pengguna</h2>
                         <p class="text-gray-400 font-medium mt-1.5 tracking-tight uppercase text-[12px]">
                             Kelola hak akses dan profil pengguna sistem.</p>
                     </div>
@@ -38,17 +38,17 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+            <div id="daftar-pengguna" class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 sm:p-8">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                         <div>
-                            <h3 class="text-2xl font-bold text-gray-900">Users List</h3>
-                            <p class="text-sm text-gray-500">Manage and monitor all system access roles and profiles.
+                            <h3 class="text-2xl font-bold text-gray-900">Daftar Pengguna</h3>
+                            <p class="text-sm text-gray-500">Kelola dan monitor semua hak akses serta profil pengguna sistem.
                             </p>
                         </div>
-                        <div x-data="{ open: false, loading: false }" class="flex flex-wrap items-center gap-2">
+                        <div x-data="{ open: false, loading: false }" class="flex flex-nowrap items-center justify-end gap-2 overflow-x-auto pb-1 sm:pb-0">
                             <a href="{{ route('she.users.export', request()->all()) }}"
-                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 uppercase tracking-wider hover:bg-gray-50 transition-all">
+                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 uppercase tracking-wider hover:bg-gray-50 transition-all whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -57,7 +57,7 @@
                                 Export
                             </a>
                             <button @click="open = true"
-                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 uppercase tracking-wider hover:bg-gray-50 transition-all">
+                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 uppercase tracking-wider hover:bg-gray-50 transition-all whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -66,12 +66,12 @@
                                 Import
                             </button>
                             <a href="{{ route('she.users.create') }}"
-                                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-lg text-xs font-bold text-white uppercase tracking-wider hover:bg-red-700 transition-all">
+                                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-lg text-xs font-bold text-white uppercase tracking-wider hover:bg-red-700 transition-all whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
-                                Create User
+                                Tambah Pengguna
                             </a>
 
                             <!-- Import Modal (Simplified implementation) -->
@@ -103,10 +103,9 @@
                                                     </div>
                                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                                         <h3 class="text-lg leading-6 font-medium text-gray-900">Import
-                                                            Users</h3>
+                                                            Pengguna</h3>
                                                         <div class="mt-2">
-                                                            <p class="text-sm text-gray-500">Upload JSON file containing
-                                                                user data.</p>
+                                                            <p class="text-sm text-gray-500">Unggah file JSON yang berisi data pengguna.</p>
                                                             <input type="file" name="file" accept=".json" required
                                                                 class="mt-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
                                                         </div>
@@ -117,7 +116,7 @@
                                                 <button type="submit"
                                                     class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 sm:ml-3 sm:w-auto sm:text-sm">Import</button>
                                                 <button type="button" @click="open = false"
-                                                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
+                                                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Batal</button>
                                             </div>
                                         </form>
                                     </div>
@@ -154,7 +153,7 @@
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 block ml-1">Role</label>
                                 <select name="role"
                                     class="block w-full py-2 pl-3 pr-10 border border-gray-300 bg-white rounded-lg text-sm focus:ring-red-500/10 focus:border-red-500">
-                                    <option value="">All Roles</option>
+                                    <option value="">Semua Role</option>
                                     @foreach(['karyawan', 'she', 'magang'] as $role)
                                         <option value="{{ $role }}" {{ request('role') == $role ? 'selected' : '' }}>
                                             {{ strtoupper($role) }}
@@ -192,10 +191,10 @@
                                         No</th>
                                     <th scope="col"
                                         class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                        Identity</th>
+                                        Identitas</th>
                                     <th scope="col"
                                         class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                        Job Title</th>
+                                        Jabatan</th>
                                     <th scope="col"
                                         class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                         Unit & Dept</th>
@@ -207,7 +206,7 @@
                                         Role</th>
                                     <th scope="col"
                                         class="px-4 py-3 text-right text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                        Actions</th>
+                                        Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-100">
@@ -221,7 +220,7 @@
                                     };
                                 @endphp
                                 @forelse ($users as $index => $user)
-                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <tr onclick="if(!event.target.closest('form') && !event.target.closest('a')) window.location='{{ route('she.users.edit', $user) }}'" class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer">
                                         <td class="px-4 py-4 whitespace-nowrap text-xs text-gray-500">
                                             {{ $users->firstItem() + $index }}
                                         </td>
@@ -306,9 +305,9 @@
                                     <tr>
                                         <td colspan="6" class="px-4 py-12 text-center">
                                             <div class="flex flex-col items-center justify-center text-gray-400">
-                                                <p class="text-sm font-bold uppercase tracking-widest">No personnel found
+                                                <p class="text-sm font-bold uppercase tracking-widest">Pengguna tidak ditemukan
                                                 </p>
-                                                <p class="text-xs mt-1">Adjust your search or filter criteria.</p>
+                                                <p class="text-xs mt-1">Sesuaikan kriteria pencarian atau filter Anda.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -319,7 +318,7 @@
 
                     <!-- Pagination -->
                     <div class="mt-10">
-                        {{ $users->links('vendor.pagination.premium') }}
+                        {{ $users->fragment('daftar-pengguna')->links('vendor.pagination.premium') }}
                     </div>
                 </div>
             </div>

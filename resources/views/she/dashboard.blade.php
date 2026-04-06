@@ -225,9 +225,48 @@
                     </div>
                 </a>
             </div>
+            
+            {{-- SECTION: CRITICAL NOTIFICATIONS --}}
+            @if($overdueHazards->isNotEmpty() || $dueSoonHazards->isNotEmpty())
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                @if($overdueHazards->isNotEmpty())
+                <a href="{{ route('she.hazards.needs-follow-up') }}" class="group bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-4 shadow-sm animate-pulse-slow hover:bg-red-100 transition-all cursor-pointer">
+                    <div class="h-10 w-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-red-200 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-xs font-black text-red-800 uppercase tracking-widest">Laporan Overdue</h4>
+                        <p class="text-sm font-bold text-red-600">{{ $overdueHazards->count() }} laporan telah melewati target penyelesaian!</p>
+                    </div>
+                    <div class="text-red-400 group-hover:text-red-600 group-hover:translate-x-1 transition-transform">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endif
+
+                @if($dueSoonHazards->isNotEmpty())
+                <a href="{{ route('she.hazards.needs-follow-up') }}" class="group bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:bg-amber-100 transition-all cursor-pointer">
+                    <div class="h-10 w-10 flex-shrink-0 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-200 group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-xs font-black text-amber-800 uppercase tracking-widest">Segera Berakhir</h4>
+                        <p class="text-sm font-bold text-amber-600">{{ $dueSoonHazards->count() }} laporan akan mencapai target dalam 3 hari ke depan.</p>
+                    </div>
+                    <div class="text-amber-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-transform">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+                @endif
+            </div>
+            @endif
 
             {{-- SECTION 2: CHARTS (SIDE BY SIDE) --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Risk Level Chart -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
@@ -321,6 +360,55 @@
                     <div class="p-6">
                         <div class="relative h-64 w-full">
                             <canvas id="topRiskLocationsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STOP6 Category Chart -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                        <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                            <div class="p-1.5 bg-amber-100 rounded-lg text-amber-600">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                </svg>
+                            </div>
+                            Top 5 Potensi Kecelakaan Kerja (STOP-6)
+                        </h3>
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" @click.away="open = false"
+                                class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                class="absolute right-0 mt-2 w-48 bg-white/80 backdrop-blur-md border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
+                                <div class="py-1">
+                                    <button
+                                        @click="downloadChart('stop6Chart', 'Kategori-STOP6'); open = false"
+                                        class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-600 w-full text-left transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download PNG
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative h-64 w-full flex justify-center">
+                            <canvas id="stop6Chart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -585,7 +673,7 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } }
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
                         },
                         cutout: '70%',
                     }
@@ -620,6 +708,68 @@
                             },
                             x: {
                                 grid: { display: false }
+                            }
+                        }
+                    }
+                });
+                // --- CHART 3: STOP6 CATEGORIES ---
+                const stop6Counts = @json($stop6Counts);
+                
+                // Helper to generate distinct pleasant colors
+                const generateColors = (count) => {
+                    const colors = [
+                        '#F59E0B', '#3B82F6', '#EF4444', '#10B981', '#8B5CF6', 
+                        '#EC4899', '#06B6D4', '#F97316', '#64748B', '#84CC16'
+                    ];
+                    return Array.from({length: count}, (_, i) => colors[i % colors.length]);
+                };
+
+                const stop6CategoryMap = {
+                    'A': 'Terjepit (A)',
+                    'B': 'Tertimpa (B)',
+                    'C': 'Kendaraan (C)',
+                    'D': 'Jatuh (D)',
+                    'E': 'Listrik (E)',
+                    'F': 'Panas/Api (F)',
+                    'O': 'Lainnya (O)'
+                };
+
+                const stop6Labels = Object.keys(stop6Counts).map(key => stop6CategoryMap[key] || key);
+                const stop6Data = Object.values(stop6Counts);
+                
+                const stop6Ctx = document.getElementById('stop6Chart').getContext('2d');
+
+                new Chart(stop6Ctx, {
+                    type: 'polarArea',
+                    data: {
+                        labels: stop6Labels,
+                        datasets: [{
+                            data: stop6Data,
+                            backgroundColor: generateColors(stop6Labels.length).map(color => color + '80'), // Add transparency
+                            borderColor: generateColors(stop6Labels.length),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: { right: 10 } // Give extra space so legend isn't clipped
+                        },
+                        plugins: {
+                            legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ' ' + context.raw + ' Laporan';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                ticks: { display: false },
+                                grid: { color: '#f3f4f6' }
                             }
                         }
                     }

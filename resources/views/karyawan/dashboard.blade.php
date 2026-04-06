@@ -162,7 +162,7 @@
                     <div class="mb-2">
                         <p class="text-4xl font-black text-gray-900">{{ $menungguValidasi ?? 0 }}</p>
                     </div>
-                    <p class="text-xs text-gray-400 font-medium">Menunggu ditinjau oleh Supervisor/SHE</p>
+                    <p class="text-xs text-gray-400 font-medium">Menunggu ditinjau oleh Admin SHE</p>
                 </div>
 
                 {{-- Card 3: Aksi Selesai --}}
@@ -282,7 +282,7 @@
             @endif
 
             {{-- 2. Daftar Laporan (Tabel) dan Aksi Utama --}}
-            <div class="bg-white shadow-xl shadow-gray-100/50 rounded-[32px] overflow-hidden border border-gray-100">
+            <div id="riwayat-laporan" class="bg-white shadow-xl shadow-gray-100/50 rounded-[32px] overflow-hidden border border-gray-100">
                 <div class="p-6 sm:p-8">
                     <div
                         class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-50">
@@ -389,7 +389,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-50">
                                 @forelse ($hazards as $hazard)
-                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <tr onclick="window.location='{{ route('karyawan.hazards.show', $hazard->id) }}'" class="hover:bg-gray-50/50 transition-colors cursor-pointer">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span
                                                 class="font-mono text-xs font-bold text-gray-500">#{{ $hazard->id }}</span>
@@ -476,7 +476,7 @@
                     {{-- Paginasi --}}
                     @if (isset($hazards) && method_exists($hazards, 'links'))
                         <div class="mt-6">
-                            {{ $hazards->links() }}
+                            {{ $hazards->fragment('riwayat-laporan')->links('vendor.pagination.custom') }}
                         </div>
                     @endif
                 </div>

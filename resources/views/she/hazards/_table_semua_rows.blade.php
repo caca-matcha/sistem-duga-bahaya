@@ -7,7 +7,7 @@
 @endphp
 
 @forelse ($hazardsSemua as $hazard)
-    <tr class="hover:bg-gray-50 transition-colors" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
+    <tr onclick="if(event.target.type !== 'checkbox') window.location='{{ route('she.hazards.show', $hazard) }}'" class="hover:bg-gray-100 transition-colors cursor-pointer" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
         <template x-if="selectionMode">
             <td class="p-4">
                 <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}"
@@ -16,7 +16,7 @@
         </template>
         <td class="px-6 py-4 whitespace-nowrap">
             <div class="text-sm font-bold text-indigo-600">#{!! $highlight($hazard->id, $search ?? '') !!}</div>
-            <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->translatedFormat('d M Y') }}</div>
+            <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->locale('id')->translatedFormat('d M Y') }}</div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {!! $highlight($hazard->NPK ?? ($hazard->pelapor->npk ?? '-'), $search ?? '') !!}
@@ -69,19 +69,11 @@
                 <div class="text-[10px] text-gray-500 mt-1.5 font-medium leading-none">{{ $hazard->kategori_resiko }}</div>
             </div>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a href="{{ route('she.hazards.show', $hazard) }}"
-                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
-                Detail
-                <svg class="ml-1.5 -mr-0.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </a>
-        </td>
+
     </tr>
 @empty
     <tr>
-        <td colspan="6" class="p-4 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 7 : 6">
+        <td colspan="5" class="p-4 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 6 : 5">
             Tidak ada laporan ditemukan.
         </td>
     </tr>

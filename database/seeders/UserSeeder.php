@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
 
         // User SHEs
         User::firstOrCreate(
-            ['email' => 'she@example.com'],
+            ['npk' => '11240198'],
             [
                 'name' => 'SHE Admin',
                 'password' => Hash::make('password'),
@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
 
         // User karyawan
         User::firstOrCreate(
-            ['email' => 'karyawan@example.com'],
+            ['npk' => 'karyawan'],
             [
                 'name' => 'Karyawan Satu',
                 'password' => Hash::make('password'),
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
         
   // User karyawan
         User::firstOrCreate(
-            ['email' => 'sasa@example.com'],
+            ['npk' => 'sasa'],
             [
                 'name' => 'sasa',
                 'password' => Hash::make('password'),

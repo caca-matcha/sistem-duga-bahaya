@@ -37,8 +37,8 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <span
-                                        class="text-[11px] font-bold text-red-600/60 uppercase tracking-widest leading-none mb-1.5">Building
-                                        Area</span>
+                                        class="text-[11px] font-bold text-red-600/60 uppercase tracking-widest leading-none mb-1.5">Area
+                                        Gedung</span>
                                     <span class="text-[17px] font-black text-gray-900 uppercase tracking-tight leading-none">
                                         {{ $location->map?->name ?? 'TANPA MAPPING' }}
                                     </span>
@@ -60,7 +60,8 @@
             </td>
         </tr>
     @endif
-    <tr class="hover:bg-red-50/[0.03] transition-all group cursor-default" data-id="{{ $location->id }}"
+    <tr onclick="if(!event.target.closest('form') && !event.target.closest('a') && !event.target.closest('.drag-handle')) window.location='{{ route('she.locations.edit', $location) }}'"
+        class="hover:bg-red-50/[0.03] transition-all group cursor-pointer" data-id="{{ $location->id }}"
         data-map-id="{{ $location->map_id }}" x-show="openGroups.includes('{{ $location->map_id ?? 'null' }}')"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2"
         x-transition:enter-end="opacity-100 translate-y-0">

@@ -95,6 +95,11 @@ class HazardController extends Controller
 
                 'semua_html' => view('she.hazards._table_semua_rows', compact('hazardsSemua', 'search'))->render(),
                 'semua_pagination' => $hazardsSemua->links('vendor.pagination.custom')->toHtml(),
+
+                'count_menunggu_validasi' => $hazardsMenungguValidasi->total(),
+                'count_diproses' => $hazardsDiproses->total(),
+                'count_selesai' => $hazardsSelesai->total(),
+                'count_semua' => $hazardsSemua->total(),
             ]);
         }
 

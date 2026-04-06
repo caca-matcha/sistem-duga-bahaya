@@ -39,7 +39,7 @@ class HazardMapSeeder extends Seeder
         
         // Create SHE User (Dibutuhkan oleh HazardFactory)
         $sheUser = User::firstOrCreate(
-            ['email' => 'she@example.com'], // Attributes to check for existence
+            ['npk' => 'she_admin'], // Attributes to check for existence
             [ // Attributes to set if creating a new user
                 'name' => 'Safety Officer',
                 'password' => Hash::make('password'),

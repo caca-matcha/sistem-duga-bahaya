@@ -58,6 +58,18 @@ class DashboardController extends Controller
                 Carbon::parse($hazard->target_penyelesaian)->diffInDays(Carbon::now()) <= 3;
         });
 
-        return view('she.dashboard', compact('totalReports', 'validatedReports', 'processedReports', 'pendingReports', 'latestReports', 'riskCounts', 'topRiskLocations', 'hazardsPerluPerhatian', 'overdueHazards', 'dueSoonHazards'));
+        // Logic for "Distribusi Kategori STOP6" (Top 5)
+        $stop6Counts = Hazard::select('kategori_stop6', DB::raw('count(*) as count'))
+            ->whereNotNull('kategori_stop6')
+            ->groupBy('kategori_stop6')
+            ->orderByDesc('count')
+            ->take(5)
+            ->pluck('count', 'kategori_stop6');
+
+        return view('she.dashboard', compact(
+            'totalReports', 'validatedReports', 'processedReports', 'pendingReports', 
+            'latestReports', 'riskCounts', 'topRiskLocations', 'hazardsPerluPerhatian', 
+            'overdueHazards', 'dueSoonHazards', 'stop6Counts'
+        ));
     }
 }

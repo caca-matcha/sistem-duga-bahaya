@@ -145,7 +145,7 @@
                                         <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
                                             style="background-color: {{ getRiskColor($hazard->risk_score, $riskColors) }};
                                                     color: {{ getTextColor($hazard->risk_score) }};">
-                                            {{ $hazard->kategori_resiko) }}
+                                            {{ $hazard->kategori_resiko }}
                                         </span>
                                     </td>
                                     <td class="p-2 border text-center">

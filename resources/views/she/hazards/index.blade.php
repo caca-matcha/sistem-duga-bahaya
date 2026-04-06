@@ -49,7 +49,6 @@
                         const searchInput = document.getElementById('search_input');
                         const monthSelect = form.querySelector('select[name=\'month\']');
                         const yearSelect = form.querySelector('select[name=\'year\']');
-                        const statusSelect = form.querySelector('select[name=\'status\']');
                         const contentArea = document.getElementById('hazard-content-area');
 
                         let debounceTimer;
@@ -61,7 +60,6 @@
 
                         monthSelect.addEventListener('change', () => this.fetchResults());
                         yearSelect.addEventListener('change', () => this.fetchResults());
-                        statusSelect.addEventListener('change', () => this.fetchResults());
                         
                         // Delegated listener for pagination clicks
                         contentArea.addEventListener('click', (event) => {
@@ -93,8 +91,30 @@
                             document.getElementById('tbody-semua').innerHTML = response.data.semua_html;
                             document.getElementById('pagination-semua').innerHTML = response.data.semua_pagination;
 
+                            const updateBadge = (id, count) => {
+                                let badge = document.getElementById(id);
+                                if (badge) {
+                                    if (count > 0) {
+                                        badge.innerText = count;
+                                        badge.style.display = 'inline-block';
+                                    } else {
+                                        badge.style.display = 'none';
+                                    }
+                                }
+                            };
+
+                            updateBadge('badge-baru', response.data.count_menunggu_validasi);
+                            updateBadge('badge-diproses', response.data.count_diproses);
+                            updateBadge('badge-selesai', response.data.count_selesai);
+                            updateBadge('badge-semua', response.data.count_semua);
+
                             window.history.pushState({}, '', fetchUrl);
                             this.selectedHazards = []; 
+                            
+                            // Scroll back to table top if it's a pagination click
+                            if (url) {
+                                document.getElementById('hazard-content-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
                         })
                         .catch(error => {
                             console.error('Error fetching filtered results:', error);
@@ -174,6 +194,7 @@
                                 <div class="h-4 w-px bg-gray-300"></div>
                                 <select name="year"
                                     class="bg-transparent border-none text-xs font-medium focus:ring-0 cursor-pointer rounded-lg hover:bg-white transition-all px-2 pr-7 py-1.5">
+                                    <option value="">Tahun</option>
                                     @foreach (range(\Carbon\Carbon::now()->year, \Carbon\Carbon::now()->year - 2) as $year)
                                         <option value="{{ $year }}" @selected(request('year') == $year)>{{ $year }}
                                         </option>
@@ -252,12 +273,11 @@
                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                             Semua Laporan
-                            @if ($hazardsSemua->total() > 0)
-                                <span
-                                    class="ml-2 bg-purple-100 text-purple-600 py-0.5 px-2.5 rounded-full text-[11px] font-black">
-                                    {{ $hazardsSemua->total() }}
-                                </span>
-                            @endif
+                            <span id="badge-semua"
+                                class="ml-2 bg-purple-100 text-purple-600 py-0.5 px-2.5 rounded-full text-[11px] font-black"
+                                style="display: {{ $hazardsSemua->total() > 0 ? 'inline-block' : 'none' }}">
+                                {{ $hazardsSemua->total() }}
+                            </span>
                         </button>
 
                         {{-- Tab Baru --}}
@@ -272,12 +292,11 @@
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             Laporan Baru
-                            @if ($hazardsMenungguValidasi->total() > 0)
-                                <span
-                                    class="ml-2 bg-indigo-100 text-indigo-600 py-0.5 px-2.5 rounded-full text-[11px] font-black">
-                                    {{ $hazardsMenungguValidasi->total() }}
-                                </span>
-                            @endif
+                            <span id="badge-baru"
+                                class="ml-2 bg-indigo-100 text-indigo-600 py-0.5 px-2.5 rounded-full text-[11px] font-black"
+                                style="display: {{ $hazardsMenungguValidasi->total() > 0 ? 'inline-block' : 'none' }}">
+                                {{ $hazardsMenungguValidasi->total() }}
+                            </span>
                         </button>
 
                         {{-- Tab Diproses --}}
@@ -292,11 +311,10 @@
                                     d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                             </svg>
                             Sedang Diproses
-                            @if ($hazardsDiproses->total() > 0)
-                                <span class="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-[9px] font-black">
-                                    {{ $hazardsDiproses->total() }}
-                                </span>
-                            @endif
+                            <span id="badge-diproses" class="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-[9px] font-black"
+                                style="display: {{ $hazardsDiproses->total() > 0 ? 'inline-block' : 'none' }}">
+                                {{ $hazardsDiproses->total() }}
+                            </span>
                         </button>
 
                         {{-- Tab Selesai --}}
@@ -311,12 +329,11 @@
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Riwayat / Selesai
-                            @if ($hazardsSelesai->total() > 0)
-                                <span
-                                    class="ml-2 bg-green-100 text-green-600 py-0.5 px-2.5 rounded-full text-[11px] font-black">
-                                    {{ $hazardsSelesai->total() }}
-                                </span>
-                            @endif
+                            <span id="badge-selesai"
+                                class="ml-2 bg-green-100 text-green-600 py-0.5 px-2.5 rounded-full text-[11px] font-black"
+                                style="display: {{ $hazardsSelesai->total() > 0 ? 'inline-block' : 'none' }}">
+                                {{ $hazardsSelesai->total() }}
+                            </span>
                         </button>
                     </nav>
                 </div>
@@ -380,9 +397,7 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Risiko</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Aksi</th>
+
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-semua" class="bg-white divide-y divide-gray-200">
@@ -391,7 +406,7 @@
                                 </table>
                             </div>
                             <div id="pagination-semua">
-                                {{ $hazardsSemua->links('vendor.pagination.custom') }}
+                                {{ $hazardsSemua->fragment('hazard-content-area')->links('vendor.pagination.custom') }}
                             </div>
                         </div>
 
@@ -435,9 +450,7 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Risiko</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Aksi</th>
+
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-baru" class="bg-white divide-y divide-gray-200">
@@ -446,7 +459,7 @@
                                 </table>
                             </div>
                             <div id="pagination-baru">
-                                {{ $hazardsMenungguValidasi->links('vendor.pagination.custom') }}
+                                {{ $hazardsMenungguValidasi->fragment('hazard-content-area')->links('vendor.pagination.custom') }}
                             </div>
                         </div>
 
@@ -495,9 +508,6 @@
                                             <th
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Risiko</th>
-                                            <th
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-diproses" class="bg-white divide-y divide-gray-200">
@@ -506,7 +516,7 @@
                                 </table>
                             </div>
                             <div id="pagination-diproses">
-                                {{ $hazardsDiproses->links('vendor.pagination.custom') }}
+                                {{ $hazardsDiproses->fragment('hazard-content-area')->links('vendor.pagination.custom') }}
                             </div>
                         </div>
 
@@ -535,28 +545,28 @@
                                                 </th>
                                             </template>
                                             <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 ID & Tanggal</th>
                                             <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 NPK</th>
                                             <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Pelapor</th>
                                             <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Deskripsi Bahaya</th>
                                             <th
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Risiko (B/A)</th>
                                             <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status Akhir</th>
                                             <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Waktu Penyelesaian</th>
                                             <th
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Aksi</th>
                                         </tr>
                                     </thead>
@@ -566,7 +576,7 @@
                                 </table>
                             </div>
                             <div id="pagination-selesai">
-                                {{ $hazardsSelesai->links('vendor.pagination.custom') }}
+                                {{ $hazardsSelesai->fragment('hazard-content-area')->links('vendor.pagination.custom') }}
                             </div>
 
                         </div>

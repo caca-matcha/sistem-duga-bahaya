@@ -212,46 +212,6 @@
                     <span x-show="!sidebarMinimized" class="text-[13px] whitespace-nowrap">Kelola User</span>
                 </a>
 
-                {{-- ================= ROLE: SUPERVISOR ================= --}}
-            @elseif(strtolower(Auth::user()->role) == 'supervisor')
-                <p x-show="!sidebarMinimized"
-                    class="px-3 text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-2 mt-2">Menu</p>
-                <div x-show="sidebarMinimized" class="h-4"></div>
-
-                {{-- Peta Risiko --}}
-                <a href="{{ route('supervisor.maps.index') }}" @click="sidebarOpen = false"
-                    class="{{ $linkCommon }} {{ request()->routeIs('supervisor.maps.*') ? $linkActive : $linkInactive }}"
-                    :class="sidebarMinimized ? 'justify-center mx-auto' : 'px-2'"
-                    :title="sidebarMinimized ? 'Peta Risiko Gedung' : ''">
-
-                    <div class="{{ $iconBoxCommon }} {{ request()->routeIs('supervisor.maps.*') ? $iconBoxActive : $iconBoxInactive }}"
-                        :class="sidebarMinimized ? '' : 'mr-3'">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 6.75V15m6-6v8.25m.75 3.3-5.625-2.25L5.25 17.25V6.75L10.125 4.5l5.625 2.25L20.625 4.5V15l-4.875 2.25z" />
-                        </svg>
-                    </div>
-
-                    <span x-show="!sidebarMinimized" class="text-[13px] whitespace-nowrap">Peta Risiko Gedung</span>
-                </a>
-
-                {{-- Laporan --}}
-                <a href="#" @click="sidebarOpen = false"
-                    class="{{ $linkCommon }} {{ request()->routeIs('supervisor.reports.*') ? $linkActive : $linkInactive }}"
-                    :class="sidebarMinimized ? 'justify-center mx-auto' : 'px-2'"
-                    :title="sidebarMinimized ? 'Laporan' : ''">
-
-                    <div class="{{ $iconBoxCommon }} {{ request()->routeIs('supervisor.reports.*') ? $iconBoxActive : $iconBoxInactive }}"
-                        :class="sidebarMinimized ? '' : 'mr-3'">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-                        </svg>
-                    </div>
-
-                    <span x-show="!sidebarMinimized" class="text-[13px] whitespace-nowrap">Laporan</span>
-                </a>
-
                 {{-- ================= ROLE: KARYAWAN / MAGANG ================= --}}
             @elseif(in_array(strtolower(Auth::user()->role), ['karyawan', 'magang']))
                 <p x-show="!sidebarMinimized"
@@ -315,8 +275,8 @@
         <!-- USER PROFILE SECTION (Sticky Bottom) -->
         <div x-bind:class="sidebarMinimized ? 'p-2' : 'p-3'"
             class="absolute bottom-0 left-0 w-full border-t border-gray-200 bg-gray-50 transition-all duration-500 overflow-hidden shrink-0">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center min-w-0" :class="sidebarMinimized ? 'mx-auto' : ''">
+            <div class="flex items-center justify-between" :class="sidebarMinimized ? 'flex-col gap-2' : ''">
+                <div class="flex items-center min-w-0">
                     <div class="flex-shrink-0">
                         <div
                             class="h-9 w-9 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-base border-2 border-white shadow-sm ring-1 ring-red-50 transition-all duration-500">
@@ -331,8 +291,7 @@
                 </div>
 
                 <!-- Logout Button -->
-                <div x-show="!sidebarMinimized" x-cloak x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100">
+                <div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" onclick="event.preventDefault(); this.closest('form').submit();"

@@ -68,6 +68,12 @@
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+<<<<<<< HEAD
+=======
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+>>>>>>> f893893 (Update Hazard Dashboard with STOP6 analysis and User Management improvements)
                             <div>
                                 <label for="position"
                                     class="block text-sm font-semibold text-gray-700 mb-1">Position</label>

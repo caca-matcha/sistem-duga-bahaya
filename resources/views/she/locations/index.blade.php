@@ -31,7 +31,7 @@
             <!-- Dynamic Controls & Filters -->
 
             <!-- Main Content Card -->
-            <div class="bg-white shadow-sm rounded-2xl border border-gray-200 overflow-hidden" x-data="{ 
+            <div id="master-lokasi" class="bg-white shadow-sm rounded-2xl border border-gray-200 overflow-hidden" x-data="{ 
                     openGroups: @js($locations->pluck('map_id')->unique()->map(fn($id) => (string) ($id ?? 'null'))->values()),
                     toggleGroup(id) {
                         id = String(id);
@@ -84,9 +84,9 @@
                         </div>
 
                         <!-- Import/Export/Guide Buttons -->
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex flex-nowrap items-center justify-end gap-2 overflow-x-auto pb-1 sm:pb-0">
                             <button onclick="document.getElementById('guideModal').classList.remove('hidden')"
-                                class="inline-flex items-center px-3 md:px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl font-bold text-sm text-gray-700 hover:bg-gray-200 focus:ring-4 focus:ring-gray-100 transition-all duration-200"
+                                class="inline-flex items-center px-3 py-2 bg-gray-100 border border-gray-200 rounded-xl font-bold text-sm text-gray-700 hover:bg-gray-200 focus:ring-4 focus:ring-gray-100 transition-all duration-200 whitespace-nowrap"
                                 title="Panduan Penggunaan">
                                 <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
                                 <span class="hidden sm:inline">Panduan</span>
                             </button>
                             <button onclick="document.getElementById('importModal').classList.remove('hidden')"
-                                class="inline-flex items-center px-3 md:px-4 py-2.5 bg-green-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-green-200 hover:bg-green-700 focus:ring-4 focus:ring-green-100 transition-all duration-200">
+                                class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-green-200 hover:bg-green-700 focus:ring-4 focus:ring-green-100 transition-all duration-200 whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -104,7 +104,7 @@
                                 <span class="hidden sm:inline">Import</span>
                             </button>
                             <a href="{{ route('she.locations.export') }}"
-                                class="inline-flex items-center px-3 md:px-4 py-2.5 bg-blue-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-blue-200 hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-all duration-200">
+                                class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-blue-200 hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-all duration-200 whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
@@ -112,7 +112,7 @@
                                 <span class="hidden sm:inline">Export</span>
                             </a>
                             <a href="{{ route('she.locations.create') }}"
-                                class="inline-flex items-center px-3 md:px-4 py-2.5 bg-red-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-red-200 hover:bg-red-700 focus:ring-4 focus:ring-red-100 transition-all duration-200">
+                                class="inline-flex items-center px-3 py-2 bg-red-600 border border-transparent rounded-xl font-bold text-sm text-white shadow-lg shadow-red-200 hover:bg-red-700 focus:ring-4 focus:ring-red-100 transition-all duration-200 whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4v16m8-8H4" />
@@ -156,7 +156,7 @@
                 <!-- Simple Pagination Styling Proxy (Jika ada) -->
                 @if(method_exists($locations, 'links'))
                     <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
-                        {{ $locations->links() }}
+                        {{ $locations->fragment('master-lokasi')->links() }}
                     </div>
                 @endif
             </div>

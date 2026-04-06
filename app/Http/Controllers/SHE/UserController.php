@@ -109,10 +109,9 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'npk' => ['required', 'string', 'max:255', 'unique:'.User::class],
             'position' => ['nullable', 'string', 'max:255'],
-            'role' => ['required', 'string', 'in:karyawan,she,supervisor'],
+            'role' => ['required', 'string', 'in:karyawan,she'],
         ]);
 
         $user = User::create([
@@ -160,7 +159,7 @@ class UserController extends Controller
             'organization_unit' => ['nullable', 'string', 'max:255'],
             'job_family' => ['nullable', 'string', 'max:255'],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'in:karyawan,she,supervisor'],
+            'role' => ['required', 'string', 'in:karyawan,she'],
         ]);
 
         $updateData = [
@@ -270,6 +269,7 @@ class UserController extends Controller
                     $userData['npk'] = $npk;
                     $userData['password'] = Hash::make($npk);
                     $userData['role'] = ($roleFromJson && in_array($roleFromJson, $allowedRoles)) ? $roleFromJson : 'karyawan';
+                    // No email in JSON
                     User::create($userData);
                     $count++;
                 }

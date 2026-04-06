@@ -57,6 +57,7 @@ Route::middleware(['auth', 'role:she'])
 
         // HAZARD ROUTES
         Route::get('hazards', [SHEHazardController::class, 'index'])->name('hazards.index');
+        Route::get('hazards/needs-follow-up', [SHEHazardController::class, 'needsFollowUpReports'])->name('hazards.needs-follow-up');
         Route::get('hazards/export-excel-bulk', [SHEHazardController::class, 'exportExcelBulk'])->name('hazards.exportExcelBulk');
         Route::get('hazards/{hazard}', [SHEHazardController::class, 'show'])->name('hazards.show');
 
@@ -96,7 +97,6 @@ Route::middleware(['auth', 'role:she'])
         // ROUTE UTAMA UPDATE STATUS: Menangani semua status update (POST/PUT)
         Route::put('hazards/{hazard}/update-status', [SHEHazardController::class, 'updateStatus'])->name('hazards.updateStatus');
         Route::delete('hazards/{hazard}', [SHEHazardController::class, 'destroy'])->name('hazards.destroy');
-        Route::get('hazards/needs-follow-up', [SHEHazardController::class, 'needsFollowUpReports'])->name('hazards.needs-follow-up');
         Route::get('hazards/export-excel-bulk', [SHEHazardController::class, 'exportExcelBulk'])->name('hazards.exportExcelBulk');
 
         // Kelola Peta

@@ -7,7 +7,7 @@
 @endphp
 
 @forelse ($hazardsDiproses as $hazard)
-    <tr class="hover:bg-gray-50" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
+    <tr onclick="if(event.target.type !== 'checkbox') window.location='{{ route('she.hazards.show', $hazard) }}'" class="hover:bg-gray-100 transition-colors cursor-pointer" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
         <template x-if="selectionMode">
             <td class="p-4">
                 <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}"
@@ -63,14 +63,10 @@
                 </span>
             </div>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a href="{{ route('she.hazards.show', $hazard) }}"
-                class="text-indigo-600 hover:text-indigo-900 font-semibold transition-colors">Lihat Detail</a>
-        </td>
     </tr>
 @empty
     <tr>
-        <td colspan="8" class="px-6 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 9 : 8">
+        <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 8 : 7">
             Tidak ada laporan yang sedang diproses.
         </td>
     </tr>

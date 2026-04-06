@@ -1,54 +1,10 @@
-# Symfony\Component\ErrorHandler\Error\FatalError - Internal Server Error
-
-Maximum execution time of 60 seconds exceeded
-
-PHP 8.2.4
-Laravel 12.49.0
-127.0.0.1:8000
-
-## Stack Trace
-
-0 - vendor\composer\ClassLoader.php:429
-
-## Request
-
-POST /login
-
-## Headers
-
-* **host**: 127.0.0.1:8000
-* **connection**: keep-alive
-* **content-length**: 78
-* **cache-control**: max-age=0
-* **sec-ch-ua**: "Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"
-* **sec-ch-ua-mobile**: ?0
-* **sec-ch-ua-platform**: "Windows"
-* **origin**: http://127.0.0.1:8000
-* **content-type**: application/x-www-form-urlencoded
-* **upgrade-insecure-requests**: 1
-* **user-agent**: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36
-* **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-* **sec-fetch-site**: same-origin
-* **sec-fetch-mode**: navigate
-* **sec-fetch-user**: ?1
-* **sec-fetch-dest**: document
-* **referer**: http://127.0.0.1:8000/login
-* **accept-encoding**: gzip, deflate, br, zstd
-* **accept-language**: en-US,en;q=0.9,id;q=0.8
-* **cookie**: XSRF-TOKEN=eyJpdiI6IkJKUFl6WUp1a1MwQWY2WmZ4ejFPMUE9PSIsInZhbHVlIjoiZTQyTyt5ZkloNUZzTU1YWTJKb2U2KytKNjZiTkU2Q2dGZ3hmL3YydVRqTmV3T0tzT2FxM1ZUM09Cc25ZZ3I3VU9WQ3NUeDRla0V6RlJxZGZWTFlqK2d3MGRrNnVkUTFjSTdVNk1IcXJoYW1iSFY4bjM1R3pCb05FTWVKaEdJN0UiLCJtYWMiOiI4ZTMyNTVhODkxYTE5NDZkMTUyYTcwOTM4MGRiMWY0Yzc4OTJiMjYxMzU3ZWEwOTRjNzEwMmYzOTA5OTRkYTc4IiwidGFnIjoiIn0%3D; siduba-session=eyJpdiI6IjJpVmNnY2dNMjF2amZTRmkvSktpRkE9PSIsInZhbHVlIjoicVFUT2hQRitmUi9XUVd3SnQ5VjI3TDdKMmZXQ2s5N0RsY2VUUTZRT21UZkw0aGd5cGFpTit5Tjh0Uk9MRnhpaUhUOGZlZGxmaHVvaVpwVUZQb2lRKzJtd3kvdXdpQ042Yi81K0FkU1dvN3MvWDlKWVlEZ3Y4Nk1uVDQxMkNQTGoiLCJtYWMiOiI1NGFkOWU5ZGYyNDU4MDY5MmJmNDUzZjAwNWIzMmJkZGU4MjY3MTE5NmUyZGIwYmFmZDdmY2Y5OGM1NjViNGQ5IiwidGFnIjoiIn0%3D
-
-## Route Context
-
-controller: App\Http\Controllers\Auth\AuthenticatedSessionController@store
-middleware: web, guest
-
-## Route Parameters
-
-No route parameter data available.
-
-## Database Queries
-
-* mysql - select * from `sessions` where `id` = '9T8tAs0FVIpNbT6HsIpKntQUzQwC9QwFNOica88b' limit 1 (330.29 ms)
-* mysql - select * from `cache` where `key` in ('siduba-cache-11230156|127.0.0.1') (42.22 ms)
-* mysql - select * from `users` where `npk` = '11230156' limit 1 (36.06 ms)
-* mysql - delete from `sessions` where `id` = '9T8tAs0FVIpNbT6HsIpKntQUzQwC9QwFNOica88b' (58.15 ms)
+PS D:\laragon\www\DugaBahaya> git remote add origin https://github.com/caca-matcha/sistem-duga-bahaya.git
+git : The term 'git' is not recognized as the name of a cmdlet, function, script 
+file, or operable program. Check the spelling of the name, or if a path was 
+included, verify that the path is correct and try again.
+At line:1 char:1
++ git remote add origin https://github.com/caca-matcha/sistem-duga-baha ...
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (git:String) [], CommandNotFoundExc 
+   eption
+    + FullyQualifiedErrorId : CommandNotFoundException

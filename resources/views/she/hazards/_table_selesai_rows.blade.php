@@ -7,30 +7,30 @@
 @endphp
 
 @forelse ($hazardsSelesai as $hazard)
-    <tr class="hover:bg-gray-50" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
+    <tr onclick="if(!event.target.closest('form') && event.target.type !== 'checkbox') window.location='{{ route('she.hazards.show', $hazard) }}'" class="hover:bg-gray-100 transition-colors cursor-pointer" :class="{'bg-indigo-50': selectedHazards.includes({{ $hazard->id }})}">
         <template x-if="selectionMode">
             <td class="p-4">
                 <input type="checkbox" x-model="selectedHazards" value="{{ $hazard->id }}"
                     class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
             </td>
         </template>
-        <td class="px-6 py-4 whitespace-nowrap">
+        <td class="px-3 py-4 whitespace-nowrap">
             <div class="text-sm font-bold text-indigo-600">#{!! $highlight($hazard->id, $search ?? '') !!}</div>
             <div class="text-xs text-gray-500">{{ $hazard->tgl_observasi->translatedFormat('d M Y') }}</div>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
             {!! $highlight($hazard->NPK ?? ($hazard->pelapor->npk ?? '-'), $search ?? '') !!}</td>
-        <td class="px-6 py-4 whitespace-nowrap">
+        <td class="px-3 py-4 whitespace-nowrap">
             <div class="text-sm font-bold text-gray-900">
                 {!! $highlight($hazard->nama ?? ($hazard->pelapor->name ?? 'N/A'), $search ?? '') !!}
             </div>
             <div class="text-xs text-gray-500 mt-0.5">{{ $hazard->pelapor->department ?? '-' }}</div>
         </td>
-        <td class="px-6 py-4">
+        <td class="px-3 py-4">
             <div class="text-sm text-gray-900 line-clamp-2 max-w-xs">
                 {!! $highlight($hazard->deskripsi_bahaya ?? '-', $search ?? '') !!}</div>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">
+        <td class="px-3 py-4 whitespace-nowrap text-center">
             <div class="flex items-center justify-center gap-2">
                 @php
                     $initialRisk = ($hazard->tingkat_keparahan ?? 0) * ($hazard->kemungkinan_terjadi ?? 0);
@@ -57,7 +57,7 @@
                 </span>
             </div>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap">
+        <td class="px-3 py-4 whitespace-nowrap">
             @if($hazard->status == 'selesai')
                 <span
                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
@@ -76,20 +76,12 @@
                 </span>
             @endif
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {{ $hazard->ditangani_pada ? \Carbon\Carbon::parse($hazard->ditangani_pada)->translatedFormat('d M Y') : '-' }}
+        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{ $hazard->ditangani_pada ? \Carbon\Carbon::parse($hazard->ditangani_pada)->locale('id')->translatedFormat('d M Y') : '-' }}
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
             <div class="flex items-center justify-end space-x-2">
-                <a href="{{ route('she.hazards.show', $hazard) }}"
-                    class="text-gray-400 hover:text-indigo-600 transition-colors" title="Lihat Detail">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                </a>
+
                 <form action="{{ route('she.hazards.destroy', $hazard) }}" method="POST"
                     onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini secara permanen?');">
                     @csrf
@@ -106,7 +98,7 @@
     </tr>
 @empty
     <tr>
-        <td colspan="8" class="px-6 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 9 : 8">
+        <td colspan="8" class="px-3 py-10 text-center text-sm text-gray-500 italic" x-bind:colspan="selectionMode ? 9 : 8">
             Belum ada riwayat laporan selesai.
         </td>
     </tr>
