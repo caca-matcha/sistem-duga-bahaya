@@ -1,106 +1,105 @@
-# Manual Book: SIDUBA (Sistem Duga Bahaya)
+# ⚠️ SIDUBA - Sistem Duga Bahaya (Hazard Report System)
 
-Selamat datang di **SIDUBA (Sistem Duga Bahaya)**. Sistem ini dirancang untuk mempermudah pelaporan, pemantauan, dan penyelesaian temuan bahaya (hazard) di lingkungan kerja demi menciptakan lingkungan kerja yang aman dan sehat.
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Production--Ready-success?style=for-the-badge)
 
-Panduan ini ditujukan bagi dua aktor utama dalam sistem:
-1. **Karyawan / Magang** (Sebagai Pelapor & PIC Tindak Lanjut)
-2. **Tim SHE (Safety, Health, and Environment)** (Sebagai Validator & Administrator)
-
----
-
-## 1. Panduan untuk Karyawan / Magang
-
-Sebagai Karyawan/Magang, Anda berperan sebagai pelapor langsung jika menemukan bahaya di lapangan, dan juga dapat bertindak sebagai PIC (Person In Charge) untuk menyelesaikan suatu temuan bahaya.
-
-### A. Login ke Sistem
-1. Buka tautan aplikasi SIDUBA di browser Anda.
-2. Masukkan **Email** dan **Password** yang telah didaftarkan.
-3. Klik tombol **Login**. Anda akan otomatis diarahkan ke Dashboard Karyawan.
-
-### B. Dashboard Karyawan
-Pada halaman utama (Dashboard), Anda dapat melihat statistik laporan Anda:
-- Jumlah laporan yang Anda buat.
-- Status laporan (Ditinjau, Diproses, Selesai, Ditolak).
-- Notifikasi terbaru terkait pembaruan status laporan Anda.
-
-### C. Membuat Laporan Duga Bahaya Baru
-Jika Anda menemukan potensi bahaya di lokasi kerja:
-1. Klik menu **Lapor Bahaya** (`Lapor Duga Bahaya / Create`).
-2. Isi formulir yang disediakan:
-   - **Judul/Deskripsi Bahaya**: Jelaskan bahaya yang Anda temukan secara spesifik.
-   - **Potensi Risiko**: Risiko apa yang dapat terjadi (misalnya: terpeleset, kebakaran, dll).
-   - **Lokasi Utama (Gedung/Area)**: Pilih gedung atau area kejadian (mis: Gedung A, Pabrik B).
-   - **Titik Lokasi Detail (Grid/Peta)**: Tentukan titik lokasi spesifik berdasarkan peta.
-   - **Foto Bukti**: Unggah foto kondisi bahaya.
-3. Klik **Simpan/Kirim Laporan**. Laporan Anda akan masuk dalam status **Menunggu Validasi** oleh SHE.
-
-### D. Memantau Riwayat Laporan
-1. Masuk ke menu **Daftar Laporan Saya** (`Riwayat Laporan`).
-2. Di sini Anda bisa melihat semua laporan yang pernah Anda buat statusnya saat ini.
-3. Klik detail pada salah satu laporan untuk melihat riwayat tindak lanjut atau alasan penolakan (jika ditolak).
-
-### E. Melakukan Tindak Lanjut (Jika Ditunjuk sebagai PIC)
-Jika tim SHE menugaskan Anda sebagai PIC penyelesaian masalah:
-1. Anda akan mendapat instruksi melalui notifikasi/sistem.
-2. Buka detail laporan tersebut.
-3. Setelah Anda melakukan tindakan perbaikan, isi **Form Tindak Lanjut**:
-   - Jelaskan langkah penyelesaian yang sudah dilakukan.
-   - Unggah **Foto Setelah Perbaikan**.
-4. Ajukan kembali agar divalidasi dan ditutup (Selesai) oleh tim SHE.
-
-### F. Melihat Peta Bahaya (Hazard Mapping)
-1. Buka menu **Peta Bahaya**.
-2. Anda dapat melihat denah perusahaan/gedung lengkap dengan titik-titik (grid) bahaya yang dilaporkan atau area yang berisiko tinggi saat ini.
+Welcome to **SIDUBA (Sistem Duga Bahaya)**. This is a comprehensive, digital Health, Safety, and Environment (HSE/K3) platform designed to streamline the reporting, tracking, and resolution of workplace hazards in real-time, ensuring a safer work environment for everyone.
 
 ---
 
-## 2. Panduan untuk Tim SHE (Administrator)
+## ✨ Key Features
 
-Tim SHE memiliki tanggung jawab penuh untuk memvalidasi, menugaskan PIC, dan mengelola master data pada sistem SIDUBA.
+### 🚀 Smart Hazard Reporting (Karyawan)
+Experience a seamless reporting flow directly from the field:
+- **Instant Reporting**: Employees can report hazards with specific details, risk categories, and priority levels.
+- **Photo Evidence**: Upload *Before* photos as clear evidence of the hazard.
+- **Precision Mapping**: Select specific building locations, areas, and grid cells.
 
-### A. Dashboard SHE
-Pada dashboard, tim SHE akan disuguhkan:
-- Statistik total Duga Bahaya masuk, selesai, dan yang masih berstatus terbuka (open).
-- Grafik pelaporan berdasarkan kategori atau periode.
-- Akses cepat ke pelaporan yang **Butuh Tindak Lanjut Cepat**.
+### 🛡️ SHE Control Dashboard (Admin)
+A high-end administrative hub for the Safety, Health, and Environment (SHE) Team:
+- **Real-time Analytics**: Interactive statistics monitoring open, processing, and completed hazards.
+- **Gatekeeping & Validation**: SHE admins can approve, reject, or assign reports directly to PICs.
+- **Export to Excel**: Generate comprehensive hazard recap reports with a single click.
 
-### B. Validasi & Manajemen Laporan Duga Bahaya
-Setiap laporan dari karyawan akan masuk ke menu **Manajemen Hazard**. Tim SHE harus memprosesnya dengan alur berikut:
+### 👥 Follow-up & Resolution Workflow
+- **PIC Assignment**: Direct assignment to responsible leaders or departments.
+- **Flexible Due Dates**: PICs can set realistic target completion dates (target_penyelesaian) based on field conditions.
+- **Proof of Resolution**: PICs must submit *After* photos and action logs to request case closure.
 
-1. **Laporan Masuk (Menunggu Validasi)**
-   - Buka menu `Laporan -> Hazards`.
-   - Pilih laporan dengan status *Menunggu Validasi*.
-   - **Validasi Teruskan ke PIC**: Jika laporan valid, tim SHE dapat membuat **Rencana Tindakan** dan menugaskan PIC terkait (`Karyawan tertentu atau Departemen`). Status berubah menjadi **Diproses**.
-   - **Validasi Langsung (Tanpa Tindak Lanjut)**: Jika bahaya sangat minor dan langsung diselesaikan oleh pelapor / tim yang nemu saat itu juga.
-   - **Tolak (Reject)**: Jika laporan tidak valid, tidak masuk akal, atau duplikat. Tim SHE wajib mengisi alasan penolakan.
-
-2. **Memantau Laporan Diproses**
-   - PIC akan melaporkan foto perbaikan (After) setelah tugas selesai.
-   - Tim SHE memverifikasi foto bukti perbaikan tersebut.
-   - Jika sudah sesuai, tim SHE dapat mengubah status menjadi **Selesai**.
-
-### C. Manajemen Peta dan Lokasi (Mapping)
-1. **Master Denah/Peta (`Maps`)**: Tim SHE dapat mengunggah file gambar denah gedung.
-2. **Konfigurasi Grid**: Peta dapat dibagi dalam beberapa area/grid yang bisa diatur risiko atau ketersediaan aksesnya.
-3. **Master Lokasi (`Locations`)**: Tim SHE dapat menambah, mengedit, Import Bulk Excel, atau Export data lokasi spesifik (misal: "Toilet Lantai 1", "Mesin Boiler").
-
-### D. Export Laporan ke Excel
-Kapan daja tim SHE membutuhkan report untuk manajemen:
-1. Masuk ke halaman **Hazards**.
-2. Tersedia fitur **Export Excel Bulk** untuk mengunduh semua data Duga Bahaya (termasuk status, lokasi, tanggal, dan PIC) dalam bentuk Sheet yang siap direkapitulasi.
-
-### E. Manajemen Data Perusahaan & Karyawan
-1. **Evaluasi SHE / Company Data**: Mengelola parameter SHE (Kecelakaan kerja, jam kerja aman, dll.) sebagai dashboard manajemen.
-2. **Kelola User (Karyawan & Magang)**:
-   - Tambah user individu atau Import User sekaligus.
-   - Penyesuaian Role (Memberi akses SHE kepada user tertentu bila dibutuhkan, atau sebaliknya).
-   
----
-
-### Tips dan Catatan Penting
-- **Validasi Segera**: Tim SHE dianjurkan untuk rutin mengecek menu "Need Follow-Up" agar setiap potensi hazard tidak berlarut-larut.
-- **Kualitas Foto**: Karyawan dimohon mengunggah foto yang jelas agar tim SHE dapat menganalisis bahaya dengan akurat.
-- **Notifikasi**: Selalu cek lonceng sistem (Notifikasi) untuk mengetahui update secara real-time.
+### 🗺️ Master Data & Hazard Mapping
+- **Location Mapping**: Upload blueprints/maps and configure interactive grid cells (Grid Editor).
+- **Dynamic Master Data**: Built-in CMS for managing Users, Locations, and HSE Company Parameters.
+- **Bulk Import**: Seamlessly import User and Location data via Excel templates.
 
 ---
-*Manual Book Update: April 2026*
+
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | [Laravel 11](https://laravel.com) |
+| **UI Engine** | [Tailwind CSS](https://tailwindcss.com) (Custom Corporate Theme) |
+| **Database** | MySQL / MariaDB |
+| **Assets Bundler**| Vite / PostCSS |
+| **Testing** | Pest PHP |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- PHP 8.2+
+- Composer
+- Node.js & NPM
+- MySQL / MariaDB
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/caca-matcha/sistem-duga-bahaya.git
+   cd sistem-duga-bahaya
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Database Configuration**
+   Configure your database credentials in the `.env` file.
+
+5. **Run Migrations**
+   ```bash
+   php artisan migrate --seed
+   ```
+
+6. **Serve the Application**
+   ```bash
+   npm run dev
+   # In another terminal:
+   php artisan serve
+   ```
+
+---
+
+## 📸 Visuals
+> [!NOTE]
+> SIDUBA incorporates a clean, responsive, and intuitive User Interface tailored for quick mobile reporting on the field and high-density data management on desktop dashboards.
+
+---
+
+## 🛡️ License
+This project is proprietary and developed as a comprehensive safety management solution. All rights reserved.
+
+---
+Developed with ❤️ for a Safer Workplace.
